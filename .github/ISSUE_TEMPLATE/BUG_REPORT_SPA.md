@@ -1,16 +1,16 @@
 ---
-name: 🐛 Bug Report - SPA
+name: 🐛 Reporte de Problema - SPA
 about: Crear un reporte para que quede registrado para el equipo.
 ---
 
 <!--
 Antes de comenzar, verifica que el reporte es entendible y reproducible.
-Para que el reporte sea entendible, usa una sintáxis de Markdown correcta.
+Para que el reporte sea entendible, usa una sintaxis de Markdown correcta.
 
 https://guides.github.com/features/mastering-markdown/
 -->
 
-## Bug report
+## Reporte de Problema
 
 ### Describe el problema
 
