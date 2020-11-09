@@ -6,16 +6,16 @@ using namespace System::Runtime::CompilerServices;
 using namespace System::Runtime::InteropServices;
 using namespace System::Security::Permissions;
 
-[assembly:AssemblyTitleAttribute(L"ZionEscape")];
+[assembly:AssemblyTitleAttribute(L"Zion Escape")];
 [assembly:AssemblyDescriptionAttribute(L"")];
 [assembly:AssemblyConfigurationAttribute(L"")];
 [assembly:AssemblyCompanyAttribute(L"")];
-[assembly:AssemblyProductAttribute(L"ZionEscape")];
-[assembly:AssemblyCopyrightAttribute(L"Copyright (c)  2020")];
+[assembly:AssemblyProductAttribute(L"Zion Escape")];
+[assembly:AssemblyCopyrightAttribute(L"GNU General Public License v3.0")];
 [assembly:AssemblyTrademarkAttribute(L"")];
 [assembly:AssemblyCultureAttribute(L"")];
 
-[assembly:AssemblyVersionAttribute("1.0.*")];
+[assembly:AssemblyVersionAttribute("1.0.0")];
 
 [assembly:ComVisible(false)];
 
