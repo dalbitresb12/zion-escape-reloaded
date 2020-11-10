@@ -5,13 +5,23 @@ using namespace System::Drawing;
 ref class Sprite {
   Bitmap^ image;
   short col, row, nCols, nRows;
+  bool animatable;
+protected:
   Rectangle drawingArea;
 public:
+  Sprite(short nCols, short nRows, bool animatable) {
+    this->nCols = nCols;
+    this->nRows = nRows;
+    this->animatable = animatable;
+  }
   void SetPosition(Point point) {
     this->drawingArea.Location = point;
   }
   Point GetPosition() {
     return drawingArea.Location;
+  }
+  bool GetAnimatable() {
+    return animatable;
   }
   void SetCol(short index) {
     this->col = index;
@@ -21,7 +31,7 @@ public:
   }
   void Draw(Graphics^ world) {
     world->DrawImage(image, this->drawingArea, this->GetCrop(), GraphicsUnit::Pixel);
-    //Se debe controlar en cuáles casos animar el Sprite. Tanto por si está en movimiento o por si se trata de algún Obstáculo.
+    if (!this->animatable) return;
     this->col = (this->col + 1) % nCols;
   }
   Rectangle GetCrop() {
@@ -32,5 +42,4 @@ public:
 
     return Rectangle(x, y, width, height);
   }
-
 };
