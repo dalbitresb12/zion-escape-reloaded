@@ -2,6 +2,7 @@
 #include "Sprite.h"
 using namespace System;
 
+//Entity publicly inheriting Sprite
 ref class Entity : public Sprite {
 protected:
   String^ name;
@@ -18,9 +19,7 @@ public:
     this->health = health;
     this->damagePoints = damagePoints;
   }
-  ~Entity() {
-    delete this->name;
-  }
+  ~Entity() {}
   bool IsMovable() {
     return this->movable;
   }
@@ -34,6 +33,7 @@ public:
     return this->damagePoints;
   }
   bool Collision(Entity object) {
+    //Collision needs the drawingArea of another Entity to return if the object collides or not
     return this->drawingArea.IntersectsWith(object.drawingArea);
   }
   virtual void Move(short dx, short dy) {
