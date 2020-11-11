@@ -13,8 +13,7 @@ public:
   Entity(short nCols, short nRows, bool animatable, String^ name, Point pos, bool movable, float health, float damagePoints)
     :Sprite(nCols, nRows, animatable) {
     this->name = name;
-    this->drawingArea.X = pos.X;
-    this->drawingArea.Y = pos.Y;
+    this->drawingArea.Location = pos;
     this->movable = movable;
     this->health = health;
     this->damagePoints = damagePoints;
