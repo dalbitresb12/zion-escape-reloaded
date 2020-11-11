@@ -30,12 +30,12 @@ public:
     this->row = index;
   }
   void Draw(Graphics^ world) {
-    world->DrawImage(image, this->drawingArea, this->GetCrop(), GraphicsUnit::Pixel);
+    world->DrawImage(image, this->drawingArea, this->GetCropArea(), GraphicsUnit::Pixel);
     // If the bool animatable is false, the col won't be added by 1. Because of this, it won't be animated
     if (!this->animatable) return;
     this->col = (this->col + 1) % nCols;
   }
-  Rectangle GetCrop() {
+  Rectangle GetCropArea() {
     short width = this->image->Width / this->nCols;
     short height = this->image->Height / this->nRows;
     short x = this->col * width;
