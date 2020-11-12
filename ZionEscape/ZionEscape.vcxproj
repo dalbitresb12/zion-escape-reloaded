@@ -169,6 +169,7 @@
     <ResourceCompile Include="app.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BitmapManager.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="MainActivity.h">
       <FileType>CppForm</FileType>

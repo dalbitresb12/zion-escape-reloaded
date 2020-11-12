@@ -26,6 +26,9 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BitmapManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="MainActivity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
