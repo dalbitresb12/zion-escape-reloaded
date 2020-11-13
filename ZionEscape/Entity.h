@@ -5,11 +5,17 @@ using namespace System;
 //Entity publicly inheriting Sprite
 ref class Entity : public Sprite {
 protected:
+  int x, y;
+  int dx, dy;
+  int idx, idy;
+  int width, height;
+protected:
   String^ name;
   bool movable;
   float health;
   float damagePoints;
 public:
+  Entity() {}
   Entity(short nCols, short nRows, bool animatable, String^ name, Point pos, bool movable, float health, float damagePoints)
     :Sprite(nCols, nRows, animatable) {
     this->name = name;

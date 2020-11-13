@@ -9,6 +9,7 @@ ref class Sprite {
 protected:
   Rectangle drawingArea;
 public:
+  Sprite() {}
   Sprite(short nCols, short nRows, bool animatable) {
     this->nCols = nCols;
     this->nRows = nRows;
