@@ -171,9 +171,13 @@
   <ItemGroup>
     <ClInclude Include="BitmapManager.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="Grid.h" />
     <ClInclude Include="MainActivity.h">
       <FileType>CppForm</FileType>
     </ClInclude>
+    <ClInclude Include="MathUtils.h" />
+    <ClInclude Include="Node.h" />
+    <ClInclude Include="Pathfinder.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Sprite.h" />
@@ -194,6 +198,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
