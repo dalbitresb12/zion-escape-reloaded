@@ -3,10 +3,10 @@ using namespace System;
 using namespace System::Drawing;
 
 ref class Sprite {
+protected:
   Bitmap^ image;
   short col, row, nCols, nRows;
   bool animatable;
-protected:
   Rectangle drawingArea;
 public:
   Sprite() {}
@@ -39,8 +39,8 @@ public:
   Rectangle GetCropArea() {
     short width = this->image->Width / this->nCols;
     short height = this->image->Height / this->nRows;
-    short x = this->col * width;
-    short y = this->row * height;
+    short x = this->col * width; //idx * width
+    short y = this->row * height; //idy * height
 
     return Rectangle(x, y, width, height);
   }

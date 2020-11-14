@@ -5,10 +5,7 @@ using namespace System;
 //Entity publicly inheriting Sprite
 ref class Entity : public Sprite {
 protected:
-  int x, y;
   int dx, dy;
-  int idx, idy;
-  int width, height;
 protected:
   String^ name;
   bool movable;

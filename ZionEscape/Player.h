@@ -1,55 +1,48 @@
 #pragma once
 #include "Entity.h"
+using namespace System::Windows::Forms;
+
 ref class Player : public Entity {
 public:
-  Player(int width, int height) {
-    this->width = width; this->height = height;
+  Player() {
     dx = 3; dy = 3;
-    x = 70; y = 70;
-    idx = idy = 0;
   }
-  void drawPlayer(Graphics^ g, Bitmap^ img) {
-    Rectangle sectionShown = Rectangle(idx * width, idy * height, width, height);
-    Rectangle zoom = Rectangle(x, y, width, height);
-    g->DrawImage(img, zoom, sectionShown, GraphicsUnit::Pixel);
+  void drawPlayer(Graphics^ g) {
+    Rectangle cropArea = this->GetCropArea();
+    g->DrawImage(this->image, this->drawingArea, cropArea, GraphicsUnit::Pixel);
   }
 
-  void movePlayer(Graphics^ g, char key) {
-    switch (key) {
-    case 'A':
-      if (x > 0) {
-        idy = 1;
-        x -= dx;
+  void movePlayer(Graphics^ g, Keys key) {
+    if (key == Keys::A) {
+      if (drawingArea.X > 0) {
+        row = 1;
+        drawingArea.X -= dx;
       }
-      break;
-
-    case 'D':
-      if (x + width < g->VisibleClipBounds.Width) {
-        idy = 2;
-        x += dx;
+    }
+    if (key == Keys::D) {
+      if (drawingArea.X + drawingArea.Width < g->VisibleClipBounds.Width) {
+        row = 2;
+        drawingArea.X += dx;
       }
-      break;
-
-    case 'W':
-      if (y > 0) {
-        idy = 3;
-        y -= dy;
-      }
-      break;
-
-    case 'S':
-      if (y + height < g->VisibleClipBounds.Height) {
-        idy = 0;
-        y += dy;
-      }
-      break;
     }
 
-    idx++;
-    if (idx > 3) idx = 0;
+    if (key == Keys::W) {
+      if (drawingArea.Y > 0) {
+        row = 3;
+        drawingArea.Y -= dy;
+      }
+    }
+
+    if (key == Keys::S) {
+      if (drawingArea.Y + drawingArea.Height < g->VisibleClipBounds.Height) {
+        row = 0;
+        drawingArea.Y += dy;
+      }
+    }
+
+    col++;
+    if (col > 3) col = 0;
   }
 
-  int getX() { return x; }
-  int getY() { return y; }
 };
 
