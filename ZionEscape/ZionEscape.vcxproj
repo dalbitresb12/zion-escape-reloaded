@@ -171,11 +171,15 @@
   <ItemGroup>
     <ClInclude Include="BitmapManager.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="MainActivity.h">
       <FileType>CppForm</FileType>
     </ClInclude>
+    <ClInclude Include="Map.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="SceneSpawner.h" />
     <ClInclude Include="Sprite.h" />
   </ItemGroup>
   <ItemGroup>
