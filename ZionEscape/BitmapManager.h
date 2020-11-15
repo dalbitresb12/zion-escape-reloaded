@@ -10,25 +10,33 @@ using namespace System::Collections::Generic;
  *        and caching.
 */
 ref class BitmapManager {
+  static BitmapManager^ instance;
   Dictionary<String^, Bitmap^>^ images;
 
-public:
-  /**
-   * @brief BitmapManager is a class used to work with Bitmaps and load
-   *        them into memory, only when needed. Allows Bitmap preloading
-   *        and caching.
-  */
+private:
   BitmapManager() {
-    this->images = gcnew Dictionary<String^, Bitmap^>();
+    images = gcnew Dictionary<String^, Bitmap^>();
   }
   ~BitmapManager() {
-    for each (KeyValuePair<String^, Bitmap^> img in this->images) {
+    for each (KeyValuePair<String^, Bitmap^> img in images) {
       if (img.Value != nullptr)
         delete img.Value;
       delete img.Key;
     }
-    this->images->Clear();
-    delete this->images;
+    images->Clear();
+    delete images;
+  }
+
+public:
+  /**
+   * @brief Gets the global instance of BitmapManager. Creates one if it doesn't exist.
+   * @return BitmapManager global instance.
+  */
+  static BitmapManager^ GetInstance() {
+    if (instance == nullptr)
+      instance = gcnew BitmapManager();
+
+    return instance;
   }
 
   /**
@@ -37,7 +45,7 @@ public:
    * @return True if the URI was found, false otherwise.
   */
   bool HasImage(String^ path) {
-    return this->images->ContainsKey(path);
+    return images->ContainsKey(path);
   }
 
   /**
@@ -46,7 +54,7 @@ public:
    * @return True if the Bitmap was found, false otherwise.
   */
   bool HasImage(Bitmap^ bmp) {
-    return this->images->ContainsValue(bmp);
+    return images->ContainsValue(bmp);
   }
 
   /**
@@ -54,9 +62,9 @@ public:
    * @param path URI to the file path, relative to the executable file or absolute.
   */
   void PreloadImage(String^ path) {
-    if (!this->images->ContainsKey(path)) {
-      Bitmap^ bmp = this->LoadImage(path);
-      this->images->Add(path, bmp);
+    if (!images->ContainsKey(path)) {
+      Bitmap^ bmp = LoadImage(path);
+      images->Add(path, bmp);
     }
   }
 
@@ -66,7 +74,7 @@ public:
   */
   void ReleaseImage(String^ path) {
     Bitmap^ bmp;
-    if (this->images->TryGetValue(path, bmp)) {
+    if (images->TryGetValue(path, bmp)) {
       images->Remove(path);
       delete bmp;
     }
@@ -79,9 +87,9 @@ public:
   */
   Bitmap^ GetImage(String^ path) {
     Bitmap^ bmp;
-    if (!this->images->TryGetValue(path, bmp)) {
-      bmp = this->LoadImage(path);
-      this->images->Add(path, bmp);
+    if (!images->TryGetValue(path, bmp)) {
+      bmp = LoadImage(path);
+      images->Add(path, bmp);
     }
     return bmp;
   }
@@ -94,9 +102,9 @@ public:
   Bitmap^ GetImage(Uri^ uri) {
     String^ path = uri->ToString();
     Bitmap^ bmp;
-    if (!this->images->TryGetValue(path, bmp)) {
-      bmp = this->LoadImage(path);
-      this->images->Add(path, bmp);
+    if (!images->TryGetValue(path, bmp)) {
+      bmp = LoadImage(path);
+      images->Add(path, bmp);
     }
     return bmp;
   }

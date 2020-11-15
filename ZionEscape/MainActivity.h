@@ -18,7 +18,7 @@ namespace ZionEscape {
 		MainActivity(void)
 		{
 			InitializeComponent();
-			//
+      //
 			//TODO: Add the constructor code here
 			//
 		}
@@ -34,7 +34,6 @@ namespace ZionEscape {
 				delete components;
 			}
 		}
-
 	private:
 		/// <summary>
 		/// Required designer variable.

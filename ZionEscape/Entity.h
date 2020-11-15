@@ -10,6 +10,7 @@ protected:
   float health;
   float damagePoints;
 public:
+  Entity() {}
   Entity(short nCols, short nRows, bool animatable, String^ name, Point pos, bool movable, float health, float damagePoints)
     :Sprite(nCols, nRows, animatable) {
     this->name = name;
@@ -39,5 +40,7 @@ public:
     this->drawingArea.X += dx;
     this->drawingArea.Y += dy;
   }
+  virtual void Move(Graphics^ g, short dx, short dy, Keys key) { return; }
+
 };
 
