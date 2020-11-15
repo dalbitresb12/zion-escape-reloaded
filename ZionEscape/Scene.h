@@ -2,14 +2,19 @@
 #include "SceneSpawner.h"
 using namespace System::Drawing;
 using namespace System::Collections::Generic;
+
+enum class ImageId {
+  D, DR, G, L, RL, R, T, TD, TL, TR, DL, DRL, TDL, TDR, TRL
+};
+
 ref class Scene {
   Bitmap^ image;
   bool top, down, right, left;
-  short id;
+  ImageId id;
   List<SceneSpawner^>^ spawners;
   Rectangle drawingArea;
 public:
-  Scene(bool top, bool down, bool right, bool left, short id, Graphics^ g) {
+  Scene(bool top, bool down, bool right, bool left, ImageId id, Graphics^ g) {
     this->spawners = gcnew List<SceneSpawner^>;
     this->top = top;
     this->down = down;
@@ -27,49 +32,49 @@ public:
   void ImageSelector() {
     switch (this->id)
     {
-    case 1:
+    case ImageId::D:
       this->image = gcnew Bitmap("assets\\sprites\\colliders\\D.png");
       break;
-    case 2:
+    case ImageId::DR:
       this->image = gcnew Bitmap("assets\\sprites\\colliders\\DR.png");
       break;
-    case 3:
+    case ImageId::G:
       this->image = gcnew Bitmap("assets\\sprites\\colliders\\G.png");
       break;
-    case 4:
+    case ImageId::L:
       this->image = gcnew Bitmap("assets\\sprites\\colliders\\L.png");
       break;
-    case 5:
+    case ImageId::RL:
       this->image = gcnew Bitmap("assets\\sprites\\colliders\\RL.png");
       break;
-    case 6:
+    case ImageId::R:
       this->image = gcnew Bitmap("assets\\sprites\\colliders\\R.png");
       break;
-    case 7:
+    case ImageId::T:
       this->image = gcnew Bitmap("assets\\sprites\\colliders\\T.png");
       break;
-    case 8:
+    case ImageId::TD:
       this->image = gcnew Bitmap("assets\\sprites\\colliders\\TD.png");
       break;
-    case 9:
+    case ImageId::TL:
       this->image = gcnew Bitmap("assets\\sprites\\colliders\\TL.png");
       break;
-    case 10:
+    case ImageId::TR:
       this->image = gcnew Bitmap("assets\\sprites\\colliders\\TR.png");
       break;
-    case 11:
+    case ImageId::DL:
       this->image = gcnew Bitmap("assets\\sprites\\colliders\\DL.png");
       break;
-    case 12:
+    case ImageId::DRL:
       this->image = gcnew Bitmap("assets\\sprites\\colliders\\DRL.png");
       break;
-    case 13:
+    case ImageId::TDL:
       this->image = gcnew Bitmap("assets\\sprites\\colliders\\TDL.png");
       break;
-    case 14:
+    case ImageId::TDR:
       this->image = gcnew Bitmap("assets\\sprites\\colliders\\TDR.png");
       break;
-    case 15:
+    case ImageId::TRL:
       this->image = gcnew Bitmap("assets\\sprites\\colliders\\TRL.png");
       break;
     }
@@ -82,26 +87,22 @@ public:
     if (this->top == true) {
       short x = pos.X;
       short y = pos.Y - this->image->Height;
-      this->spawners->Add(gcnew SceneSpawner(2, g, Rectangle(x, y, this->image->Width, this->image->Height)));
-      this->top = false;
+      this->spawners->Add(gcnew SceneSpawner(OpDir::Down, g, Rectangle(x, y, this->image->Width, this->image->Height)));
     }
     if (this->down == true) {
       short x = pos.X;
       short y = pos.Y + this->image->Height;
-      this->spawners->Add(gcnew SceneSpawner(1, g, Rectangle(x, y, this->image->Width, this->image->Height)));
-      this->down = false;
+      this->spawners->Add(gcnew SceneSpawner(OpDir::Up, g, Rectangle(x, y, this->image->Width, this->image->Height)));
     }
     if (this->right == true) {
       short x = pos.X + this->image->Width;
       short y = pos.Y;
-      this->spawners->Add(gcnew SceneSpawner(4, g, Rectangle(x, y, this->image->Width, this->image->Height)));
-      this->right = false;
+      this->spawners->Add(gcnew SceneSpawner(OpDir::Left, g, Rectangle(x, y, this->image->Width, this->image->Height)));
     }
     if (this->left == true) {
       short x = pos.X - this->image->Width;
       short y = pos.Y;
-      this->spawners->Add(gcnew SceneSpawner(3, g, Rectangle(x, y, this->image->Width, this->image->Height)));
-      this->left = false;
+      this->spawners->Add(gcnew SceneSpawner(OpDir::Right, g, Rectangle(x, y, this->image->Width, this->image->Height)));
     }
   }
   void DeleteSpawner(short n) {
@@ -110,7 +111,7 @@ public:
   bool Collides(Rectangle area) {
     return this->drawingArea.IntersectsWith(area);
   }
-  short GetID() {
+  ImageId GetID() {
     return this->id;
   }
   Rectangle GetDrawingArea() {

@@ -1,25 +1,32 @@
 #pragma once
 using namespace System::Drawing;
 
+enum class OpDir {
+  Up, Down, Right, Left
+  /*
+ * Top --> Needs a Top Door
+ * Down --> Needs a Down Door
+ * Right --> Needs a Right Door
+ * Left --> Need a Left Door
+ */
+};
+
 ref class SceneSpawner {
   Rectangle drawingArea;
-  //Door direction of the Scene
-  short opDir;
-  /*
-  * 1 --> Needs a Top Door
-  * 2 --> Needs a Down Door
-  * 3 --> Needs a Right Door
-  * 4 --> Need a Left Door
-  */
+  OpDir openDirection;
+ 
 public:
-  SceneSpawner(short opDir, Graphics^ g, Rectangle drawingArea) {
+  SceneSpawner(OpDir openDirection , Graphics^ g, Rectangle drawingArea) {
     this->drawingArea = drawingArea;
-    this->opDir = opDir;
+    this->openDirection = openDirection;
     //Draw the Spawn (Color is optional)
     g->FillRectangle(Brushes::CornflowerBlue, this->drawingArea);
   }
-  short GetOpDir() {
-    return this->opDir;
+  bool Collides(Rectangle area) {
+    return this->drawingArea.IntersectsWith(area);
+  }
+  OpDir GetOpDir() {
+    return this->openDirection;
   }
   Rectangle GetDrawingArea() {
     return this->drawingArea;
@@ -27,4 +34,5 @@ public:
   Point GetPos() {
     return this->drawingArea.Location;
   }
+
 };
