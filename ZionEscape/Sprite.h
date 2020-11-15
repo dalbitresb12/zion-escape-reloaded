@@ -9,6 +9,7 @@ ref class Sprite {
 protected:
   Rectangle drawingArea;
 public:
+  Sprite() {}
   Sprite(short nCols, short nRows, bool animatable) {
     this->nCols = nCols;
     this->nRows = nRows;
@@ -23,6 +24,9 @@ public:
   bool GetAnimatable() {
     return animatable;
   }
+  short GetCol() { return col; }
+  short GetRow() { return row; }
+
   void SetCol(short index) {
     this->col = index;
   }
@@ -38,8 +42,8 @@ public:
   Rectangle GetCropArea() {
     short width = this->image->Width / this->nCols;
     short height = this->image->Height / this->nRows;
-    short x = this->col * width;
-    short y = this->row * height;
+    short x = this->col * width; //idx * width
+    short y = this->row * height; //idy * height
 
     return Rectangle(x, y, width, height);
   }
