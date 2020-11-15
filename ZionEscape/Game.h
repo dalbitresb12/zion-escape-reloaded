@@ -5,8 +5,8 @@ ref class Game {
   Map^ map;
 
 public:
-  Game(Graphics^ g) {
-    this->map = gcnew Map(g);
+  Game() {
+    this->map = gcnew Map();
   }
 
   void Generation(Graphics^ g) {

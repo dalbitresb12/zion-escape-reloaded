@@ -24,7 +24,7 @@ namespace ZionEscape {
       InitializeComponent();
       this->graficador = CreateGraphics();
       this->buffer = BufferedGraphicsManager::Current->Allocate(this->graficador, this->ClientRectangle);
-      this->game = gcnew Game(this->buffer->Graphics);
+      this->game = gcnew Game();
     }
 
   protected:
@@ -65,7 +65,7 @@ namespace ZionEscape {
       // generator
       // 
       this->generator->Enabled = true;
-      this->generator->Interval = 1000;
+      this->generator->Interval = 10;
       this->generator->Tick += gcnew System::EventHandler(this, &MainActivity::generate_world);
       // 
       // MainActivity

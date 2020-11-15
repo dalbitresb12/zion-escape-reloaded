@@ -5,26 +5,20 @@
 using namespace System::Drawing;
 using namespace System::Collections::Generic;
 
-enum class ImageDirection {
-  Down, DownRight, All, Left, RightLeft, Right, Up, UpDown, UpLeft,
-  UpRight, DownLeft, DownRightLeft, UpDownLeft, UpDownRight, UpRightLeft
-};
-
 ref class Scene {
   Bitmap^ image;
   bool up, down, right, left;
-  ImageDirection id;
   List<SceneSpawner^>^ spawners;
   Rectangle drawingArea;
 public:
-  Scene(bool up, bool down, bool right, bool left, ImageDirection id) {
+  Scene(bool up, bool down, bool right, bool left, Point pos) {
     this->spawners = gcnew List<SceneSpawner^>;
     this->up = up;
     this->down = down;
     this->right = right;
     this->left = left;
-    this->id = id;
     this->ImageSelector();
+    this->drawingArea = Rectangle(pos.X, pos.Y, this->image->Width, this->image->Height);
   }
 
   ~Scene() {
@@ -34,80 +28,76 @@ public:
     delete this->spawners;
   }
 
+  //Temporal Image Selector -> Works as  a reference
   void ImageSelector() {
-    switch (this->id)
-    {
-    case ImageDirection::Down:
-      this->image = gcnew Bitmap("assets\\sprites\\colliders\\D.png");
-      break;
-    case ImageDirection::DownRight:
-      this->image = gcnew Bitmap("assets\\sprites\\colliders\\DR.png");
-      break;
-    case ImageDirection::All:
-      this->image = gcnew Bitmap("assets\\sprites\\colliders\\G.png");
-      break;
-    case ImageDirection::Left:
-      this->image = gcnew Bitmap("assets\\sprites\\colliders\\L.png");
-      break;
-    case ImageDirection::RightLeft:
-      this->image = gcnew Bitmap("assets\\sprites\\colliders\\RL.png");
-      break;
-    case ImageDirection::Right:
-      this->image = gcnew Bitmap("assets\\sprites\\colliders\\R.png");
-      break;
-    case ImageDirection::Up:
-      this->image = gcnew Bitmap("assets\\sprites\\colliders\\T.png");
-      break;
-    case ImageDirection::UpDown:
-      this->image = gcnew Bitmap("assets\\sprites\\colliders\\TD.png");
-      break;
-    case ImageDirection::UpLeft:
-      this->image = gcnew Bitmap("assets\\sprites\\colliders\\TL.png");
-      break;
-    case ImageDirection::UpRight:
-      this->image = gcnew Bitmap("assets\\sprites\\colliders\\TR.png");
-      break;
-    case ImageDirection::DownLeft:
-      this->image = gcnew Bitmap("assets\\sprites\\colliders\\DL.png");
-      break;
-    case ImageDirection::DownRightLeft:
-      this->image = gcnew Bitmap("assets\\sprites\\colliders\\DRL.png");
-      break;
-    case ImageDirection::UpDownLeft:
-      this->image = gcnew Bitmap("assets\\sprites\\colliders\\TDL.png");
-      break;
-    case ImageDirection::UpDownRight:
-      this->image = gcnew Bitmap("assets\\sprites\\colliders\\TDR.png");
-      break;
-    case ImageDirection::UpRightLeft:
-      this->image = gcnew Bitmap("assets\\sprites\\colliders\\TRL.png");
-      break;
-    }
+      if (!this->up && this->down && !this->right && !this->left)
+        this->image = gcnew Bitmap("assets\\sprites\\colliders\\D.png");
+
+      else if (!this->up && this->down && this->right && !this->left)
+        this->image = gcnew Bitmap("assets\\sprites\\colliders\\DR.png");
+
+      else if (this->up && this->down && this->right && this->left)
+        this->image = gcnew Bitmap("assets\\sprites\\colliders\\G.png");
+
+      else if (!this->up && !this->down && !this->right && this->left)
+        this->image = gcnew Bitmap("assets\\sprites\\colliders\\L.png");
+
+      else if (!this->up && !this->down && this->right && this->left)
+        this->image = gcnew Bitmap("assets\\sprites\\colliders\\RL.png");
+
+      else if (!this->up && !this->down && this->right && !this->left)
+        this->image = gcnew Bitmap("assets\\sprites\\colliders\\R.png");
+
+      else if (this->up && !this->down && !this->right && !this->left)
+        this->image = gcnew Bitmap("assets\\sprites\\colliders\\T.png");
+
+      else if (this->up && this->down && !this->right && !this->left)
+        this->image = gcnew Bitmap("assets\\sprites\\colliders\\TD.png");
+
+      else if (this->up && !this->down && !this->right && this->left)
+        this->image = gcnew Bitmap("assets\\sprites\\colliders\\TL.png");
+
+      else if (this->up && !this->down && this->right && !this->left)
+        this->image = gcnew Bitmap("assets\\sprites\\colliders\\TR.png");
+
+      else if (!this->up && this->down && !this->right && this->left)
+        this->image = gcnew Bitmap("assets\\sprites\\colliders\\DL.png");
+
+      else if (!this->up && this->down && this->right && this->left)
+        this->image = gcnew Bitmap("assets\\sprites\\colliders\\DRL.png");
+
+      else if (this->up && this->down && !this->right && this->left)
+        this->image = gcnew Bitmap("assets\\sprites\\colliders\\TDL.png");
+
+      else if (this->up && this->down && this->right && !this->left)
+        this->image = gcnew Bitmap("assets\\sprites\\colliders\\TDR.png");
+
+      else if (this->up && !this->down && this->right && this->left)
+        this->image = gcnew Bitmap("assets\\sprites\\colliders\\TRL.png");
   }
 
-  void Draw(Graphics^ g, Point pos) {
-    this->drawingArea = Rectangle(pos.X, pos.Y, this->image->Width, this->image->Height);
+  void Draw(Graphics^ g) {
     g->DrawImage(this->image, this->drawingArea);
   }
 
-  void CreateSpawner(Graphics^ g, Point pos) {
+  void CreateSpawner(Point pos) {
     Point location;
     Size size = Size(this->image->Width, this->image->Height);
     if (this->up) {
       location = Point(pos.X, pos.Y - size.Height);
-      this->spawners->Add(gcnew SceneSpawner(ParentDirection::Down, g, Rectangle(location, size)));
+      this->spawners->Add(gcnew SceneSpawner(ParentDirection::Down, Rectangle(location, size)));
     }
     if (this->down) {
       location = Point(pos.X, pos.Y + size.Height);
-      this->spawners->Add(gcnew SceneSpawner(ParentDirection::Up, g, Rectangle(location, size)));
+      this->spawners->Add(gcnew SceneSpawner(ParentDirection::Up, Rectangle(location, size)));
     }
     if (this->right) {
-      location = Point(pos.X, pos.Y + size.Width);
-      this->spawners->Add(gcnew SceneSpawner(ParentDirection::Left, g, Rectangle(location, size)));
+      location = Point(pos.X + size.Width, pos.Y);
+      this->spawners->Add(gcnew SceneSpawner(ParentDirection::Left, Rectangle(location, size)));
     }
     if (this->left) {
-      location = Point(pos.X, pos.Y - size.Width);
-      this->spawners->Add(gcnew SceneSpawner(ParentDirection::Right, g, Rectangle(location, size)));
+      location = Point(pos.X - size.Width, pos.Y);
+      this->spawners->Add(gcnew SceneSpawner(ParentDirection::Right, Rectangle(location, size)));
     }
   }
 
@@ -115,12 +105,40 @@ public:
     this->spawners->Remove(this->spawners[n]);
   }
 
-  bool Collides(Rectangle area) {
-    return this->drawingArea.IntersectsWith(area);
+  void SetUp(bool value) {
+    this->up = value;
+    this->ImageSelector();
   }
 
-  ImageDirection GetImageDirection() {
-    return this->id;
+  void SetDown(bool value) {
+    this->down = value;
+    this->ImageSelector();
+  }
+
+  void SetRight(bool value) {
+    this->right = value;
+    this->ImageSelector();
+  }
+
+  void SetLeft(bool value) {
+    this->left = value;
+    this->ImageSelector();
+  }
+
+  bool GetUp() {
+    return this->up;
+  }
+
+  bool GetDown() {
+    return this->down;
+  }
+
+  bool GetRight() {
+    return this->right;
+  }
+
+  bool GetLeft() {
+    return this->left;
   }
 
   Rectangle GetDrawingArea() {

@@ -2,6 +2,7 @@
 using namespace System::Drawing;
 
 enum class ParentDirection {
+  //The new scene must have a door looking in the direction:
   Up, Down, Right, Left
 };
 
@@ -10,25 +11,13 @@ ref class SceneSpawner {
   ParentDirection parentDirection;
  
 public:
-  SceneSpawner(ParentDirection parentDirection, Graphics^ g, Rectangle drawingArea) {
+  SceneSpawner(ParentDirection parentDirection, Rectangle drawingArea) {
     this->drawingArea = drawingArea;
     this->parentDirection = parentDirection;
-    //Draw the Spawn (Color is optional)
-    g->FillRectangle(Brushes::CornflowerBlue, this->drawingArea);
   }
-
-  bool Collides(Rectangle area) {
-    return this->drawingArea.IntersectsWith(area);
-  }
-
   ParentDirection GetParentDirection() {
     return this->parentDirection;
   }
-
-  Rectangle GetDrawingArea() {
-    return this->drawingArea;
-  }
-
   Point GetPos() {
     return this->drawingArea.Location;
   }
