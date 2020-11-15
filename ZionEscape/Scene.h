@@ -14,7 +14,7 @@ ref class Scene {
   List<SceneSpawner^>^ spawners;
   Rectangle drawingArea;
 public:
-  Scene(bool top, bool down, bool right, bool left, ImageId id, Graphics^ g) {
+  Scene(bool top, bool down, bool right, bool left, ImageId id) {
     this->spawners = gcnew List<SceneSpawner^>;
     this->top = top;
     this->down = down;
@@ -23,12 +23,14 @@ public:
     this->id = id;
     this->ImageSelector();
   }
+
   ~Scene() {
     for (short i = 0; i < this->spawners->Count; i++)
       delete this->spawners[i];
     this->spawners->Clear();
     delete this->spawners;
   }
+
   void ImageSelector() {
     switch (this->id)
     {
@@ -79,10 +81,12 @@ public:
       break;
     }
   }
+
   void Draw(Graphics^ g, Point pos) {
     this->drawingArea = Rectangle(pos.X, pos.Y, this->image->Width, this->image->Height);
     g->DrawImage(this->image, this->drawingArea);
   }
+
   void CreateSpawner(Graphics^ g, Point pos) {
     if (this->top == true) {
       short x = pos.X;
@@ -105,21 +109,27 @@ public:
       this->spawners->Add(gcnew SceneSpawner(OpDir::Right, g, Rectangle(x, y, this->image->Width, this->image->Height)));
     }
   }
+
   void DeleteSpawner(short n) {
     this->spawners->Remove(this->spawners[n]);
   }
+
   bool Collides(Rectangle area) {
     return this->drawingArea.IntersectsWith(area);
   }
+
   ImageId GetID() {
     return this->id;
   }
+
   Rectangle GetDrawingArea() {
     return this->drawingArea;
   }
+
   Point GetPos() {
     return this->drawingArea.Location;
   }
+
   List<SceneSpawner^>^ GetSpawners() {
     return this->spawners;
   }

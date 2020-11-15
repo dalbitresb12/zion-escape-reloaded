@@ -65,7 +65,7 @@ namespace ZionEscape {
       // generator
       // 
       this->generator->Enabled = true;
-      this->generator->Interval = 10;
+      this->generator->Interval = 1000;
       this->generator->Tick += gcnew System::EventHandler(this, &MainActivity::generate_world);
       // 
       // MainActivity

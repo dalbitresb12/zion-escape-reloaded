@@ -6,12 +6,13 @@ using namespace System::Drawing;
 
 ref class Map {
   List<Scene^>^ scenes;
-  Random^ rnd = gcnew Random();
+  Random^ rnd;
   bool isGenerating;
   bool generated;
 
 public:
   Map(Graphics^ g) {
+    this->rnd = gcnew Random();
     this->Reboot(g);
   }
 
@@ -20,7 +21,7 @@ public:
       delete this->scenes[i];
     this->scenes->Clear();
     delete this->scenes;
-    delete rnd;
+    delete this->rnd;
   }
 
   void Reboot(Graphics^ g) {
@@ -43,7 +44,7 @@ public:
   }
 
   void CreateScene(bool t, bool d, bool r, bool l, ImageId id, Graphics^ g, Point pos) {
-    this->scenes->Add(gcnew Scene(t, d, r, l, id, g));
+    this->scenes->Add(gcnew Scene(t, d, r, l, id));
     this->scenes[this->scenes->Count - 1]->Draw(g, pos);
     this->scenes[this->scenes->Count - 1]->CreateSpawner(g, pos);
   }
@@ -76,9 +77,24 @@ public:
           Point pos = this->scenes[curScene]->GetSpawners()[curSpawner - 1]->GetPos();
 
           bool shouldBreak = false;
-          for each (Scene^ scene in this->scenes) {
-            if (scene->GetPos() == pos)
+          for each (Scene ^ scene in this->scenes) {
+            for each (SceneSpawner ^ spawner in scene->GetSpawners()) {
+              if (this->scenes[curScene]->GetSpawners()[curSpawner - 1]->Equals(spawner))
+                continue;
+
+              if (spawner->GetPos().Equals(pos)) {
+                shouldBreak = true;
+                break;
+              }
+            }
+
+            if (shouldBreak)
+              break;
+
+            if (scene->GetPos().Equals(pos)) {
               shouldBreak = true;
+              break;
+            }
           }
 
           if (shouldBreak) {
@@ -107,14 +123,11 @@ public:
           this->scenes[curScene]->DeleteSpawner(curSpawner - 1);
         }
       }
-    }
-    else if (this->scenes->Count == 1) {
+    } else if (this->scenes->Count == 1) {
       this->isGenerating = true;
-    }
-    else if (this->scenes->Count > 1 && this->scenes->Count < 25 && this->isGenerating == false) {
+    } else if (this->scenes->Count > 1 && this->scenes->Count < 25 && this->isGenerating == false) {
       this->Reboot(g);
-    }
-    else {
+    } else {
       if (this->scenes->Count != 1) {
         this->generated = true;
         //Paint the last scene
@@ -158,19 +171,18 @@ public:
     else if (!top && !down && !right && left)
       return ImageId::L;
     else if (!top && !down && !right && !left)
-      switch (dorNeeded)
-      {
+      switch (dorNeeded) {
       case OpDir::Down:
-        return ImageId::T;
-        break;
-      case OpDir::Up:
         return ImageId::D;
         break;
+      case OpDir::Up:
+        return ImageId::T;
+        break;
       case OpDir::Left:
-        return ImageId::R;
+        return ImageId::L;
         break;
       case OpDir::Right:
-        return ImageId::L;
+        return ImageId::R;
         break;
       }
 

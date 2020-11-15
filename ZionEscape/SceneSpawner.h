@@ -22,17 +22,20 @@ public:
     //Draw the Spawn (Color is optional)
     g->FillRectangle(Brushes::CornflowerBlue, this->drawingArea);
   }
+
   bool Collides(Rectangle area) {
     return this->drawingArea.IntersectsWith(area);
   }
+
   OpDir GetOpDir() {
     return this->openDirection;
   }
+
   Rectangle GetDrawingArea() {
     return this->drawingArea;
   }
+
   Point GetPos() {
     return this->drawingArea.Location;
   }
-
 };
