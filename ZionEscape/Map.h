@@ -40,25 +40,16 @@ public:
     //Draw and select Start point color
     g->FillRectangle(Brushes::Crimson, Rectangle(468, 312, 27, 27));
     this->scenes = gcnew List<Scene^>;
-    this->CreateScene(1, 1, 1, 1, ImageId::G, g, Point(468, 312));
+    this->CreateScene(1, 1, 1, 1, ImageDirection::All, g, Point(468, 312));
   }
 
-  void CreateScene(bool t, bool d, bool r, bool l, ImageId id, Graphics^ g, Point pos) {
+  void CreateScene(bool t, bool d, bool r, bool l, ImageDirection id, Graphics^ g, Point pos) {
     this->scenes->Add(gcnew Scene(t, d, r, l, id));
     this->scenes[this->scenes->Count - 1]->Draw(g, pos);
     this->scenes[this->scenes->Count - 1]->CreateSpawner(g, pos);
   }
 
   void MapGeneration(Graphics^ g) {
-    //Check if any of the scenes don't collide with any scene
-    /*for (short curScene = 0; curScene < this->scenes->Count; curScene++) {
-      for (short adScene = 0; adScene < this->scenes->Count; adScene++) {
-        if (curScene != adScene)
-          if (this->scenes[curScene]->Collides(this->scenes[adScene]->GetDrawingArea())) {
-            this->Reboot(g);
-          }
-      }
-    }*/
     //Generate new Scenes
     if (isGenerating) {
       //Save the current scenes to count
@@ -66,56 +57,27 @@ public:
 
       //Check all the scenes
       for (short curScene = 0; curScene < totalScenes; curScene++) {
-
         //Number of spawners in the current Scene
         short countSpawners = this->scenes[curScene]->GetSpawners()->Count;
 
         for (short curSpawner = countSpawners; curSpawner > 0; curSpawner--) {
           //Get the Scene to create
-          OpDir doorNeeded = this->scenes[curScene]->GetSpawners()[curSpawner - 1]->GetOpDir();
+          ParentDirection doorNeeded = this->scenes[curScene]->GetSpawners()[curSpawner - 1]->GetParentDirection();
           //Get position where the Scene will be created
           Point pos = this->scenes[curScene]->GetSpawners()[curSpawner - 1]->GetPos();
 
-          bool shouldBreak = false;
-          for each (Scene ^ scene in this->scenes) {
-            for each (SceneSpawner ^ spawner in scene->GetSpawners()) {
-              if (this->scenes[curScene]->GetSpawners()[curSpawner - 1]->Equals(spawner))
-                continue;
-
-              if (spawner->GetPos().Equals(pos)) {
-                shouldBreak = true;
-                break;
-              }
-            }
-
-            if (shouldBreak)
-              break;
-
-            if (scene->GetPos().Equals(pos)) {
-              shouldBreak = true;
-              break;
-            }
-          }
-
-          if (shouldBreak) {
-            this->scenes[curScene]->DeleteSpawner(curSpawner - 1);
-            break;
-          }
-
-          //Get Values to Create the new Scene
-
           bool up = false, down = false, left = false, right = false;
 
-          if (doorNeeded != OpDir::Up)
+          if (doorNeeded != ParentDirection::Up)
             up = rnd->Next(0, 2);
-          if (doorNeeded != OpDir::Down)
+          if (doorNeeded != ParentDirection::Down)
             down = rnd->Next(0, 2);
-          if (doorNeeded != OpDir::Left)
+          if (doorNeeded != ParentDirection::Left)
             left = rnd->Next(0, 2);
-          if (doorNeeded != OpDir::Right)
+          if (doorNeeded != ParentDirection::Right)
             right = rnd->Next(0, 2);
 
-          ImageId selectedId = this->GetImageIdFromValues(up, down, right, left, doorNeeded);
+          ImageDirection selectedId = this->GetImageIdFromValues(up, down, right, left, doorNeeded);
 
           this->CreateScene(up, down, right, left, selectedId, g, pos);
 
@@ -137,52 +99,52 @@ public:
     }
   }
 
-  ImageId GetImageIdFromValues(bool top, bool down, bool right, bool left, OpDir dorNeeded) {
+  ImageDirection GetImageIdFromValues(bool top, bool down, bool right, bool left, ParentDirection dorNeeded) {
     if (top && down && right && left)
-      return ImageId::G;
+      return ImageDirection::All;
     else if (!top && down && right && left)
-      return ImageId::DRL;
+      return ImageDirection::DownRightLeft;
     else if (top && !down && right && left)
-      return ImageId::TRL;
+      return ImageDirection::UpRightLeft;
     else if (top && down && !right && left)
-      return ImageId::TDL;
+      return ImageDirection::UpDownLeft;
     else if (top && down && right && !left)
-      return ImageId::TDR;
+      return ImageDirection::UpDownRight;
     else if (!top && !down && right && left)
-      return ImageId::RL;
+      return ImageDirection::RightLeft;
     else if (!top && down && !right && left)
-      return ImageId::DL;
+      return ImageDirection::DownLeft;
     else if (!top && down && right && !left)
-      return ImageId::DR;
+      return ImageDirection::DownRight;
     else if (!top && !down && right && left)
-      return ImageId::RL;
+      return ImageDirection::RightLeft;
     else if (top && down && !right && !left)
-      return ImageId::TD;
+      return ImageDirection::UpDown;
     else if (top && !down && !right && left)
-      return ImageId::TL;
+      return ImageDirection::UpLeft;
     else if (top && !down && right && !left)
-      return ImageId::TR;
+      return ImageDirection::UpRight;
     else if (top && !down && !right && !left)
-      return ImageId::T;
+      return ImageDirection::Up;
     else if (!top && down && !right && !left)
-      return ImageId::D;
+      return ImageDirection::Down;
     else if (!top && !down && right && !left)
-      return ImageId::R;
+      return ImageDirection::Right;
     else if (!top && !down && !right && left)
-      return ImageId::L;
+      return ImageDirection::Left;
     else if (!top && !down && !right && !left)
       switch (dorNeeded) {
-      case OpDir::Down:
-        return ImageId::D;
+      case ParentDirection::Down:
+        return ImageDirection::Down;
         break;
-      case OpDir::Up:
-        return ImageId::T;
+      case ParentDirection::Up:
+        return ImageDirection::Up;
         break;
-      case OpDir::Left:
-        return ImageId::L;
+      case ParentDirection::Left:
+        return ImageDirection::Left;
         break;
-      case OpDir::Right:
-        return ImageId::R;
+      case ParentDirection::Right:
+        return ImageDirection::Right;
         break;
       }
 
