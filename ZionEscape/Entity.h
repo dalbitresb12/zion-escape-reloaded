@@ -1,13 +1,16 @@
 #pragma once
+
 #include "Sprite.h"
+
 using namespace System;
+using namespace System::Windows::Forms;
 
 enum class EntityType {
   Player, Obstacle, Assassin, Corrupt, Ally
 };
 
-enum class MovementDirection {
-  Up, Down, Left, Right, UpLeft, UpRight, DownLeft, DownRight
+enum class Direction {
+  Up, Down, Left, Right
 };
 
 // Entity publicly inheriting Sprite
@@ -50,36 +53,34 @@ public:
     return this->drawingArea.IntersectsWith(object->drawingArea);
   }
 
-  virtual void Move(MovementDirection direction) {
-    switch (direction) {
-    case MovementDirection::Up:
-      this->drawingArea.X -= velocity;
-      break;
-    case MovementDirection::Down:
-      this->drawingArea.X += velocity;
-      break;
-    case MovementDirection::Left:
-      this->drawingArea.Y -= velocity;
-      break;
-    case MovementDirection::Right:
-      this->drawingArea.Y += velocity;
-      break;
-    case MovementDirection::UpLeft:
-      this->drawingArea.Y -= velocity;
-      this->drawingArea.X -= velocity;
-      break;
-    case MovementDirection::UpRight:
-      this->drawingArea.Y -= velocity;
-      this->drawingArea.X += velocity;
-      break;
-    case MovementDirection::DownLeft:
-      this->drawingArea.Y += velocity;
-      this->drawingArea.X -= velocity;
-      break;
-    case MovementDirection::DownRight:
-      this->drawingArea.Y += velocity;
-      this->drawingArea.X += velocity;
-      break;
+  virtual void Move(Direction direction) {
+    if (direction == Direction::Up || direction == Direction::Down)
+      this->drawingArea.X += direction == Direction::Up ? -velocity : velocity;
+    if (direction == Direction::Left || direction == Direction::Right)
+      this->drawingArea.Y += direction == Direction::Left ? -velocity : velocity;
+  }
+
+  virtual void Move(int deltaX, int deltaY) {
+    if (deltaX != 0)
+      this->drawingArea.X += deltaX < 0 ? -velocity : velocity;
+    if (deltaY != 0)
+      this->drawingArea.Y += deltaY < 0 ? -velocity : velocity;
+  }
+
+  virtual void Move(Keys key) {
+    this->Move(GetDirectionFromKey(key));
+  }
+
+  static Direction GetDirectionFromKey(Keys key) {
+    switch (key) {
+      case Keys::W:
+        return Direction::Up;
+      case Keys::S:
+        return Direction::Down;
+      case Keys::A:
+        return Direction::Left;
+      case Keys::D:
+        return Direction::Right;
     }
   }
 
