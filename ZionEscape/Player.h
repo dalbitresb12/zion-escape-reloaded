@@ -1,11 +1,22 @@
 #pragma once
+
+#include "BitmapManager.h"
 #include "Entity.h"
+
 using namespace System::Windows::Forms;
 
 ref class Player : public Entity {
 public:
-  Player() {
-    
+  Player()
+    : Entity(EntityType::Player, Point(0, 0), 10.f, 2.f) {
+    BitmapManager^ bmpManager = BitmapManager::GetInstance();
+    Bitmap^ image = bmpManager->GetImage("assets\\sprites\\principal\\principal_m.png");
+    this->SetImage(image, 4, 4);
+  }
+
+  Player(Bitmap^ image, short nCols, short nRows)
+    : Entity(EntityType::Player, Point(0, 0), 10.f, 2.f) {
+    this->SetImage(image, nCols, nRows);
   }
 
   void Move(Graphics^ g, short dx, short dy, Keys key) override {
@@ -36,9 +47,7 @@ public:
       }
     }
 
-    SetCol(GetCol() + 1);
-    if (GetCol() > 3) this->SetCol(0);
+    this->ShiftCol();
   }
-
 };
 
