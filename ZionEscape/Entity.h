@@ -5,8 +5,6 @@ using namespace System;
 //Entity publicly inheriting Sprite
 ref class Entity : public Sprite {
 protected:
-  int dx, dy;
-protected:
   String^ name;
   bool movable;
   float health;
@@ -42,5 +40,7 @@ public:
     this->drawingArea.X += dx;
     this->drawingArea.Y += dy;
   }
+  virtual void Move(Graphics^ g, short dx, short dy, Keys key) { return; }
+
 };
 

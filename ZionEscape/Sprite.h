@@ -3,10 +3,10 @@ using namespace System;
 using namespace System::Drawing;
 
 ref class Sprite {
-protected:
   Bitmap^ image;
   short col, row, nCols, nRows;
   bool animatable;
+protected:
   Rectangle drawingArea;
 public:
   Sprite() {}
@@ -24,6 +24,9 @@ public:
   bool GetAnimatable() {
     return animatable;
   }
+  short GetCol() { return col; }
+  short GetRow() { return row; }
+
   void SetCol(short index) {
     this->col = index;
   }
