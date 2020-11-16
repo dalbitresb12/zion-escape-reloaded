@@ -1,24 +1,27 @@
 #pragma once
-using namespace System::Drawing;
 
-enum class ParentDirection {
-  //The new scene must have a door looking in the direction:
-  Up, Down, Right, Left
-};
+#ifndef _SCENESPAWNER_H_
+#define _SCENESPAWNER_H_
+
+#include "Enums.h"
+using namespace System::Drawing;
 
 ref class SceneSpawner {
   Rectangle drawingArea;
-  ParentDirection parentDirection;
+  //The new scene must have a door looking in the direction
+  Direction parentDirection;
  
 public:
-  SceneSpawner(ParentDirection parentDirection, Rectangle drawingArea) {
+  SceneSpawner(Direction parentDirection, Rectangle drawingArea) {
     this->drawingArea = drawingArea;
     this->parentDirection = parentDirection;
   }
-  ParentDirection GetParentDirection() {
+  Direction GetParentDirection() {
     return this->parentDirection;
   }
   Point GetPos() {
     return this->drawingArea.Location;
   }
 };
+
+#endif // _SCENESPAWNER_H_

@@ -1,4 +1,8 @@
 #pragma once
+
+#ifndef _GAME_H_
+#define _GAME_H_
+
 #include "Map.h"
 
 ref class Game {
@@ -17,3 +21,7 @@ public:
     return this->map->GetGenerated();
   }
 };
+
+#endif // !_GAME_H_
+
+
