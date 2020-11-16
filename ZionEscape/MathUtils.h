@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef _MATHUTILS_H_
+#define _MATHUTILS_H_
+
 using namespace System;
 
 namespace MathUtils {
@@ -20,3 +23,6 @@ namespace MathUtils {
     return (int)Math::Round(value);
   }
 }
+
+#endif // !_MATHUTILS_H_
+

@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef _BITMAPMANAGER_H_
+#define _BITMAPMANAGER_H_
+
 using namespace System;
 using namespace System::Drawing;
 using namespace System::Collections::Generic;
@@ -120,3 +123,6 @@ private:
     return bmp;
   }
 };
+
+#endif // !_BITMAPMANAGER_H_
+

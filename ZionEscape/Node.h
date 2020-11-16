@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef _NODE_H_
+#define _NODE_H_
+
 using namespace System;
 using namespace System::Drawing;
 
@@ -26,3 +29,5 @@ public:
     return this->gCost + this->hCost;
   }
 };
+
+#endif // !_NODE_H_

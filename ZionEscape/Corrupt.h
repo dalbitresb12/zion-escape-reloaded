@@ -1,23 +1,25 @@
 #pragma once
 
-#ifndef _PLAYER_H_
-#define _PLAYER_H_
+#ifndef _CORRUPT_H_
+#define _CORRUPT_H_
 
-#include "BitmapManager.h"
+#include "NPC.h"
 #include "Entity.h"
+#include "BitmapManager.h"
 
-ref class Player : public Entity {
+ref class Corrupt : public NPC {
 public:
-  Player(Point pos)
-    : Entity(EntityType::Player, pos, 3, 10.f, 2.f) {
+  Corrupt(Point pos)
+    : NPC(EntityType::Corrupt, pos, 2, 5.f, 1.f) {
     BitmapManager^ bmpManager = BitmapManager::GetInstance();
-    Bitmap^ image = bmpManager->GetImage("assets\\sprites\\principal\\principal_m.png");
+    Bitmap^ image = bmpManager->GetImage("assets\\sprites\\corruptos\\corrupto.png");
     this->SetImage(image, 4, 4);
   }
 
-  Player(Bitmap^ image, short nCols, short nRows, Point pos)
-    : Entity(EntityType::Player, pos, 3, 10.f, 2.f) {
-    this->SetImage(image, nCols, nRows);
+  void ConvertToAlly() {
+    BitmapManager^ bmpManager = BitmapManager::GetInstance();
+    Bitmap^ image = bmpManager->GetImage("assets\\sprites\\aliados\\aliado-malo.png");
+    this->SetImage(image, 4, 4);
   }
 
   void SetSpriteDirection(Direction direction) override {
@@ -41,5 +43,4 @@ public:
   }
 };
 
-#endif // !_PLAYER_H_
-
+#endif // !_CORRUPT_H_

@@ -1,7 +1,11 @@
 #pragma once
 
-#include "Node.h"
+#ifndef _PATHFINDER_H_
+#define _PATHFINDER_H_
+
 #include "Grid.h"
+#include "Node.h"
+#include "NPC.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -11,7 +15,7 @@ private:
   Pathfinder() {}
 
 public:
-  static void FindPath(Grid^ grid, Point startPos, Point targetPos) {
+  static void FindPath(Grid^ grid, Point startPos, Point targetPos, NPC^ npc) {
     Node^ startNode = grid->GetNodeFromWorldPoint(startPos);
     Node^ targetNode = grid->GetNodeFromWorldPoint(targetPos);
 
@@ -32,8 +36,10 @@ public:
       openNodes->Remove(node);
       closedNodes->Add(node);
 
-      if (node == targetNode)
-        return; // TO DO: Set path to NPC
+      if (node == targetNode) {
+        npc->path = RetracePath(startNode, targetNode);
+        return;
+      }
 
       for each (Node ^ neighbour in grid->GetNeighbours(node)) {
         if (!neighbour->walkable || closedNodes->Contains(neighbour))
@@ -56,7 +62,7 @@ public:
     List<Node^>^ path = gcnew List<Node^>;
     Node^ currentNode = targetNode;
 
-    while (currentNode != targetNode) {
+    while (currentNode != startNode) {
       path->Add(currentNode);
       currentNode = currentNode->parent;
     }
@@ -73,3 +79,6 @@ public:
     return 14 * distanceX + 10 * (distanceY - distanceX);
   }
 };
+
+
+#endif // !_PATHFINDER_H_
