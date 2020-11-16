@@ -21,8 +21,6 @@ namespace ZionEscape {
     System::ComponentModel::IContainer^ components;
     System::Windows::Forms::Timer^ MovementTimer;
     // User-defined properties.
-    Graphics^ graficador;
-    BufferedGraphics^ buffer;
     Game^ game;
     Bitmap^ background;
     GraphicsPath^ unwalkableLayer;
@@ -39,8 +37,6 @@ namespace ZionEscape {
       BitmapManager^ bmpManager = BitmapManager::GetInstance();
       background = bmpManager->GetImage("assets\\sprites\\scenes\\scene_1.png");
 
-      this->graficador = CreateGraphics();
-      this->buffer = BufferedGraphicsManager::Current->Allocate(this->graficador, this->ClientRectangle);
       this->game = gcnew Game();
 
       unwalkableLayer = gcnew GraphicsPath();
@@ -74,8 +70,6 @@ namespace ZionEscape {
       if (components) {
         delete components;
       }
-      delete buffer;
-      delete graficador;
       delete game;
     }
 
@@ -83,7 +77,6 @@ namespace ZionEscape {
     // Required method for Designer support - do not modify the contents of this method with the code editor.
     void InitializeComponent() {
       this->components = (gcnew System::ComponentModel::Container());
-      this->generator = (gcnew System::Windows::Forms::Timer(this->components));
       this->MovementTimer = (gcnew System::Windows::Forms::Timer(this->components));
       this->SuspendLayout();
       // 
@@ -92,12 +85,6 @@ namespace ZionEscape {
       this->MovementTimer->Enabled = true;
       this->MovementTimer->Interval = 30;
       this->MovementTimer->Tick += gcnew System::EventHandler(this, &MainActivity::MovementTimer_Tick);
-      // 
-      // generator
-      // 
-      this->generator->Enabled = true;
-      this->generator->Interval = 10;
-      this->generator->Tick += gcnew System::EventHandler(this, &MainActivity::generate_world);
       // 
       // MainActivity
       // 
@@ -114,18 +101,10 @@ namespace ZionEscape {
 
     }
 #pragma endregion
-  private: System::Void generate_world(System::Object^ sender, System::EventArgs^ e) {
-    this->game->Generation(this->buffer->Graphics);
-    this->buffer->Render();
-    //If the map is generated, the timer stops
-    if (this->game->IsGenerated()) 
-      this->generator->Stop();
-  }
-
   private: void MainActivity_Paint(Object^ sender, PaintEventArgs^ e) {
     Graphics^ world = e->Graphics;
     world->DrawImage(this->background, Point(0, 0));
-
+    this->game->Generation(world);
     for each (NPC ^ npc in npcs) {
       npc->Draw(world);
     }

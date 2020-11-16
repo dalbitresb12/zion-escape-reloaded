@@ -152,7 +152,7 @@ public:
       this->generated = true;
 
       //Put a color to the background
-      g->Clear(Color::FromArgb(255, 37, 37, 37));
+      //g->Clear(Color::FromArgb(255, 37, 37, 37));
 
       //Draw all the scenes
       for each (Scene ^ curScene in this->scenes) {
