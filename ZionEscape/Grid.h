@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Node.h"
 #include "MathUtils.h"
+#include "Node.h"
 
 using namespace System;
 using namespace System::Drawing;

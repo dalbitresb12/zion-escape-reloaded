@@ -23,10 +23,11 @@ protected:
   int velocity;
 
 public:
-  Entity(EntityType entityType, Point pos, float healthPoints, float damagePoints)
+  Entity(EntityType entityType, Point pos, int velocity, float healthPoints, float damagePoints)
     : Sprite(entityType != EntityType::Obstacle) {
     this->entityType = entityType;
     this->drawingArea.Location = pos;
+    this->velocity = velocity;
     this->healthPoints = healthPoints;
     this->damagePoints = damagePoints;
     this->movable = entityType != EntityType::Obstacle;
@@ -55,9 +56,9 @@ public:
 
   virtual void Move(Direction direction) {
     if (direction == Direction::Up || direction == Direction::Down)
-      this->drawingArea.X += direction == Direction::Up ? -velocity : velocity;
+      this->drawingArea.Y += direction == Direction::Up ? -velocity : velocity;
     if (direction == Direction::Left || direction == Direction::Right)
-      this->drawingArea.Y += direction == Direction::Left ? -velocity : velocity;
+      this->drawingArea.X += direction == Direction::Left ? -velocity : velocity;
   }
 
   virtual void Move(int deltaX, int deltaY) {
@@ -65,6 +66,10 @@ public:
       this->drawingArea.X += deltaX < 0 ? -velocity : velocity;
     if (deltaY != 0)
       this->drawingArea.Y += deltaY < 0 ? -velocity : velocity;
+  }
+
+  virtual void Move(Point delta) {
+    this->Move(delta.X, delta.Y);
   }
 
   virtual void Move(Keys key) {

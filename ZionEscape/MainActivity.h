@@ -3,6 +3,7 @@
 #include "BitmapManager.h"
 #include "Grid.h"
 #include "Player.h"
+#include "Ally.h"
 
 namespace ZionEscape {
   using namespace System;
@@ -21,6 +22,8 @@ namespace ZionEscape {
     GraphicsPath^ unwalkableLayer;
     Grid^ mapGrid;
     Player^ player;
+    List<Ally^>^ allies;
+
     List<Keys>^ keysPressed;
     List<Keys>^ validKeys;
 
@@ -28,7 +31,6 @@ namespace ZionEscape {
     MainActivity() {
       // User-defined code.
       BitmapManager^ bmpManager = BitmapManager::GetInstance();
-      Bitmap^ playerImage = bmpManager->GetImage("assets\\sprites\\principal\\principal_m.png");
       background = bmpManager->GetImage("assets\\sprites\\scenes\\scene_1.png");
 
       unwalkableLayer = gcnew GraphicsPath();
@@ -36,7 +38,13 @@ namespace ZionEscape {
       PointF nodeRadius = PointF(18, 10);
       mapGrid = gcnew Grid(unwalkableLayer, gridWorldSize, nodeRadius);
 
-      player = gcnew Player(playerImage, 4, 4);
+      player = gcnew Player(Point(200, 200));
+
+      allies = gcnew List<Ally^>;
+      allies->Add(gcnew Ally(Point(200, 200)));
+      allies->Add(gcnew Ally(Point(300, 200)));
+      allies->Add(gcnew Ally(Point(400, 200)));
+
       keysPressed = gcnew List<Keys>;
       validKeys = gcnew List<Keys>;
       validKeys->Add(Keys::W);
@@ -64,6 +72,7 @@ namespace ZionEscape {
       // 
       // MovementTimer
       // 
+      this->MovementTimer->Enabled = true;
       this->MovementTimer->Interval = 30;
       this->MovementTimer->Tick += gcnew System::EventHandler(this, &MainActivity::MovementTimer_Tick);
       // 
@@ -87,20 +96,36 @@ namespace ZionEscape {
     Graphics^ world = e->Graphics;
     world->DrawImage(this->background, Point(0, 0));
     this->mapGrid->DrawGizmos(world, Color::Blue);
+
+    for each (Ally ^ ally in allies) {
+      ally->Draw(world);
+    }
+
     this->player->Draw(world);
   }
 
   private: void MainActivity_KeyDown(Object^ sender, KeyEventArgs^ e) {
     if (!validKeys->Contains(e->KeyCode)) return;
 
-
+    if (!keysPressed->Contains(e->KeyCode))
+      keysPressed->Add(e->KeyCode);
   }
 
   private: void MainActivity_KeyUp(Object^ sender, KeyEventArgs^ e) {
-
+    if (keysPressed->Contains(e->KeyCode))
+      keysPressed->Remove(e->KeyCode);
   }
 
   private: void MovementTimer_Tick(Object^ sender, EventArgs^ e) {
+    for each (Ally ^ ally in allies) {
+      ally->PathMovement(mapGrid, player);
+      ally->Move(ally->GetDelta());
+    }
+
+    for each (Keys key in keysPressed) {
+      if (!validKeys->Contains(key)) break;
+      player->Move(key);
+    }
     Refresh();
   }
   };
