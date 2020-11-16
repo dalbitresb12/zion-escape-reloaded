@@ -17,4 +17,3 @@ public:
     this->SetImage(image, nCols, nRows);
   }
 };
-

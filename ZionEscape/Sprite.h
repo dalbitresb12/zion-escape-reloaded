@@ -4,7 +4,7 @@ using namespace System::Drawing;
 
 ref class Sprite {
   Bitmap^ image;
-  Size cropSize;
+  Size size;
   short col, row, nCols, nRows;
   bool animatable;
 
@@ -30,7 +30,8 @@ public:
 
   void SetImage(Bitmap^ image, short nCols, short nRows) {
     this->image = image;
-    this->cropSize = Size(image->Width / nCols, image->Height / nRows);
+    this->size = Size(image->Width / nCols, image->Height / nRows);
+    this->drawingArea.Size = this->size;
     this->col = 0;
     this->row = 0;
     this->nCols = nCols;
@@ -42,7 +43,7 @@ public:
   }
 
   Point GetPosition() {
-    return drawingArea.Location;
+    return Point(drawingArea.X + size.Width / 2, drawingArea.Y + size.Height / 2);
   }
 
   bool IsAnimatable() {
@@ -80,7 +81,7 @@ public:
   }
 
   Rectangle GetCropArea() {
-    Point pos = Point(col * cropSize.Width, row * cropSize.Height);
-    return Rectangle(pos, cropSize);
+    Point pos = Point(col * size.Width, row * size.Height);
+    return Rectangle(pos, size);
   }
 };

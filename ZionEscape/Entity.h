@@ -81,11 +81,9 @@ public:
         return Direction::Left;
       case Keys::D:
         return Direction::Right;
+      default:
+        return Direction::Up;
     }
-  }
-
-  virtual void Move(Graphics^ g, short dx, short dy, Keys key) {
-    return;
   }
 };
 

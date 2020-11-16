@@ -33,7 +33,7 @@ public:
       closedNodes->Add(node);
 
       if (node == targetNode)
-        return; // TO DO: Set Path
+        return; // TO DO: Set path to NPC
 
       for each (Node ^ neighbour in grid->GetNeighbours(node)) {
         if (!neighbour->walkable || closedNodes->Contains(neighbour))

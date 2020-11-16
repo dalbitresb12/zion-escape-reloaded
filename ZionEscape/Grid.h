@@ -31,7 +31,7 @@ public:
 
 private:
   void CreateGrid() {
-    grid = gcnew array<Node^, 2>{};
+    grid = gcnew array<Node^, 2>(gridSize.X, gridSize.Y);
 
     for (int x = 0; x < gridSize.X; ++x) {
       for (int y = 0; y < gridSize.Y; ++y) {
@@ -73,10 +73,15 @@ public:
 
     int x = RoundToInt((gridSize.X - 1) * percentX);
     int y = RoundToInt((gridSize.Y - 1) * percentY);
+    return grid[x, y];
   }
 
   void DrawGizmos(Graphics^ world) {
-    Pen^ pen = gcnew Pen(Color::Black, 1);
+    this->DrawGizmos(world, Color::Black);
+  }
+
+  void DrawGizmos(Graphics^ world, Color color) {
+    Pen^ pen = gcnew Pen(color, 1);
     int nodeRadiusX = RoundToInt(nodeRadius.X);
     int nodeRadiusY = RoundToInt(nodeRadius.Y);
 
