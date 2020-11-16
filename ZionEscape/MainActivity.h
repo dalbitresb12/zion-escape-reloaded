@@ -1,9 +1,12 @@
 #pragma once
 
 #include "BitmapManager.h"
+#include "Pathfinder.h"
 #include "Grid.h"
 #include "Player.h"
 #include "Ally.h"
+#include "Assassin.h"
+#include "Corrupt.h"
 
 namespace ZionEscape {
   using namespace System;
@@ -22,7 +25,7 @@ namespace ZionEscape {
     GraphicsPath^ unwalkableLayer;
     Grid^ mapGrid;
     Player^ player;
-    List<Ally^>^ allies;
+    List<NPC^>^ npcs;
 
     List<Keys>^ keysPressed;
     List<Keys>^ validKeys;
@@ -38,12 +41,15 @@ namespace ZionEscape {
       PointF nodeRadius = PointF(18, 10);
       mapGrid = gcnew Grid(unwalkableLayer, gridWorldSize, nodeRadius);
 
-      player = gcnew Player(Point(200, 200));
+      player = gcnew Player(Point(200, 400));
 
-      allies = gcnew List<Ally^>;
-      allies->Add(gcnew Ally(Point(200, 200)));
-      allies->Add(gcnew Ally(Point(300, 200)));
-      allies->Add(gcnew Ally(Point(400, 200)));
+      npcs = gcnew List<NPC^>;
+      npcs->Add(gcnew Ally(Point(700, 200)));
+      npcs->Add(gcnew Ally(Point(450, 200)));
+      npcs->Add(gcnew Assassin(Point(300, 100)));
+      npcs->Add(gcnew Corrupt(Point(300, 100)));
+
+      ResetPathfinders();
 
       keysPressed = gcnew List<Keys>;
       validKeys = gcnew List<Keys>;
@@ -95,10 +101,9 @@ namespace ZionEscape {
   private: void MainActivity_Paint(Object^ sender, PaintEventArgs^ e) {
     Graphics^ world = e->Graphics;
     world->DrawImage(this->background, Point(0, 0));
-    this->mapGrid->DrawGizmos(world, Color::Blue);
 
-    for each (Ally ^ ally in allies) {
-      ally->Draw(world);
+    for each (NPC ^ npc in npcs) {
+      npc->Draw(world);
     }
 
     this->player->Draw(world);
@@ -107,19 +112,25 @@ namespace ZionEscape {
   private: void MainActivity_KeyDown(Object^ sender, KeyEventArgs^ e) {
     if (!validKeys->Contains(e->KeyCode)) return;
 
-    if (!keysPressed->Contains(e->KeyCode))
+    if (!keysPressed->Contains(e->KeyCode)) {
       keysPressed->Add(e->KeyCode);
+      player->StartAnimation();
+      ResetPathfinders();
+    }
   }
 
   private: void MainActivity_KeyUp(Object^ sender, KeyEventArgs^ e) {
     if (keysPressed->Contains(e->KeyCode))
       keysPressed->Remove(e->KeyCode);
+
+    if (keysPressed->Count == 0)
+      player->StopAnimation();
   }
 
   private: void MovementTimer_Tick(Object^ sender, EventArgs^ e) {
-    for each (Ally ^ ally in allies) {
-      ally->PathMovement(mapGrid, player);
-      ally->Move(ally->GetDelta());
+    for each (NPC ^ npc in npcs) {
+      Point deltas = npc->GetDelta();
+      npc->Move(deltas.X, deltas.Y);
     }
 
     for each (Keys key in keysPressed) {
@@ -127,6 +138,24 @@ namespace ZionEscape {
       player->Move(key);
     }
     Refresh();
+  }
+
+  private: void ResetPathfinders() {
+    for each (NPC ^ npc in npcs) {
+      if (npc->GetEntityType() == EntityType::Ally || npc->GetEntityType() == EntityType::Assassin) {
+        Pathfinder::FindPath(mapGrid, npc->GetPosition(), player->GetPosition(), npc);
+      }
+      else if (npc->GetEntityType() == EntityType::Corrupt) {
+        Random r;
+        List<Ally^>^ allies = gcnew List<Ally^>;
+        for each (NPC ^ possibleAlly in npcs) {
+          if (possibleAlly->GetEntityType() == EntityType::Ally)
+            allies->Add((Ally^)possibleAlly);
+        }
+        Ally^ ally = allies[r.Next(0, allies->Count)];
+        Pathfinder::FindPath(mapGrid, npc->GetPosition(), ally->GetPosition(), npc);
+      }
+    }
   }
   };
 }

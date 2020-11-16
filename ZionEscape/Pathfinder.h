@@ -1,9 +1,11 @@
 #pragma once
 
+#ifndef _PATHFINDER_H_
+#define _PATHFINDER_H_
+
 #include "Grid.h"
-#include "NPC.h"
-#include "Pathfinder.h"
 #include "Node.h"
+#include "NPC.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -60,7 +62,7 @@ public:
     List<Node^>^ path = gcnew List<Node^>;
     Node^ currentNode = targetNode;
 
-    while (currentNode != targetNode) {
+    while (currentNode != startNode) {
       path->Add(currentNode);
       currentNode = currentNode->parent;
     }
@@ -77,3 +79,6 @@ public:
     return 14 * distanceX + 10 * (distanceY - distanceX);
   }
 };
+
+
+#endif // !_PATHFINDER_H_

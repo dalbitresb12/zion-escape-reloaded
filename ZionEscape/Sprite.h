@@ -1,9 +1,14 @@
 #pragma once
 
+#ifndef _SPRITE_H_
+#define _SPRITE_H_
+
+#include "Enums.h"
+
 using namespace System;
 using namespace System::Drawing;
 
-ref class Sprite {
+ref class Sprite abstract {
   Bitmap^ image;
   Size size;
   short col, row, nCols, nRows;
@@ -47,6 +52,19 @@ public:
     return Point(drawingArea.X + size.Width / 2, drawingArea.Y + size.Height / 2);
   }
 
+  void StartAnimation() {
+    SetAnimatable(true);
+  }
+
+  void StopAnimation() {
+    SetAnimatable(false);
+    col = 0;
+  }
+
+  void SetAnimatable(bool animatable) {
+    this->animatable = animatable;
+  }
+
   bool IsAnimatable() {
     return animatable;
   }
@@ -71,6 +89,8 @@ public:
     this->row = index;
   }
 
+  virtual void SetSpriteDirection(Direction direction) abstract;
+
   void Draw(Graphics^ world) {
     if (image == nullptr) return;
 
@@ -86,3 +106,6 @@ public:
     return Rectangle(pos, size);
   }
 };
+
+#endif // !_SPRITE_H_
+

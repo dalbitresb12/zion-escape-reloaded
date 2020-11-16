@@ -1,8 +1,14 @@
 #pragma once
 
+#ifndef _NPC_H_
+#define _NPC_H_
+
+#include "Entity.h"
+#include "Node.h"
+
 using namespace System::Collections::Generic;
 
-ref class NPC : public Entity {
+ref class NPC abstract : public Entity {
   bool pathEnded;
 
 public:
@@ -15,13 +21,8 @@ public:
     return pathEnded;
   }
 
-  void PathMovement(Grid^ mapGrid, Entity^ entity) {
-    Pathfinder::FindPath(mapGrid, this->GetPosition(), entity->GetPosition(), this);
-    this->Move(this->GetDelta());
-  }
-
   Point GetDelta() {
-    if (path == nullptr)
+    if (path == nullptr || !(path->Count > 0))
       return Point(0, 0);
 
     Point currentWaypoint = path[path->Count - 1]->worldPos;
@@ -33,18 +34,28 @@ public:
   }
 
   void Move(int deltaX, int deltaY) override {
-    if (path == nullptr)
+    if (path == nullptr || !(path->Count > 0)) {
+      StopAnimation();
       return;
+    }
+
+    StartAnimation();
 
     if (deltaX != 0)
       drawingArea.X += deltaX < 0 ? -velocity : velocity;
     if (deltaY != 0)
       drawingArea.Y += deltaY < 0 ? -velocity : velocity;
 
+
     Point currentWaypoint = path[path->Count - 1]->worldPos;
 
     if (drawingArea.Location == currentWaypoint) {
       path->Remove(path[path->Count - 1]);
     }
+
+    for each (Direction direction in GetDirectionFromDelta(deltaX, deltaY))
+      this->SetSpriteDirection(direction);
   }
 };
+
+#endif // !_NPC_H_

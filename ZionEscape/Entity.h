@@ -1,20 +1,16 @@
 #pragma once
 
+#ifndef _ENTITY_H_
+#define _ENTITY_H_
+
+#include "Enums.h"
 #include "Sprite.h"
 
 using namespace System;
 using namespace System::Windows::Forms;
 
-enum class EntityType {
-  Player, Obstacle, Assassin, Corrupt, Ally
-};
-
-enum class Direction {
-  Up, Down, Left, Right
-};
-
 // Entity publicly inheriting Sprite
-ref class Entity : public Sprite {
+ref class Entity abstract : public Sprite {
 protected:
   EntityType entityType;
   bool movable;
@@ -31,6 +27,10 @@ public:
     this->healthPoints = healthPoints;
     this->damagePoints = damagePoints;
     this->movable = entityType != EntityType::Obstacle;
+  }
+
+  EntityType GetEntityType() {
+    return entityType;
   }
 
   bool IsMovable() {
@@ -59,17 +59,13 @@ public:
       this->drawingArea.Y += direction == Direction::Up ? -velocity : velocity;
     if (direction == Direction::Left || direction == Direction::Right)
       this->drawingArea.X += direction == Direction::Left ? -velocity : velocity;
+
+    this->SetSpriteDirection(direction);
   }
 
   virtual void Move(int deltaX, int deltaY) {
-    if (deltaX != 0)
-      this->drawingArea.X += deltaX < 0 ? -velocity : velocity;
-    if (deltaY != 0)
-      this->drawingArea.Y += deltaY < 0 ? -velocity : velocity;
-  }
-
-  virtual void Move(Point delta) {
-    this->Move(delta.X, delta.Y);
+    for each (Direction direction in GetDirectionFromDelta(deltaX, deltaY))
+      this->Move(direction);
   }
 
   virtual void Move(Keys key) {
@@ -90,5 +86,17 @@ public:
         return Direction::Up;
     }
   }
+
+  static List<int>^ GetDirectionFromDelta(int deltaX, int deltaY) {
+    List<int>^ directions = gcnew List<int>;
+    if (deltaY != 0)
+      deltaY < 0 ? directions->Add((int)Direction::Up) : directions->Add((int)Direction::Down);
+    if (deltaX != 0)
+      deltaX < 0 ? directions->Add((int)Direction::Left) : directions->Add((int)Direction::Right);
+    return directions;
+  }
 };
+
+#endif // !_ENTITY_H_
+
 
