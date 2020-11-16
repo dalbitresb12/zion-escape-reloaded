@@ -1,23 +1,19 @@
 #pragma once
 
-#ifndef _PLAYER_H_
-#define _PLAYER_H_
+#ifndef _ASSASSIN_H_
+#define _ASSASSIN_H_
 
-#include "BitmapManager.h"
+#include "NPC.h"
 #include "Entity.h"
+#include "BitmapManager.h"
 
-ref class Player : public Entity {
+ref class Assassin : public NPC {
 public:
-  Player(Point pos)
-    : Entity(EntityType::Player, pos, 3, 10.f, 2.f) {
+  Assassin(Point pos)
+    : NPC(EntityType::Assassin, pos, 3, 3.f, 2.f) {
     BitmapManager^ bmpManager = BitmapManager::GetInstance();
-    Bitmap^ image = bmpManager->GetImage("assets\\sprites\\principal\\principal_m.png");
-    this->SetImage(image, 4, 4);
-  }
-
-  Player(Bitmap^ image, short nCols, short nRows, Point pos)
-    : Entity(EntityType::Player, pos, 3, 10.f, 2.f) {
-    this->SetImage(image, nCols, nRows);
+    Bitmap^ image = bmpManager->GetImage("assets\\sprites\\asesinos\\asesino.png");
+    this->SetImage(image, 3, 4);
   }
 
   void SetSpriteDirection(Direction direction) override {
@@ -41,5 +37,5 @@ public:
   }
 };
 
-#endif // !_PLAYER_H_
+#endif // !_ASSASSIN_H_
 

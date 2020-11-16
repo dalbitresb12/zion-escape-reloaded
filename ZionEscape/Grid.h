@@ -1,7 +1,10 @@
 #pragma once
 
-#include "Node.h"
+#ifndef _GRID_H_
+#define _GRID_H_
+
 #include "MathUtils.h"
+#include "Node.h"
 
 using namespace System;
 using namespace System::Drawing;
@@ -85,7 +88,7 @@ public:
     int nodeRadiusX = RoundToInt(nodeRadius.X);
     int nodeRadiusY = RoundToInt(nodeRadius.Y);
 
-    for each (Node^ node in grid) {
+    for each (Node ^ node in grid) {
       Point location = Point(node->worldPos.X - nodeRadiusX, node->worldPos.Y - nodeRadiusY);
       Size size = Size(Point::Round(nodeDiameter));
       Rectangle rect = Rectangle(location, size);
@@ -102,3 +105,6 @@ public:
     world->FillRectangle(brush, rect);
   }
 };
+
+#endif // !_GRID_H_
+

@@ -1,23 +1,28 @@
 #pragma once
 
-#ifndef _PLAYER_H_
-#define _PLAYER_H_
+#ifndef _ALLY_H_
+#define _ALLY_H_
 
-#include "BitmapManager.h"
+#include "NPC.h"
 #include "Entity.h"
+#include "BitmapManager.h"
 
-ref class Player : public Entity {
+using namespace System;
+using namespace System::Drawing;
+
+ref class Ally : public NPC {
 public:
-  Player(Point pos)
-    : Entity(EntityType::Player, pos, 3, 10.f, 2.f) {
+  Ally(Point pos)
+    : NPC(EntityType::Ally, pos, 2, 1.f, 0.f) {
     BitmapManager^ bmpManager = BitmapManager::GetInstance();
-    Bitmap^ image = bmpManager->GetImage("assets\\sprites\\principal\\principal_m.png");
+    Bitmap^ image = bmpManager->GetImage("assets\\sprites\\aliados\\aliado-bueno.png");
     this->SetImage(image, 4, 4);
   }
 
-  Player(Bitmap^ image, short nCols, short nRows, Point pos)
-    : Entity(EntityType::Player, pos, 3, 10.f, 2.f) {
-    this->SetImage(image, nCols, nRows);
+  bool ShouldDie() {
+    Random r;
+    int value = r.Next(1, 101); // (inicio, final + 1)
+    return value > 57; //  (100 - num / 100) = % prob
   }
 
   void SetSpriteDirection(Direction direction) override {
@@ -41,5 +46,4 @@ public:
   }
 };
 
-#endif // !_PLAYER_H_
-
+#endif // !_ALLY_H_
