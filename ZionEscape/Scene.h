@@ -11,14 +11,12 @@ using namespace System::Collections::Generic;
 
 ref class Scene {
   Bitmap^ background;
-  BitmapManager^ bmpManager;
   bool up, down, right, left;
   List<SceneSpawner^>^ spawners;
   Rectangle drawingArea;
 
 public:
   Scene(bool up, bool down, bool left, bool right, Point pos) {
-    this->bmpManager = BitmapManager::GetInstance();
     this->spawners = gcnew List<SceneSpawner^>;
     this->up = up;
     this->down = down;
@@ -37,50 +35,52 @@ public:
 
   //Temporal Image Selector -> Works as  a reference
   void ImageSelector() {
+    BitmapManager^ bmpManager = BitmapManager::GetInstance();
+
     if (!this->up && this->down && !this->right && !this->left)
-      this->background = this->bmpManager->GetImage("assets\\sprites\\colliders\\D.png");
+      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\D.png");
 
     else if (!this->up && this->down && this->right && !this->left)
-      this->background = this->bmpManager->GetImage("assets\\sprites\\colliders\\DR.png");
+      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\DR.png");
 
     else if (this->up && this->down && this->right && this->left)
-      this->background = this->bmpManager->GetImage("assets\\sprites\\colliders\\G.png");
+      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\G.png");
 
     else if (!this->up && !this->down && !this->right && this->left)
-      this->background = this->bmpManager->GetImage("assets\\sprites\\colliders\\L.png");
+      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\L.png");
 
     else if (!this->up && !this->down && this->right && this->left)
-      this->background = this->bmpManager->GetImage("assets\\sprites\\colliders\\RL.png");
+      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\RL.png");
 
     else if (!this->up && !this->down && this->right && !this->left)
-      this->background = this->bmpManager->GetImage("assets\\sprites\\colliders\\R.png");
+      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\R.png");
 
     else if (this->up && !this->down && !this->right && !this->left)
-      this->background = this->bmpManager->GetImage("assets\\sprites\\colliders\\T.png");
+      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\T.png");
 
     else if (this->up && this->down && !this->right && !this->left)
-      this->background = this->bmpManager->GetImage("assets\\sprites\\colliders\\TD.png");
+      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\TD.png");
 
     else if (this->up && !this->down && !this->right && this->left)
-      this->background = this->bmpManager->GetImage("assets\\sprites\\colliders\\TL.png");
+      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\TL.png");
 
     else if (this->up && !this->down && this->right && !this->left)
-      this->background = this->bmpManager->GetImage("assets\\sprites\\colliders\\TR.png");
+      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\TR.png");
 
     else if (!this->up && this->down && !this->right && this->left)
-      this->background = this->bmpManager->GetImage("assets\\sprites\\colliders\\DL.png");
+      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\DL.png");
 
     else if (!this->up && this->down && this->right && this->left)
-      this->background = this->bmpManager->GetImage("assets\\sprites\\colliders\\DRL.png");
+      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\DRL.png");
 
     else if (this->up && this->down && !this->right && this->left)
-      this->background = this->bmpManager->GetImage("assets\\sprites\\colliders\\TDL.png");
+      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\TDL.png");
 
     else if (this->up && this->down && this->right && !this->left)
-      this->background = this->bmpManager->GetImage("assets\\sprites\\colliders\\TDR.png");
+      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\TDR.png");
 
     else if (this->up && !this->down && this->right && this->left)
-      this->background = this->bmpManager->GetImage("assets\\sprites\\colliders\\TRL.png");
+      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\TRL.png");
   }
 
   void Draw(Graphics^ g) {
