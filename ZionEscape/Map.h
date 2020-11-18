@@ -11,14 +11,22 @@ using namespace System::Drawing;
 ref class Map {
   List<Scene^>^ scenes;
   Random^ rnd;
-  short maxScenes;
+  int seed;
+  int maxScenes;
   bool isGenerating;
   bool generated;
 
 public:
-  Map() {
-    this->rnd = gcnew Random();
-    this->maxScenes = rnd->Next(40, 50);
+  Map(): Map(40, 50, Environment::TickCount) {}
+
+  Map(int seed): Map(40, 50, seed) {}
+
+  Map(int min, int max): Map(min, max, Environment::TickCount) {}
+
+  Map(int min, int max, int seed) {
+    this->seed = seed;
+    this->rnd = gcnew Random(seed);
+    this->maxScenes = rnd->Next(min, max);
     this->Reboot();
   }
 
@@ -47,12 +55,12 @@ public:
     this->CreateScene(1, 1, 1, 1, Point(468, 312));
   }
 
-  void CreateScene(bool t, bool d, bool r, bool l, Point pos) {
-    this->scenes->Add(gcnew Scene(t, d, r, l, pos));
+  void CreateScene(bool up, bool down, bool left, bool right, Point pos) {
+    this->scenes->Add(gcnew Scene(up, down, left, right, pos));
     this->scenes[this->scenes->Count - 1]->CreateSpawner(pos);
   }
 
-  void MapGeneration(Graphics^ g) {
+  void StartGeneration(Graphics^ g) {
     //Generate new Scenes
     if (this->isGenerating) {
 
@@ -135,7 +143,7 @@ public:
               }
             }
             //Create a new scene
-            this->CreateScene(up, down, right, left, pos);
+            this->CreateScene(up, down, left, right, pos);
             //After the creation of the scene, delete the curSpawner
             this->scenes[curScene]->DeleteSpawner(curSpawner - 1);
           }
@@ -215,8 +223,12 @@ public:
     }
   }
 
-  bool GetGenerated() {
+  bool IsGenerated() {
     return this->generated;
+  }
+
+  int GetSeed() {
+    return this->seed;
   }
 };
 

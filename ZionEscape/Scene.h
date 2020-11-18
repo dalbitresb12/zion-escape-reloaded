@@ -14,8 +14,9 @@ ref class Scene {
   bool up, down, right, left;
   List<SceneSpawner^>^ spawners;
   Rectangle drawingArea;
+
 public:
-  Scene(bool up, bool down, bool right, bool left, Point pos) {
+  Scene(bool up, bool down, bool left, bool right, Point pos) {
     this->spawners = gcnew List<SceneSpawner^>;
     this->up = up;
     this->down = down;

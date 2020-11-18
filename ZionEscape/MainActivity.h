@@ -15,6 +15,7 @@ namespace ZionEscape {
   using namespace System::Collections;
   using namespace System::Data;
   using namespace System::Windows::Forms;
+  using namespace System::Diagnostics;
 
   // Main Activity Form
   public ref class MainActivity : public Form {
@@ -104,7 +105,7 @@ namespace ZionEscape {
   private: void MainActivity_Paint(Object^ sender, PaintEventArgs^ e) {
     Graphics^ world = e->Graphics;
     world->DrawImage(this->background, Point(0, 0));
-    this->game->Generation(world);
+    this->game->StartGeneration(world);
     for each (NPC ^ npc in npcs) {
       npc->Draw(world);
     }
@@ -113,6 +114,12 @@ namespace ZionEscape {
   }
 
   private: void MainActivity_KeyDown(Object^ sender, KeyEventArgs^ e) {
+    // Temporary Map Seed Print
+    if (e->KeyCode == Keys::P) {
+      Debug::WriteLine("Seed: {0}", this->game->GetMapSeed());
+      return;
+    }
+
     if (!validKeys->Contains(e->KeyCode)) return;
 
     if (!keysPressed->Contains(e->KeyCode)) {
