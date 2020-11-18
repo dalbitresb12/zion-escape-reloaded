@@ -13,12 +13,16 @@ public:
     this->map = gcnew Map();
   }
 
-  void Generation(Graphics^ g) {
-    this->map->MapGeneration(g);
+  void StartGeneration(Graphics^ g) {
+    this->map->StartGeneration(g);
   }
 
   bool IsGenerated() {
-    return this->map->GetGenerated();
+    return this->map->IsGenerated();
+  }
+
+  int GetMapSeed() {
+    return this->map->GetSeed();
   }
 };
 
