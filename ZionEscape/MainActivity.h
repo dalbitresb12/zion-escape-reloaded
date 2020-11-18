@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Game.h"
 #include "BitmapManager.h"
 #include "Pathfinder.h"
 #include "Grid.h"
@@ -21,6 +21,7 @@ namespace ZionEscape {
     System::ComponentModel::IContainer^ components;
     System::Windows::Forms::Timer^ MovementTimer;
     // User-defined properties.
+    Game^ game;
     Bitmap^ background;
     GraphicsPath^ unwalkableLayer;
     Grid^ mapGrid;
@@ -35,6 +36,8 @@ namespace ZionEscape {
       // User-defined code.
       BitmapManager^ bmpManager = BitmapManager::GetInstance();
       background = bmpManager->GetImage("assets\\sprites\\scenes\\scene_1.png");
+
+      this->game = gcnew Game();
 
       unwalkableLayer = gcnew GraphicsPath();
       Point gridWorldSize = Point(background->Width, background->Height);
@@ -67,6 +70,7 @@ namespace ZionEscape {
       if (components) {
         delete components;
       }
+      delete game;
     }
 
 #pragma region Windows Form Designer generated code
@@ -97,11 +101,10 @@ namespace ZionEscape {
 
     }
 #pragma endregion
-
   private: void MainActivity_Paint(Object^ sender, PaintEventArgs^ e) {
     Graphics^ world = e->Graphics;
     world->DrawImage(this->background, Point(0, 0));
-
+    this->game->Generation(world);
     for each (NPC ^ npc in npcs) {
       npc->Draw(world);
     }
@@ -157,5 +160,5 @@ namespace ZionEscape {
       }
     }
   }
-  };
+};
 }
