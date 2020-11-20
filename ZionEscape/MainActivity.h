@@ -30,7 +30,8 @@ namespace ZionEscape {
     List<NPC^>^ npcs;
 
     List<Keys>^ keysPressed;
-    List<Keys>^ validKeys;
+  private: System::Windows::Forms::Timer^ AnimationTimer;
+         List<Keys>^ validKeys;
 
   public:
     MainActivity() {
@@ -79,20 +80,28 @@ namespace ZionEscape {
     void InitializeComponent() {
       this->components = (gcnew System::ComponentModel::Container());
       this->MovementTimer = (gcnew System::Windows::Forms::Timer(this->components));
+      this->AnimationTimer = (gcnew System::Windows::Forms::Timer(this->components));
       this->SuspendLayout();
       // 
       // MovementTimer
       // 
       this->MovementTimer->Enabled = true;
-      this->MovementTimer->Interval = 30;
+      this->MovementTimer->Interval = 50;
       this->MovementTimer->Tick += gcnew System::EventHandler(this, &MainActivity::MovementTimer_Tick);
+      // 
+      // AnimationTimer
+      // 
+      this->AnimationTimer->Enabled = true;
+      this->AnimationTimer->Interval = 50;
+      this->AnimationTimer->Tick += gcnew System::EventHandler(this, &MainActivity::AnimationTimer_Tick);
       // 
       // MainActivity
       // 
-      this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+      this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
       this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-      this->ClientSize = System::Drawing::Size(936, 624);
+      this->ClientSize = System::Drawing::Size(1248, 768);
       this->DoubleBuffered = true;
+      this->Margin = System::Windows::Forms::Padding(4);
       this->Name = L"MainActivity";
       this->Text = L"Zion Escape";
       this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MainActivity::MainActivity_Paint);
@@ -166,6 +175,13 @@ namespace ZionEscape {
         Pathfinder::FindPath(mapGrid, npc->GetPosition(), ally->GetPosition(), npc);
       }
     }
+  }
+  private: void AnimationTimer_Tick(Object^ sender, EventArgs^ e) {
+    for each (NPC ^ npc in npcs) {
+      npc->ShiftCol();
+    }
+
+    player->ShiftCol();
   }
 };
 }
