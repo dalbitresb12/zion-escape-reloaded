@@ -10,8 +10,7 @@ using namespace System::Drawing;
 using namespace System::Collections::Generic;
 
 ref class Map {
-  // TO DO: Remove scenes List and use neighbours approach
-  List<Scene^>^ scenes;
+  Scene^ currentScene;
   Random^ rnd;
   int seed;
   int maxScenes;
@@ -29,183 +28,34 @@ public:
     this->seed = seed;
     this->rnd = gcnew Random(seed);
     this->maxScenes = rnd->Next(min, max);
-    this->Reset();
+    this->generated = false;
   }
 
   ~Map() {
-    for each (Scene ^ scene in this->scenes)
-      delete scene;
-    this->scenes->Clear();
-    delete this->scenes;
-    delete this->rnd;
-  }
-
-  void Reset() {
-    if (this->scenes != nullptr) {
-      for each (Scene ^ scene in this->scenes)
-        delete scene;
-      this->scenes->Clear();
-      delete this->scenes;
-    }
-
-    // Set the values of generation
-    this->isGenerating = false;
-    this->generated = false;
-
-    // Create the List of scenes and select the start point of the first one
-    this->scenes = gcnew List<Scene^>;
-    this->scenes->Add(gcnew Scene(DoorLocations(true), Point(0, 0)));
+    delete currentScene;
+    delete rnd;
   }
 
   void StartGeneration() {
-    // Generate new Scenes
-    if (isGenerating) {
-      // Check all the scenes
-      for (int sceneCounter = 0; sceneCounter < scenes->Count; ++sceneCounter) {
-        // Save the current scene as a local
-        Scene^ currentScene = scenes[sceneCounter];
-        // Number of spawners in the current scene
-        int spawnersCount = currentScene->GetSpawners()->Count;
+    // Prevent execution if the map has already been generated
+    if (generated)
+      return;
 
-        if (spawnersCount > 0) {
-          isGenerating = true;
-
-          // For each spawner of the scene we need to know if it collides or not
-          for each (KeyValuePair<Direction, SceneSpawner^> element in currentScene->GetSpawners()) {
-            // Save the reference to the current spawner as a local
-            SceneSpawner^ currentSpawner = element.Value;
-
-            // Skip the current spawner since it is nullptr
-            if (currentSpawner == nullptr)
-              continue;
-
-            // Get the door direction that the next scene will need
-            Direction doorNeeded = currentSpawner->GetParentDirection();
-            bool spawnerCollides = false;
-
-            // Check all scenes for possible collisions
-            for each (Scene ^ scene in scenes) {
-              // Check all spawners of the scene for possible collisions
-              for each (KeyValuePair<Direction, SceneSpawner^> element in scene->GetSpawners()) {
-                SceneSpawner^ spawner = element.Value;
-                if (!currentSpawner->Equals(spawner)) {
-                  // If the current spawner is in the same position of another spawner
-                  // a door of the current scene should be closed
-                  if (currentSpawner->GetPos().Equals(spawner->GetPos())) {
-                    spawnerCollides = true;
-                    CloseDoor(doorNeeded, currentScene);
-                    break;
-                  }
-                }
-              }
-
-              // Exit if already found
-              if (spawnerCollides)
-                break;
-
-              // If the current spawner is in the same position of another scene
-              // a door of the current scene should be closed
-              if (currentSpawner->GetPos().Equals(scene->GetPos())) {
-                spawnerCollides = true;
-                CloseDoorScene(doorNeeded, currentScene, scene);
-              }
-            }
-
-            // Continue to next loop and delete the current spawner
-            if (spawnerCollides) {
-              delete currentSpawner;
-              continue;
-            }
-
-            // Initialize values for the new scene
-            DoorLocations doorLocations;
-
-            if (scenes->Count < maxScenes) {
-              // Set default values
-              doorLocations.SetAll(true);
-              // Get a random open or closed door
-              do {
-                if (doorNeeded != Direction::Up)
-                  doorLocations.Up = rnd->Next(0, 2);
-                if (doorNeeded != Direction::Down)
-                  doorLocations.Down = rnd->Next(0, 2);
-                if (doorNeeded != Direction::Left)
-                  doorLocations.Left = rnd->Next(0, 2);
-                if (doorNeeded != Direction::Right)
-                  doorLocations.Right = rnd->Next(0, 2);
-              } while (doorLocations.IsAllTrue());
-            } else {
-              // If the number of scenes reaches the max scenes,
-              // the current scene needs to be closed
-              switch (doorNeeded) {
-                case Direction::Up:
-                  doorLocations.SetAll(true, false, false, false);
-                  break;
-                case Direction::Down:
-                  doorLocations.SetAll(false, true, false, false);
-                  break;
-                case Direction::Left:
-                  doorLocations.SetAll(false, false, true, false);
-                  break;
-                case Direction::Right:
-                  doorLocations.SetAll(false, false, false, true);
-                  break;
-              }
-            }
-
-            // Create the new scene
-            Scene^ scene = gcnew Scene(doorLocations, currentSpawner->GetPos());
-            scenes->Add(scene);
-            // Add as a neighbour to the current scene
-            currentScene->AddNeighbour(EnumUtilities::GetInverseDirection(doorNeeded), scenes[scenes->Count - 1]);
-            // Delete the spawner because the scene has been created
-            delete currentSpawner;
-          }
-
-          // Clear the List since all the spawners have been used
-          currentScene->GetSpawners()->Clear();
-        } else {
-          isGenerating = false;
-        }
-      }
-    } else if (scenes->Count == 1) {
-      isGenerating = true;
-    } else if (scenes->Count < maxScenes && !isGenerating) {
-      Reset();
-    } else {
-      // The map has been generated succesfully.
-      generated = true;
-    }
+    // Set the position of the first scene in the virtual grid
+    Point position = Point(0, 0);
+    // Initialize the first scene
+    currentScene = gcnew Scene(DoorLocations(true), position);
+    // Initialize points List (only used to detect collisions)
+    List<Point>^ points = gcnew List<Point>;
+    // Add the first Point
+    points->Add(position);
+    // Start recursive generation
+    GenerateScenes(currentScene, points);
+    generated = true;
   }
 
-  void DrawScenes(Graphics^ world) {
-    DrawScenes(world, false);
-  }
-
-  void DrawScenes(Graphics^ world, bool background) {
-    if (background) {
-      // Put a color to the background
-      world->Clear(Color::FromArgb(255, 37, 37, 37));
-    }
-
-    // Draw all the scenes
-    for each (Scene ^ scene in scenes) {
-      // Put a color to the maze
-      Point position = scene->GetPos();
-      Size size = scene->GetBackgroundSize();
-      Point worldPos = Point((position.X + 10) * size.Width, (position.Y + 10) * size.Height);
-      Rectangle rect = Rectangle(worldPos, size);
-      world->FillRectangle(Brushes::CornflowerBlue, rect);
-
-      // Put a different color to the background of the first and last scene
-      if (scene == scenes[0])
-        world->FillRectangle(Brushes::Crimson, rect);
-      else if (scene == scenes[scenes->Count - 1])
-        world->FillRectangle(Brushes::BlueViolet, rect);
-
-      // Draw the scene
-      scene->Draw(world);
-    }
+  void Draw(Graphics^ world) {
+    DrawScene(world, currentScene);
   }
 
   bool IsGenerated() {
@@ -217,6 +67,107 @@ public:
   }
 
 private:
+  void GenerateScenes(Scene^ scene, List<Point>^ points) {
+    for each (KeyValuePair<Direction, SceneSpawner^> element in scene->GetSpawners()) {
+      // Save the reference to the current spawner as a local
+      SceneSpawner^ currentSpawner = element.Value;
+
+      // Skip the current spawner since it is nullptr
+      if (currentSpawner == nullptr)
+        continue;
+
+      // Get the possible position of this scene
+      Point position = currentSpawner->GetPos();
+      // Get the door direction that the next scene will need
+      Direction doorNeeded = currentSpawner->GetParentDirection();
+      bool spawnerCollides = false;
+
+      // Check all scenes for possible collisions
+      for each (Point point in points) {
+        if (position.Equals(point)) {
+          spawnerCollides = true;
+          break;
+        }
+      }
+
+      // Continue to next loop and delete the current spawner
+      if (spawnerCollides) {
+        delete currentSpawner;
+        continue;
+      }
+
+      // Initialize values for the new scene
+      DoorLocations doorLocations;
+
+      if (points->Count < maxScenes) {
+        // Set default values
+        doorLocations.SetAll(true);
+        // Get a random open or closed door
+        do {
+          if (doorNeeded != Direction::Up)
+            doorLocations.Up = rnd->Next(0, 2);
+          if (doorNeeded != Direction::Down)
+            doorLocations.Down = rnd->Next(0, 2);
+          if (doorNeeded != Direction::Left)
+            doorLocations.Left = rnd->Next(0, 2);
+          if (doorNeeded != Direction::Right)
+            doorLocations.Right = rnd->Next(0, 2);
+        } while (doorLocations.IsAllTrue());
+      } else {
+        // If the number of scenes reaches the max scenes,
+        // the current scene needs to be closed
+        switch (doorNeeded) {
+          case Direction::Up:
+            doorLocations.SetAll(true, false, false, false);
+            break;
+          case Direction::Down:
+            doorLocations.SetAll(false, true, false, false);
+            break;
+          case Direction::Left:
+            doorLocations.SetAll(false, false, true, false);
+            break;
+          case Direction::Right:
+            doorLocations.SetAll(false, false, false, true);
+            break;
+        }
+      }
+
+      // Create the new scene
+      Scene^ generatedScene = gcnew Scene(doorLocations, position);
+      // Save the Point to the List
+      points->Add(position);
+      // Add as a neighbour to the current scene
+      scene->AddNeighbour(EnumUtilities::GetInverseDirection(doorNeeded), generatedScene);
+      // Delete the spawner because the scene has been created
+      delete currentSpawner;
+      // Continue generating more scenes using recursion
+      GenerateScenes(generatedScene, points);
+    }
+
+    // Clear the List since all the spawners have been used
+    scene->GetSpawners()->Clear();
+  }
+
+  void DrawScene(Graphics^ world, Scene^ scene) {
+    Point position = scene->GetPos();
+    Size size = scene->GetBackgroundSize();
+    Point worldPos = Point((position.X + 10) * size.Width, (position.Y + 10) * size.Height);
+    Rectangle rect = Rectangle(worldPos, size);
+
+    if (position.Equals(Point(0, 0))) {
+      world->FillRectangle(Brushes::Crimson, rect);
+    } else {
+      world->FillRectangle(Brushes::CornflowerBlue, rect);
+    }
+
+    scene->Draw(world);
+
+    for each (KeyValuePair<Direction, Scene^> element in scene->GetNeighbours()) {
+      Scene^ neighbour = element.Value;
+      DrawScene(world, neighbour);
+    }
+  }
+
   static void CloseDoor(Direction doorNeeded, Scene^ scene) {
     scene->SetDoorValue(EnumUtilities::GetInverseDirection(doorNeeded), false);
   }

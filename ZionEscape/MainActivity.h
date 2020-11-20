@@ -104,8 +104,11 @@ namespace ZionEscape {
 #pragma endregion
   private: void MainActivity_Paint(Object^ sender, PaintEventArgs^ e) {
     Graphics^ world = e->Graphics;
+
     // TO DO: Move all of this to Game class and use rendering logic
     world->DrawImage(this->background, Point(0, 0));
+
+    // Draw the map preview
     this->game->DrawMapGizmos(world);
 
     for each (NPC ^ npc in npcs) {

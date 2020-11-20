@@ -16,12 +16,12 @@ public:
   }
 
   void MapGeneration() {
-    if (!this->map->IsGenerated())
-      this->map->StartGeneration();
+    this->map->StartGeneration();
   }
 
   void DrawMapGizmos(Graphics^ world) {
-    this->map->DrawScenes(world);
+    if (this->map->IsGenerated())
+      this->map->Draw(world);
   }
 
   bool IsGenerated() {

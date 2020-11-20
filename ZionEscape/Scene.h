@@ -173,6 +173,10 @@ public:
     neighbours->Add(direction, scene);
   }
 
+  Dictionary<Direction, Scene^>^ GetNeighbours() {
+    return neighbours;
+  }
+
   void SetDoorValue(Direction direction, bool value) {
     if (value && !doors->Contains(direction))
       doors->Add(direction);
