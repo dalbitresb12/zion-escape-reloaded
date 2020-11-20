@@ -4,11 +4,12 @@
 #define _SCENESPAWNER_H_
 
 #include "Enums.h"
+
 using namespace System::Drawing;
 
 ref class SceneSpawner {
   Rectangle drawingArea;
-  //The new scene must have a door looking in the direction
+  // The new scene must have a door looking in the direction
   Direction parentDirection;
  
 public:
@@ -16,9 +17,13 @@ public:
     this->drawingArea = drawingArea;
     this->parentDirection = parentDirection;
   }
+
+  ~SceneSpawner() {}
+
   Direction GetParentDirection() {
     return this->parentDirection;
   }
+
   Point GetPos() {
     return this->drawingArea.Location;
   }
