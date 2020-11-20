@@ -5,23 +5,48 @@
 
 #include "SceneSpawner.h"
 #include "BitmapManager.h"
+#include "Enums.h"
 
 using namespace System::Drawing;
 using namespace System::Collections::Generic;
 
+class DoorLocations {
+public:
+  bool Up, Down, Left, Right;
+  DoorLocations() {
+    this->SetAll(false, false, false, false);
+  }
+  DoorLocations(bool up, bool down, bool left, bool right) {
+    this->SetAll(up, down, left, right);
+  }
+  ~DoorLocations() {}
+  bool IsAllTrue() {
+    return Up && Down && Left && Right;
+  }
+  void SetAll(bool value) {
+    SetAll(value, value, value, value);
+  }
+  void SetAll(bool x, bool y) {
+    SetAll(y, y, x, x);
+  }
+  void SetAll(bool up, bool down, bool left, bool right) {
+    this->Up = up;
+    this->Down = down;
+    this->Left = left;
+    this->Right = right;
+  }
+};
+
 ref class Scene {
   Bitmap^ background;
-  bool up, down, right, left;
+  List<Direction>^ doors;
   List<SceneSpawner^>^ spawners;
   Rectangle drawingArea;
 
 public:
-  Scene(bool up, bool down, bool left, bool right, Point pos) {
+  Scene(DoorLocations doorLocations, Point pos) {
     this->spawners = gcnew List<SceneSpawner^>;
-    this->up = up;
-    this->down = down;
-    this->right = right;
-    this->left = left;
+    this->InitDoorsList(doorLocations);
     this->ImageSelector();
     this->drawingArea = Rectangle(pos, this->background->Size);
   }
@@ -36,51 +61,55 @@ public:
   //Temporal Image Selector -> Works as  a reference
   void ImageSelector() {
     BitmapManager^ bmpManager = BitmapManager::GetInstance();
+    bool up = GetUp();
+    bool down = GetDown();
+    bool left = GetLeft();
+    bool right = GetRight();
 
-    if (!this->up && this->down && !this->right && !this->left)
-      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\D.png");
+    if (!up && down && !right && !left)
+      background = bmpManager->GetImage("assets\\sprites\\colliders\\D.png");
 
-    else if (!this->up && this->down && this->right && !this->left)
-      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\DR.png");
+    else if (!up && down && right && !left)
+      background = bmpManager->GetImage("assets\\sprites\\colliders\\DR.png");
 
-    else if (this->up && this->down && this->right && this->left)
-      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\G.png");
+    else if (up && down && right && left)
+      background = bmpManager->GetImage("assets\\sprites\\colliders\\G.png");
 
-    else if (!this->up && !this->down && !this->right && this->left)
-      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\L.png");
+    else if (!up && !down && !right && left)
+      background = bmpManager->GetImage("assets\\sprites\\colliders\\L.png");
 
-    else if (!this->up && !this->down && this->right && this->left)
-      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\RL.png");
+    else if (!up && !down && right && left)
+      background = bmpManager->GetImage("assets\\sprites\\colliders\\RL.png");
 
-    else if (!this->up && !this->down && this->right && !this->left)
-      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\R.png");
+    else if (!up && !down && right && !left)
+      background = bmpManager->GetImage("assets\\sprites\\colliders\\R.png");
 
-    else if (this->up && !this->down && !this->right && !this->left)
-      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\T.png");
+    else if (up && !down && !right && !left)
+      background = bmpManager->GetImage("assets\\sprites\\colliders\\T.png");
 
-    else if (this->up && this->down && !this->right && !this->left)
-      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\TD.png");
+    else if (up && down && !right && !left)
+      background = bmpManager->GetImage("assets\\sprites\\colliders\\TD.png");
 
-    else if (this->up && !this->down && !this->right && this->left)
-      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\TL.png");
+    else if (up && !down && !right && left)
+      background = bmpManager->GetImage("assets\\sprites\\colliders\\TL.png");
 
-    else if (this->up && !this->down && this->right && !this->left)
-      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\TR.png");
+    else if (up && !down && right && !left)
+      background = bmpManager->GetImage("assets\\sprites\\colliders\\TR.png");
 
-    else if (!this->up && this->down && !this->right && this->left)
-      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\DL.png");
+    else if (!up && down && !right && left)
+      background = bmpManager->GetImage("assets\\sprites\\colliders\\DL.png");
 
-    else if (!this->up && this->down && this->right && this->left)
-      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\DRL.png");
+    else if (!up && down && right && left)
+      background = bmpManager->GetImage("assets\\sprites\\colliders\\DRL.png");
 
-    else if (this->up && this->down && !this->right && this->left)
-      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\TDL.png");
+    else if (up && down && !right && left)
+      background = bmpManager->GetImage("assets\\sprites\\colliders\\TDL.png");
 
-    else if (this->up && this->down && this->right && !this->left)
-      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\TDR.png");
+    else if (up && down && right && !left)
+      background = bmpManager->GetImage("assets\\sprites\\colliders\\TDR.png");
 
-    else if (this->up && !this->down && this->right && this->left)
-      this->background = bmpManager->GetImage("assets\\sprites\\colliders\\TRL.png");
+    else if (up && !down && right && left)
+      background = bmpManager->GetImage("assets\\sprites\\colliders\\TRL.png");
   }
 
   void Draw(Graphics^ g) {
@@ -90,21 +119,21 @@ public:
   void CreateSpawner(Point pos) {
     Point location;
     Size size = Size(this->background->Width, this->background->Height);
-    if (this->up) {
-      location = Point(pos.X, pos.Y - size.Height);
-      this->spawners->Add(gcnew SceneSpawner(Direction::Down, Rectangle(location, size)));
-    }
-    if (this->down) {
-      location = Point(pos.X, pos.Y + size.Height);
-      this->spawners->Add(gcnew SceneSpawner(Direction::Up, Rectangle(location, size)));
-    }
-    if (this->right) {
-      location = Point(pos.X + size.Width, pos.Y);
-      this->spawners->Add(gcnew SceneSpawner(Direction::Left, Rectangle(location, size)));
-    }
-    if (this->left) {
-      location = Point(pos.X - size.Width, pos.Y);
-      this->spawners->Add(gcnew SceneSpawner(Direction::Right, Rectangle(location, size)));
+
+    for each (Direction dir in doors) {
+      if (dir == Direction::Up || dir == Direction::Down)
+        location = Point(pos.X, pos.Y + (dir == Direction::Up ? -size.Height : size.Height));
+      if (dir == Direction::Left || dir == Direction::Right)
+        location = Point(pos.X + (dir == Direction::Left ? -size.Width : size.Width), pos.Y);
+
+      Rectangle rect = Rectangle(location, size);
+      /*if (spawners->ContainsKey(dir)) {
+        SceneSpawner^ element;
+        if (spawners->TryGetValue(dir, element))
+          delete element;
+        spawners->Remove(dir);
+      }*/
+      spawners->Add(gcnew SceneSpawner(EnumUtilities::GetInverseDirection(dir), rect));
     }
   }
 
@@ -112,40 +141,48 @@ public:
     this->spawners->Remove(this->spawners[n]);
   }
 
-  void SetUp(bool value) {
-    this->up = value;
+  void SetDoors(Direction direction, bool value) {
+    if (value && !doors->Contains(direction))
+      doors->Add(direction);
+    else if (!value && doors->Contains(direction))
+      doors->Remove(direction);
     this->ImageSelector();
+  }
+
+  void SetUp(bool value) {
+    SetDoors(Direction::Up, value);
   }
 
   void SetDown(bool value) {
-    this->down = value;
-    this->ImageSelector();
-  }
-
-  void SetRight(bool value) {
-    this->right = value;
-    this->ImageSelector();
+    SetDoors(Direction::Down, value);
   }
 
   void SetLeft(bool value) {
-    this->left = value;
-    this->ImageSelector();
+    SetDoors(Direction::Left, value);
+  }
+
+  void SetRight(bool value) {
+    SetDoors(Direction::Right, value);
+  }
+
+  bool GetDoors(Direction direction) {
+    return doors->Contains(direction);
   }
 
   bool GetUp() {
-    return this->up;
+    return GetDoors(Direction::Up);
   }
 
   bool GetDown() {
-    return this->down;
-  }
-
-  bool GetRight() {
-    return this->right;
+    return GetDoors(Direction::Down);
   }
 
   bool GetLeft() {
-    return this->left;
+    return GetDoors(Direction::Left);
+  }
+
+  bool GetRight() {
+    return GetDoors(Direction::Right);
   }
 
   Rectangle GetDrawingArea() {
@@ -158,6 +195,20 @@ public:
 
   List<SceneSpawner^>^ GetSpawners() {
     return this->spawners;
+  }
+
+private:
+  void InitDoorsList(DoorLocations locations) {
+    if (doors != nullptr) {
+      doors->Clear();
+    } else {
+      doors = gcnew List<Direction>;
+    }
+
+    if (locations.Up) doors->Add(Direction::Up);
+    if (locations.Down) doors->Add(Direction::Down);
+    if (locations.Left) doors->Add(Direction::Left);
+    if (locations.Right) doors->Add(Direction::Right);
   }
 };
 

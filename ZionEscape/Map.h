@@ -52,134 +52,155 @@ public:
 
     //Create the list of scenes and select the start point of the first one
     this->scenes = gcnew List<Scene^>;
-    this->CreateScene(1, 1, 1, 1, Point(468, 312));
+    this->CreateScene(DoorLocations(true, true, true, true), Point(468, 312));
   }
 
-  void CreateScene(bool up, bool down, bool left, bool right, Point pos) {
-    this->scenes->Add(gcnew Scene(up, down, left, right, pos));
+  void CreateScene(DoorLocations doorLocations, Point pos) {
+    this->scenes->Add(gcnew Scene(doorLocations, pos));
     this->scenes[this->scenes->Count - 1]->CreateSpawner(pos);
   }
 
-  void StartGeneration(Graphics^ g) {
-    //Generate new Scenes
-    if (this->isGenerating) {
+  void StartGeneration(Graphics^ world) {
+    // Generate new Scenes
+    if (isGenerating) {
+      // Check all the scenes
+      for (int sceneCounter = 0; sceneCounter < scenes->Count; ++sceneCounter) {
+        // Save the current scene as a local
+        Scene^ currentScene = scenes[sceneCounter];
+        // Number of spawners in the current scene
+        int spawnersCount = currentScene->GetSpawners()->Count;
 
-      //Check all the scenes
-      for (short curScene = 0; curScene < this->scenes->Count; curScene++) {
-        //Number of spawners in the current Scene
-        short countSpawners = this->scenes[curScene]->GetSpawners()->Count;
+        if (spawnersCount > 0) {
+          isGenerating = true;
 
-        if(countSpawners > 0) {
+          // For each spawner of the scene we need to know if it collides or not
+          for each (SceneSpawner ^ currentSpawner in currentScene->GetSpawners()) {
+            // Skip the current spawner since it is nullptr
+            if (currentSpawner == nullptr)
+              continue;
 
-          this->isGenerating = true;
-
-          //For each Spawner of the Scene we need to know if they collides or not
-          for (short curSpawner = countSpawners; curSpawner > 0; curSpawner--) {
-            //Get the door direction that the next scene will need
-            Direction doorNeeded = this->scenes[curScene]->GetSpawners()[curSpawner - 1]->GetParentDirection();
+            // Get the door direction that the next scene will need
+            Direction doorNeeded = currentSpawner->GetParentDirection();
             bool spawnerCollides = false;
 
-            //Check all scenes
-            for each (Scene ^ otherScene in this->scenes) {
-              //Check all ScenesSpawners of the otherScene
-              for each (SceneSpawner ^ otherSpawner in otherScene->GetSpawners()) {
-                if (this->scenes[curScene]->GetSpawners()[curSpawner - 1] != otherSpawner) {
-                  //If the curSpawner is in the same position of otherSpawner, a door of the curScene will be closed
-                  if (this->scenes[curScene]->GetSpawners()[curSpawner - 1]->GetPos().Equals(otherSpawner->GetPos())) {
+            // Check all scenes
+            for each (Scene ^ scene in scenes) {
+              // Check all spawners of the scene
+              for each (SceneSpawner ^ spawner in scene->GetSpawners()) {
+                if (!currentSpawner->Equals(spawner)) {
+                  // If the current spawner is in the same position of another spawner
+                  // a door of the current scene should be closed
+                  if (currentSpawner->GetPos().Equals(spawner->GetPos())) {
                     spawnerCollides = true;
-                    this->CloseDoor(doorNeeded, this->scenes[curScene]);
+                    CloseDoor(doorNeeded, currentScene);
                     break;
                   }
                 }
               }
+
+              // Exit if already found
               if (spawnerCollides)
                 break;
-              //If the curSpawner is in the same position of otherScene, a door of the curScene will be closed
-              if (this->scenes[curScene]->GetSpawners()[curSpawner - 1]->GetPos().Equals(otherScene->GetPos())) {
+
+              // If the current spawner is in the same position of another scene
+              // a door of the current scene should be closed
+              if (currentSpawner->GetPos().Equals(scene->GetPos())) {
                 spawnerCollides = true;
-                this->CloseDoorScene(doorNeeded, this->scenes[curScene], otherScene);
-                break;
+                CloseDoorScene(doorNeeded, currentScene, scene);
               }
             }
 
+            // Continue to next loop and delete the current spawner
             if (spawnerCollides) {
-              this->scenes[curScene]->DeleteSpawner(curSpawner - 1);
-              break;
+              //currentScene->DeleteSpawner(spawnerCounter - 1);
+              delete currentSpawner;
+              continue;
             }
 
-            //Values of the new scene
-            bool up = true, down = true, right = true, left = true;
-            Point pos = this->scenes[curScene]->GetSpawners()[curSpawner - 1]->GetPos();
-            
-            if (this->scenes->Count < this->maxScenes) {
-              //Get a random open or close door
+            // Initialize values for the new scene
+            DoorLocations doorLocations;
+            Point position = currentSpawner->GetPos();
+
+            if (scenes->Count < maxScenes) {
+              doorLocations.SetAll(true);
+              // Get a random open or closed door
               do {
                 if (doorNeeded != Direction::Up)
-                  up = rnd->Next(0, 2);
+                  doorLocations.Up = rnd->Next(0, 2);
                 if (doorNeeded != Direction::Down)
-                  down = rnd->Next(0, 2);
-                if (doorNeeded != Direction::Right)
-                  right = rnd->Next(0, 2);
+                  doorLocations.Down = rnd->Next(0, 2);
                 if (doorNeeded != Direction::Left)
-                  left = rnd->Next(0, 2);
-              } while (up == down == right == left == true);
-            }
-            //If number of scenes reaches the maxScenes, the current scene needs to be closed
-            else {
-              switch (doorNeeded)
-              {
-              case Direction::Up:
-                down = right = left = false;
-                break;
-              case Direction::Down:
-                up = right = left = false;
-                break;
-              case Direction::Right:
-                up = down = left = false;
-                break;
-              case Direction::Left:
-                up = down = right = false;
-                break;
+                  doorLocations.Left = rnd->Next(0, 2);
+                if (doorNeeded != Direction::Right)
+                  doorLocations.Right = rnd->Next(0, 2);
+              } while (doorLocations.IsAllTrue());
+            } else {
+              // If the number of scenes reaches the max scenes,
+              // the current scene needs to be closed
+              switch (doorNeeded) {
+                case Direction::Up:
+                  doorLocations.SetAll(true, false, false, false);
+                  break;
+                case Direction::Down:
+                  doorLocations.SetAll(false, true, false, false);
+                  break;
+                case Direction::Left:
+                  doorLocations.SetAll(false, false, true, false);
+                  break;
+                case Direction::Right:
+                  doorLocations.SetAll(false, false, false, true);
+                  break;
               }
             }
-            //Create a new scene
-            this->CreateScene(up, down, left, right, pos);
-            //After the creation of the scene, delete the curSpawner
-            this->scenes[curScene]->DeleteSpawner(curSpawner - 1);
+
+            // Create the new scene
+            CreateScene(doorLocations, position);
+            // Delete the spawner because the scene has been created
+            delete currentSpawner;
           }
-        }
-        else {
-          this->isGenerating = false;
-        }
 
+          // Clear the List since all the spawners have been used
+          currentScene->GetSpawners()->Clear();
+        } else {
+          isGenerating = false;
+        }
       }
     }
-    else if (this->scenes->Count == 1) {
-      this->isGenerating = true;
+    else if (scenes->Count == 1) {
+      isGenerating = true;
     }
-    else if (this->scenes->Count < this->maxScenes && this->isGenerating == false) {
-      this->Reboot();
+    else if (scenes->Count < maxScenes && !isGenerating) {
+      Reboot();
     } else {
-      //The Map is now generated
-      this->generated = true;
+      // The map is now generated
+      generated = true;
+      DrawScenes(world);
+    }
+  }
 
-      //Put a color to the background
-      //g->Clear(Color::FromArgb(255, 37, 37, 37));
+  void DrawScenes(Graphics^ world) {
+    DrawScenes(world, false);
+  }
 
-      //Draw all the scenes
-      for each (Scene ^ curScene in this->scenes) {
-        //Put a color to the maze
-        g->FillRectangle(Brushes::CornflowerBlue, curScene->GetDrawingArea());
+  void DrawScenes(Graphics^ world, bool background) {
+    if (background) {
+      // Put a color to the background
+      world->Clear(Color::FromArgb(255, 37, 37, 37));
+    }
 
-        //Put a different color to the background of the first and last scene
-        if (curScene == this->scenes[0])
-          g->FillRectangle(Brushes::Crimson, curScene->GetDrawingArea());
-        else if (curScene == this->scenes[this->scenes->Count - 1])
-          g->FillRectangle(Brushes::BlueViolet, curScene->GetDrawingArea());
+    // Draw all the scenes
+    for each (Scene ^ scene in scenes) {
+      // Put a color to the maze
+      world->FillRectangle(Brushes::CornflowerBlue, scene->GetDrawingArea());
 
-        // Draw the scene
-        curScene->Draw(g);
-      }
+      // Put a different color to the background of the first and last scene
+      if (scene == scenes[0])
+        world->FillRectangle(Brushes::Crimson, scene->GetDrawingArea());
+      else if (scene == scenes[scenes->Count - 1])
+        world->FillRectangle(Brushes::BlueViolet, scene->GetDrawingArea());
+
+      // Draw the scene
+      scene->Draw(world);
     }
   }
 
