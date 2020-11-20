@@ -155,6 +155,8 @@ public:
 
             // Create the new scene
             CreateScene(doorLocations, position);
+            // Add as a neighbour to the current scene
+            currentScene->AddNeighbour(EnumUtilities::GetInverseDirection(doorNeeded), scenes[scenes->Count - 1]);
             // Delete the spawner because the scene has been created
             delete currentSpawner;
           }

@@ -40,22 +40,29 @@ public:
 ref class Scene {
   Bitmap^ background;
   List<Direction>^ doors;
+  Dictionary<Direction, Scene^>^ neighbours;
   List<SceneSpawner^>^ spawners;
   Rectangle drawingArea;
 
 public:
   Scene(DoorLocations doorLocations, Point pos) {
     this->spawners = gcnew List<SceneSpawner^>;
+    this->neighbours = gcnew Dictionary<Direction, Scene^>;
     this->InitDoorsList(doorLocations);
     this->ImageSelector();
     this->drawingArea = Rectangle(pos, this->background->Size);
   }
 
   ~Scene() {
-    for each (SceneSpawner ^ spawner in this->spawners)
+    for each (SceneSpawner ^ spawner in spawners)
       delete spawner;
-    this->spawners->Clear();
-    delete this->spawners;
+    spawners->Clear();
+    delete spawners;
+
+    for each (KeyValuePair<Direction, Scene^> element in neighbours)
+      delete element.Value;
+    neighbours->Clear();
+    delete neighbours;
   }
 
   //Temporal Image Selector -> Works as  a reference
@@ -139,6 +146,10 @@ public:
 
   void DeleteSpawner(short n) {
     this->spawners->Remove(this->spawners[n]);
+  }
+
+  void AddNeighbour(Direction direction, Scene^ scene) {
+    neighbours->Add(direction, scene);
   }
 
   void SetDoors(Direction direction, bool value) {
