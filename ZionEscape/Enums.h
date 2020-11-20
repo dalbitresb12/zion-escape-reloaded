@@ -30,8 +30,6 @@ namespace EnumUtilities {
         return "assets\\sprites\\scenes\\scene_3.png";
       case BackgroundImage::Scene4:
         return "assets\\sprites\\scenes\\scene_4.png";
-      default:
-        return "assets\\sprites\\scenes\\scene_1.png";
     }
   }
 
@@ -45,8 +43,6 @@ namespace EnumUtilities {
         return Direction::Right;
       case Direction::Right:
         return Direction::Left;
-      default:
-        return Direction::Up;
     }
   }
 
