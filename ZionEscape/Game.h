@@ -10,11 +10,18 @@ ref class Game {
 
 public:
   Game() {
-    this->map = gcnew Map();
+    // Temporary static seed so that testing is replicable
+    // TO DO: Remove before submitting PR
+    this->map = gcnew Map(1065927812);
   }
 
-  void StartGeneration(Graphics^ g) {
-    this->map->StartGeneration(g);
+  void MapGeneration() {
+    if (!this->map->IsGenerated())
+      this->map->StartGeneration();
+  }
+
+  void DrawMapGizmos(Graphics^ world) {
+    this->map->DrawScenes(world);
   }
 
   bool IsGenerated() {

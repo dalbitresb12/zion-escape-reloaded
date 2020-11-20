@@ -4,11 +4,13 @@
 #define _MAP_H_
 
 #include "Scene.h"
+
 using namespace System;
-using namespace System::Collections::Generic;
 using namespace System::Drawing;
+using namespace System::Collections::Generic;
 
 ref class Map {
+  // TO DO: Remove scenes List and use neighbours approach
   List<Scene^>^ scenes;
   Random^ rnd;
   int seed;
@@ -17,17 +19,17 @@ ref class Map {
   bool generated;
 
 public:
-  Map(): Map(40, 50, Environment::TickCount) {}
+  Map() : Map(40, 50, Environment::TickCount) {}
 
-  Map(int seed): Map(40, 50, seed) {}
+  Map(int seed) : Map(40, 50, seed) {}
 
-  Map(int min, int max): Map(min, max, Environment::TickCount) {}
+  Map(int min, int max) : Map(min, max, Environment::TickCount) {}
 
   Map(int min, int max, int seed) {
     this->seed = seed;
     this->rnd = gcnew Random(seed);
     this->maxScenes = rnd->Next(min, max);
-    this->Reboot();
+    this->Reset();
   }
 
   ~Map() {
@@ -38,29 +40,24 @@ public:
     delete this->rnd;
   }
 
-  void Reboot() {
+  void Reset() {
     if (this->scenes != nullptr) {
-      for each (Scene^ scene in this->scenes)
+      for each (Scene ^ scene in this->scenes)
         delete scene;
       this->scenes->Clear();
       delete this->scenes;
     }
 
-    //Turn the values of generation to false
+    // Set the values of generation
     this->isGenerating = false;
     this->generated = false;
 
-    //Create the list of scenes and select the start point of the first one
+    // Create the List of scenes and select the start point of the first one
     this->scenes = gcnew List<Scene^>;
-    this->CreateScene(DoorLocations(true, true, true, true), Point(468, 312));
+    this->scenes->Add(gcnew Scene(DoorLocations(true), Point(0, 0)));
   }
 
-  void CreateScene(DoorLocations doorLocations, Point pos) {
-    this->scenes->Add(gcnew Scene(doorLocations, pos));
-    this->scenes[this->scenes->Count - 1]->CreateSpawner(pos);
-  }
-
-  void StartGeneration(Graphics^ world) {
+  void StartGeneration() {
     // Generate new Scenes
     if (isGenerating) {
       // Check all the scenes
@@ -86,9 +83,9 @@ public:
             Direction doorNeeded = currentSpawner->GetParentDirection();
             bool spawnerCollides = false;
 
-            // Check all scenes
+            // Check all scenes for possible collisions
             for each (Scene ^ scene in scenes) {
-              // Check all spawners of the scene
+              // Check all spawners of the scene for possible collisions
               for each (KeyValuePair<Direction, SceneSpawner^> element in scene->GetSpawners()) {
                 SceneSpawner^ spawner = element.Value;
                 if (!currentSpawner->Equals(spawner)) {
@@ -116,16 +113,15 @@ public:
 
             // Continue to next loop and delete the current spawner
             if (spawnerCollides) {
-              //currentScene->DeleteSpawner(spawnerCounter - 1);
               delete currentSpawner;
               continue;
             }
 
             // Initialize values for the new scene
             DoorLocations doorLocations;
-            Point position = currentSpawner->GetPos();
 
             if (scenes->Count < maxScenes) {
+              // Set default values
               doorLocations.SetAll(true);
               // Get a random open or closed door
               do {
@@ -158,7 +154,8 @@ public:
             }
 
             // Create the new scene
-            CreateScene(doorLocations, position);
+            Scene^ scene = gcnew Scene(doorLocations, currentSpawner->GetPos());
+            scenes->Add(scene);
             // Add as a neighbour to the current scene
             currentScene->AddNeighbour(EnumUtilities::GetInverseDirection(doorNeeded), scenes[scenes->Count - 1]);
             // Delete the spawner because the scene has been created
@@ -171,16 +168,13 @@ public:
           isGenerating = false;
         }
       }
-    }
-    else if (scenes->Count == 1) {
+    } else if (scenes->Count == 1) {
       isGenerating = true;
-    }
-    else if (scenes->Count < maxScenes && !isGenerating) {
-      Reboot();
+    } else if (scenes->Count < maxScenes && !isGenerating) {
+      Reset();
     } else {
-      // The map is now generated
+      // The map has been generated succesfully.
       generated = true;
-      DrawScenes(world);
     }
   }
 
@@ -197,26 +191,20 @@ public:
     // Draw all the scenes
     for each (Scene ^ scene in scenes) {
       // Put a color to the maze
-      world->FillRectangle(Brushes::CornflowerBlue, scene->GetDrawingArea());
+      Point position = scene->GetPos();
+      Size size = scene->GetBackgroundSize();
+      Point worldPos = Point((position.X + 10) * size.Width, (position.Y + 10) * size.Height);
+      Rectangle rect = Rectangle(worldPos, size);
+      world->FillRectangle(Brushes::CornflowerBlue, rect);
 
       // Put a different color to the background of the first and last scene
       if (scene == scenes[0])
-        world->FillRectangle(Brushes::Crimson, scene->GetDrawingArea());
+        world->FillRectangle(Brushes::Crimson, rect);
       else if (scene == scenes[scenes->Count - 1])
-        world->FillRectangle(Brushes::BlueViolet, scene->GetDrawingArea());
+        world->FillRectangle(Brushes::BlueViolet, rect);
 
       // Draw the scene
       scene->Draw(world);
-    }
-  }
-
-  void CloseDoor(Direction doorNeeded, Scene^ scene) {
-    scene->SetDoorValue(EnumUtilities::GetInverseDirection(doorNeeded), false);
-  }
-
-  void CloseDoorScene(Direction doorNeeded, Scene^ sceneA, Scene^ sceneB) {
-    if (!sceneB->GetDoorValue(doorNeeded)) {
-      sceneA->SetDoorValue(EnumUtilities::GetInverseDirection(doorNeeded), false);
     }
   }
 
@@ -226,6 +214,17 @@ public:
 
   int GetSeed() {
     return this->seed;
+  }
+
+private:
+  static void CloseDoor(Direction doorNeeded, Scene^ scene) {
+    scene->SetDoorValue(EnumUtilities::GetInverseDirection(doorNeeded), false);
+  }
+
+  static void CloseDoorScene(Direction doorNeeded, Scene^ sceneA, Scene^ sceneB) {
+    if (!sceneB->GetDoorValue(doorNeeded)) {
+      sceneA->SetDoorValue(EnumUtilities::GetInverseDirection(doorNeeded), false);
+    }
   }
 };
 

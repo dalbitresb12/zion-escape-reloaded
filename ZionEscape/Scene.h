@@ -18,6 +18,10 @@ public:
     this->SetAll(false, false, false, false);
   }
 
+  DoorLocations(bool value) {
+    this->SetAll(value);
+  }
+
   DoorLocations(bool up, bool down, bool left, bool right) {
     this->SetAll(up, down, left, right);
   }
@@ -49,15 +53,17 @@ ref class Scene {
   List<Direction>^ doors;
   Dictionary<Direction, Scene^>^ neighbours;
   Dictionary<Direction, SceneSpawner^>^ spawners;
-  Rectangle drawingArea;
+  // Only used to check collisions
+  Point position;
 
 public:
-  Scene(DoorLocations doorLocations, Point pos) {
-    this->spawners = gcnew Dictionary<Direction, SceneSpawner^>;
-    this->neighbours = gcnew Dictionary<Direction, Scene^>;
+  Scene(DoorLocations doorLocations, Point position) {
     this->InitDoorsList(doorLocations);
-    this->ImageSelector();
-    this->drawingArea = Rectangle(pos, this->background->Size);
+    this->neighbours = gcnew Dictionary<Direction, Scene^>;
+    this->spawners = gcnew Dictionary<Direction, SceneSpawner^>;
+    this->position = position;
+    CreateSpawners();
+    ImageSelector();
   }
 
   ~Scene() {
@@ -79,6 +85,11 @@ public:
       neighbours->Clear();
       delete neighbours;
     }
+  }
+
+  void SetBackground(BackgroundImage image) {
+    BitmapManager^ bmpManager = BitmapManager::GetInstance();
+    background = bmpManager->GetImage(EnumUtilities::GetPathFromBackground(image));
   }
 
   //Temporal Image Selector -> Works as  a reference
@@ -135,28 +146,18 @@ public:
       background = bmpManager->GetImage("assets\\sprites\\colliders\\TRL.png");
   }
 
-  void Draw(Graphics^ g) {
-    g->DrawImage(this->background, this->drawingArea);
+  void Draw(Graphics^ world) {
+    Point worldPos = Point((position.X + 10) * background->Width, (position.Y + 10) * background->Height);
+    world->DrawImage(background, worldPos);
   }
 
-  void CreateSpawner(Point pos) {
-    Point location;
-    Size size = Size(this->background->Width, this->background->Height);
-
+  void CreateSpawners() {
     for each (Direction dir in doors) {
-      if (dir == Direction::Up || dir == Direction::Down)
-        location = Point(pos.X, pos.Y + (dir == Direction::Up ? -size.Height : size.Height));
-      if (dir == Direction::Left || dir == Direction::Right)
-        location = Point(pos.X + (dir == Direction::Left ? -size.Width : size.Width), pos.Y);
-
-      Rectangle rect = Rectangle(location, size);
-      AddSpawner(dir, gcnew SceneSpawner(EnumUtilities::GetInverseDirection(dir), rect));
+      Direction inverse = EnumUtilities::GetInverseDirection(dir);
+      Point pos = EnumUtilities::GetPositionFromDirection(position, dir, 1);
+      SceneSpawner^ spawner = gcnew SceneSpawner(inverse, pos);
+      AddSpawner(dir, spawner);
     }
-  }
-
-  void AddSpawner(Direction direction, SceneSpawner^ spawner) {
-    DeleteSpawner(direction);
-    spawners->Add(direction, spawner);
   }
 
   void DeleteSpawner(Direction direction) {
@@ -184,16 +185,21 @@ public:
     return doors->Contains(direction);
   }
 
-  Rectangle GetDrawingArea() {
-    return this->drawingArea;
+  DoorLocations GetDoorLocations() {
+    return DoorLocations(GetDoorValue(Direction::Up), GetDoorValue(Direction::Down),
+                         GetDoorValue(Direction::Left), GetDoorValue(Direction::Right));
   }
 
   Point GetPos() {
-    return this->drawingArea.Location;
+    return position;
+  }
+
+  Size GetBackgroundSize() {
+    return background->Size;
   }
 
   Dictionary<Direction, SceneSpawner^>^ GetSpawners() {
-    return this->spawners;
+    return spawners;
   }
 
 private:
@@ -208,6 +214,11 @@ private:
     if (locations.Down) doors->Add(Direction::Down);
     if (locations.Left) doors->Add(Direction::Left);
     if (locations.Right) doors->Add(Direction::Right);
+  }
+
+  void AddSpawner(Direction direction, SceneSpawner^ spawner) {
+    DeleteSpawner(direction);
+    spawners->Add(direction, spawner);
   }
 };
 
