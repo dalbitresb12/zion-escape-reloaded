@@ -3,12 +3,34 @@
 #ifndef _ENUMS_H_
 #define _ENUMS_H_
 
-enum class EntityType {
+public enum class EntityType {
   Player, Obstacle, Assassin, Corrupt, Ally
 };
 
-enum class Direction {
+public enum class Direction {
   Up, Down, Left, Right
 };
+
+namespace EnumUtilities {
+  static Direction GetInverseDirection(Direction dir) {
+    switch (dir) {
+      case Direction::Up:
+        return Direction::Down;
+        break;
+      case Direction::Down:
+        return Direction::Up;
+        break;
+      case Direction::Left:
+        return Direction::Right;
+        break;
+      case Direction::Right:
+        return Direction::Left;
+        break;
+      default:
+        return Direction::Up;
+        break;
+    }
+  }
+}
 
 #endif // !_ENUMS_H_
