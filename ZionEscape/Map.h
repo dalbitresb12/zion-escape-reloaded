@@ -74,7 +74,10 @@ public:
           isGenerating = true;
 
           // For each spawner of the scene we need to know if it collides or not
-          for each (SceneSpawner ^ currentSpawner in currentScene->GetSpawners()) {
+          for each (KeyValuePair<Direction, SceneSpawner^> element in currentScene->GetSpawners()) {
+            // Save the reference to the current spawner as a local
+            SceneSpawner^ currentSpawner = element.Value;
+
             // Skip the current spawner since it is nullptr
             if (currentSpawner == nullptr)
               continue;
@@ -86,7 +89,8 @@ public:
             // Check all scenes
             for each (Scene ^ scene in scenes) {
               // Check all spawners of the scene
-              for each (SceneSpawner ^ spawner in scene->GetSpawners()) {
+              for each (KeyValuePair<Direction, SceneSpawner^> element in scene->GetSpawners()) {
+                SceneSpawner^ spawner = element.Value;
                 if (!currentSpawner->Equals(spawner)) {
                   // If the current spawner is in the same position of another spawner
                   // a door of the current scene should be closed
@@ -207,42 +211,12 @@ public:
   }
 
   void CloseDoor(Direction doorNeeded, Scene^ scene) {
-    switch (doorNeeded)
-    {
-    case Direction::Up:
-      scene->SetDown(false);
-      break;
-    case Direction::Down:
-      scene->SetUp(false);
-      break;
-    case Direction::Right:
-      scene->SetLeft(false);
-      break;
-    case Direction::Left:
-      scene->SetRight(false);
-      break;
-    }
+    scene->SetDoorValue(EnumUtilities::GetInverseDirection(doorNeeded), false);
   }
 
-  void CloseDoorScene(Direction doorNeeded, Scene^ scene, Scene^ otherScene) {
-    switch (doorNeeded)
-    {
-    case Direction::Up:
-      if (!otherScene->GetUp())
-        scene->SetDown(false);
-      break;
-    case Direction::Down:
-      if (!otherScene->GetDown())
-        scene->SetUp(false);
-      break;
-    case Direction::Right:
-      if (!otherScene->GetRight())
-        scene->SetLeft(false);
-      break;
-    case Direction::Left:
-      if (!otherScene->GetLeft())
-        scene->SetRight(false);
-      break;
+  void CloseDoorScene(Direction doorNeeded, Scene^ sceneA, Scene^ sceneB) {
+    if (!sceneB->GetDoorValue(doorNeeded)) {
+      sceneA->SetDoorValue(EnumUtilities::GetInverseDirection(doorNeeded), false);
     }
   }
 
