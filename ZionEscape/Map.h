@@ -50,7 +50,8 @@ public:
     // Add the first Point
     points->Add(position);
     // Start recursive generation
-    GenerateScenes(currentScene, points);
+    GenerateScene(currentScene, points);
+    // Finish generation
     generated = true;
   }
 
@@ -67,7 +68,7 @@ public:
   }
 
 private:
-  void GenerateScenes(Scene^ scene, List<Point>^ points) {
+  void GenerateScene(Scene^ scene, List<Point>^ points) {
     for each (KeyValuePair<Direction, SceneSpawner^> element in scene->GetSpawners()) {
       // Save the reference to the current spawner as a local
       SceneSpawner^ currentSpawner = element.Value;
@@ -141,7 +142,7 @@ private:
       // Delete the spawner because the scene has been created
       delete currentSpawner;
       // Continue generating more scenes using recursion
-      GenerateScenes(generatedScene, points);
+      GenerateScene(generatedScene, points);
     }
 
     // Clear the List since all the spawners have been used
