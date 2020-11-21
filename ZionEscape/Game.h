@@ -10,9 +10,7 @@ ref class Game {
 
 public:
   Game() {
-    // Temporary static seed so that testing is replicable
-    // TO DO: Remove before submitting PR
-    this->map = gcnew Map(1065927812);
+    this->map = gcnew Map();
   }
 
   void MapGeneration() {
