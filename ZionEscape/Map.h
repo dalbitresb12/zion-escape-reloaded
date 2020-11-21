@@ -27,7 +27,8 @@ public:
     this->seed = seed;
     this->rnd = gcnew Random(seed);
     this->maxScenes = rnd->Next(min, max);
-    this->Reboot();
+    // POSSIBLE CAUSE OF DEBUGGER ERROR
+    // this->Reboot();
   }
 
   ~Map() {
