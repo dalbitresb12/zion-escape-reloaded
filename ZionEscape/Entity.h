@@ -28,6 +28,7 @@ public:
     this->damagePoints = damagePoints;
     this->movable = entityType != EntityType::Obstacle;
   }
+  ~Entity() {}
 
   EntityType GetEntityType() {
     return entityType;

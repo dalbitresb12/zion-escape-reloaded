@@ -12,6 +12,9 @@ public:
   Game() {
     this->map = gcnew Map();
   }
+  ~Game() {
+    delete map;
+  }
 
   void StartGeneration(Graphics^ g) {
     this->map->StartGeneration(g);
