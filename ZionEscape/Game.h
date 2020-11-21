@@ -18,6 +18,7 @@ public:
 
   void StartGeneration(Graphics^ g) {
     this->map->StartGeneration(g);
+    
   }
 
   bool IsGenerated() {
