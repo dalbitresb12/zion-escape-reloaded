@@ -98,6 +98,7 @@ namespace ZionEscape {
       this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MainActivity::MainActivity_Paint);
       this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainActivity::MainActivity_KeyDown);
       this->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &MainActivity::MainActivity_KeyUp);
+      this->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &MainActivity::MainActivity_MouseMove);
       this->ResumeLayout(false);
 
     }
@@ -139,6 +140,7 @@ namespace ZionEscape {
   }
 
   private: void MovementTimer_Tick(Object^ sender, EventArgs^ e) {
+
     for each (NPC ^ npc in npcs) {
       Point deltas = npc->GetDelta();
       npc->Move(deltas.X, deltas.Y);
@@ -168,5 +170,8 @@ namespace ZionEscape {
       }
     }
   }
-};
+  private: System::Void MainActivity_MouseMove(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) {
+    this->Cursor = gcnew System::Windows::Forms::Cursor("assets\\sprites\\misc\\cursor.ico");
+  }
+  };
 }
