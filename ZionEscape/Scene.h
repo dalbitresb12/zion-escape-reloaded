@@ -113,8 +113,11 @@ public:
     world->DrawImage(background, worldPos);
   }
 
-  void CreateSpawners(Dictionary<Point, int>^ points, Scene^ parentScene, Direction parentDirection) {
+  void CreateSpawners(Dictionary<Point, int>^ points, Random^ rnd, Scene^ parentScene, Direction parentDirection) {
     AddNeighbour(parentDirection, parentScene);
+
+    // Shuffle doors List
+    ShuffleDoors(rnd);
 
     for each (Direction direction in doors) {
       if (direction == parentDirection)
@@ -124,7 +127,10 @@ public:
     }
   }
 
-  void CreateSpawners(Dictionary<Point, int>^ points) {
+  void CreateSpawners(Dictionary<Point, int>^ points, Random^ rnd) {
+    // Shuffle doors List
+    ShuffleDoors(rnd);
+
     for each (Direction direction in doors) {
       CreateSpawner(points, direction);
     }
@@ -201,7 +207,22 @@ private:
 
   void AddSpawner(Direction direction, SceneSpawner^ spawner) {
     DeleteSpawner(direction);
-    spawners->Add(direction, spawner);
+
+    if (!spawners->ContainsKey(direction))
+      spawners->Add(direction, spawner);
+  }
+
+  void ShuffleDoors(Random^ rnd) {
+    // Fisher-Yates shuffle
+    // See more: https://stackoverflow.com/a/1262619
+    short n = doors->Count;
+    while (n > 1) {
+      n--;
+      short k = rnd->Next(n + 1);
+      Direction value = doors[k];
+      doors[k] = doors[n];
+      doors[n] = value;
+    }
   }
 };
 

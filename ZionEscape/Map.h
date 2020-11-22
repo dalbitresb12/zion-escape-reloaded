@@ -5,17 +5,17 @@
 
 #include "Scene.h"
 #include "DataTypes.h"
+#include "MathUtils.h"
 
 using namespace System;
 using namespace System::Drawing;
 using namespace System::Collections::Generic;
+using namespace MathUtils::Mathf;
 
 namespace Defaults {
   namespace Map {
-    const int MinScenes = 40;
-    const int MaxScenes = 50;
-    const int MinDepth = 5;
-    const int MaxDepth = 7;
+    const double MinScenes = 40;
+    const double MaxScenes = 50;
   }
 }
 
@@ -23,23 +23,25 @@ ref class Map {
   Scene^ currentScene;
   Random^ rnd;
   const int seed;
-  const int maxScenes;
+  int maxScenes;
   const MinMax<short>^ depthCount;
   bool isGenerating;
   bool generated;
 
 public:
-  Map() : Map(Defaults::Map::MinScenes, Defaults::Map::MaxScenes, Environment::TickCount) {}
+  Map() : Map(RoundToInt(Defaults::Map::MinScenes), RoundToInt(Defaults::Map::MaxScenes), Environment::TickCount) {}
 
-  Map(int seed) : Map(Defaults::Map::MinScenes, Defaults::Map::MaxScenes, seed) {}
+  Map(int seed) : Map(RoundToInt(Defaults::Map::MinScenes), RoundToInt(Defaults::Map::MaxScenes), seed) {}
 
   Map(int min, int max) : Map(min, max, Environment::TickCount) {}
 
-  Map(int min, int max, int seed) {
-    this->seed = seed;
+  Map(int min, int max, int seed) : seed(seed) {
     this->rnd = gcnew Random(seed);
     this->maxScenes = rnd->Next(min, max);
-    this->depthCount = gcnew MinMax<short>(Defaults::Map::MinDepth, Defaults::Map::MaxDepth);
+    int minDepth = RoundToInt(Defaults::Map::MinScenes / (4.f + 0.05 * Defaults::Map::MinScenes));
+    int maxDepth = RoundToInt(Defaults::Map::MaxScenes / (4.f + 0.05 * Defaults::Map::MaxScenes));
+    this->depthCount = gcnew MinMax<short>(minDepth, maxDepth);
+    this->isGenerating = false;
     this->generated = false;
   }
 
@@ -54,6 +56,8 @@ public:
     if (generated)
       return;
 
+    // Set the value needed to stop multiple threads from being created
+    isGenerating = true;
     // Initialize depth counter
     int depth = 0;
     // Set the position of the first scene in the virtual grid
@@ -65,24 +69,34 @@ public:
     // Add the first Point
     points->Add(position, currentScene->GetHashCode());
     // Create the default spawners
-    currentScene->CreateSpawners(points);
+    currentScene->CreateSpawners(points, rnd);
     // Start recursive generation
     GenerateScene(currentScene, points, depth);
     // Finish generation
     generated = true;
+    // No longer generating
+    isGenerating = false;
   }
 
   void Draw(Graphics^ world) {
+    // Prevent execution when there's nothing to draw
+    if (currentScene == nullptr)
+      return;
+
+    // Initialize List to prevent an infinite loop
     List<int>^ drawnNodes = gcnew List<int>;
-
     DrawScene(world, currentScene, drawnNodes);
-
+    // Clear the List and delete
     drawnNodes->Clear();
     delete drawnNodes;
   }
 
   bool IsGenerated() {
     return this->generated;
+  }
+
+  bool IsGenerating() {
+    return this->isGenerating;
   }
 
   int GetSeed() {
@@ -125,18 +139,22 @@ private:
       DoorLocations doorLocations;
       
       if (points->Count < maxScenes && depth < depthCount->Max) {
+        // Set probability
+        int probability = 0 + 2 * depth;
+
         // Set default values
         doorLocations.SetAll(true);
+
         // Get a random open or closed door
         do {
           if (doorNeeded != Direction::Up)
-            doorLocations.Up = rnd->Next(0, 2);
+            doorLocations.Up = rnd->Next(1, 101) > probability;
           if (doorNeeded != Direction::Down)
-            doorLocations.Down = rnd->Next(0, 2);
+            doorLocations.Down = rnd->Next(1, 101) > probability;
           if (doorNeeded != Direction::Left)
-            doorLocations.Left = rnd->Next(0, 2);
+            doorLocations.Left = rnd->Next(1, 101) > probability;
           if (doorNeeded != Direction::Right)
-            doorLocations.Right = rnd->Next(0, 2);
+            doorLocations.Right = rnd->Next(1, 101) > probability;
         } while (GeneratorCondition(doorLocations, doorNeeded, depth, depthCount->Min));
       } else {
         // If the number of scenes reaches the max scenes,
@@ -160,7 +178,7 @@ private:
       // Create the new scene
       Scene^ generatedScene = gcnew Scene(doorLocations, position);
       // Create the spawners and add them to the points List
-      generatedScene->CreateSpawners(points, scene, doorNeeded);
+      generatedScene->CreateSpawners(points, rnd, scene, doorNeeded);
       // Remove the spawner from the Dictionary
       points->Remove(position);
       // Save the Point to the Dictionary with the scene hash
@@ -175,7 +193,7 @@ private:
 
     // Clear the List since all the spawners have been used
     scene->GetSpawners()->Clear();
-    // Decrease the depthc counter
+    // Decrease the depth counter
     depth -= 1;
   }
 

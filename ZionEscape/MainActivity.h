@@ -42,6 +42,7 @@ namespace ZionEscape {
       this->Cursor = gcnew System::Windows::Forms::Cursor("assets\\sprites\\misc\\cursor.ico");
 
       this->game = gcnew Game();
+      this->game->MapGeneration();
 
       unwalkableLayer = gcnew GraphicsPath();
       Point gridWorldSize = Point(background->Width, background->Height);
@@ -155,8 +156,6 @@ namespace ZionEscape {
   }
 
   private: void MovementTimer_Tick(Object^ sender, EventArgs^ e) {
-    this->game->MapGeneration();
-
     for each (NPC ^ npc in npcs) {
       Point deltas = npc->GetDelta();
       npc->Move(deltas.X, deltas.Y);

@@ -21,6 +21,10 @@ public:
 
   ~DoorLocations() {}
 
+  short Count() {
+    return (Up ? 1 : 0) + (Down ? 1 : 0) + (Left ? 1 : 0) + (Right ? 1 : 0);
+  }
+
   bool IsAllTrue() {
     return Up && Down && Left && Right;
   }

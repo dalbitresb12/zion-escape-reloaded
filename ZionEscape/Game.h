@@ -5,6 +5,9 @@
 
 #include "Map.h"
 
+using namespace System::Threading;
+using namespace System::Threading::Tasks;
+
 ref class Game {
   Map^ map;
 
@@ -14,7 +17,10 @@ public:
   }
 
   void MapGeneration() {
-    this->map->StartGeneration();
+    if (!map->IsGenerating() && !map->IsGenerated()) {
+      Action^ action = gcnew Action(map, &Map::StartGeneration);
+      Task^ generator = Task::Factory->StartNew(action, TaskCreationOptions::LongRunning);
+    }
   }
 
   void DrawMapGizmos(Graphics^ world) {
