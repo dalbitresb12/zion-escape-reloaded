@@ -37,6 +37,8 @@ namespace ZionEscape {
       // User-defined code.
       BitmapManager^ bmpManager = BitmapManager::GetInstance();
       background = bmpManager->GetImage("assets\\sprites\\scenes\\scene_1.png");
+      //Set an icon to the Cursor
+      this->Cursor = gcnew System::Windows::Forms::Cursor("assets\\sprites\\misc\\cursor.ico");
 
       this->game = gcnew Game();
 
@@ -139,6 +141,7 @@ namespace ZionEscape {
   }
 
   private: void MovementTimer_Tick(Object^ sender, EventArgs^ e) {
+
     for each (NPC ^ npc in npcs) {
       Point deltas = npc->GetDelta();
       npc->Move(deltas.X, deltas.Y);
@@ -168,5 +171,5 @@ namespace ZionEscape {
       }
     }
   }
-};
+  };
 }
