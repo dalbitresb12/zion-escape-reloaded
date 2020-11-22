@@ -38,8 +38,8 @@ public:
   Map(int min, int max, int seed) : seed(seed) {
     this->rnd = gcnew Random(seed);
     this->maxScenes = rnd->Next(min, max);
-    int minDepth = RoundToInt(Defaults::Map::MinScenes / (2.0 + 0.1 * Defaults::Map::MinScenes));
-    int maxDepth = RoundToInt(Defaults::Map::MaxScenes / (2.0 + 0.1 * Defaults::Map::MaxScenes));
+    int minDepth = RoundToInt(min / (2.0 + 0.1 * min));
+    int maxDepth = RoundToInt(max / (2.0 + 0.1 * max));
     this->depthCount = gcnew MinMax<short>(minDepth, maxDepth);
     this->isGenerating = false;
     this->generated = false;
