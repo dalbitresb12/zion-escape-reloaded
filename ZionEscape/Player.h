@@ -5,19 +5,31 @@
 
 #include "BitmapManager.h"
 #include "Entity.h"
+#include "Bullet.h"
+
+using namespace System::Collections::Generic;
 
 ref class Player : public Entity {
+  List<Bullet^>^ bullets;
 public:
   Player(Point pos)
     : Entity(EntityType::Player, pos, 3, 10.f, 2.f) {
     BitmapManager^ bmpManager = BitmapManager::GetInstance();
     Bitmap^ image = bmpManager->GetImage("assets\\sprites\\principal\\principal_m.png");
+    this->bullets = gcnew List<Bullet^>;
     this->SetImage(image, 4, 4);
   }
 
   Player(Bitmap^ image, short nCols, short nRows, Point pos)
     : Entity(EntityType::Player, pos, 3, 10.f, 2.f) {
     this->SetImage(image, nCols, nRows);
+  }
+
+  ~Player() {
+    for each (Bullet ^ bullet in this->bullets)
+      delete bullet;
+    this->bullets->Clear();
+    delete this->bullets;
   }
 
   void SetSpriteDirection(Direction direction) override {
@@ -49,6 +61,33 @@ public:
       //Add the X position of where the next heart will be drawn
       heartPos.X += 46;
     }
+  }
+
+  //Create a Bullet
+  void Shoot(float posX, float posY) {
+    this->bullets->Add(gcnew Bullet(Size(20,20), this->drawingArea.X+10, this->drawingArea.Y+20, posX, posY, 10));
+  }
+
+  void ActionBullets(Graphics^ g, Rectangle area) {
+    //Check if there are bullets
+    if(this->bullets->Count > 0)
+      //Check all the Bullets in the List
+      for (unsigned currentBullet = this->bullets->Count; currentBullet > 0; currentBullet--) {
+
+        //Move the bullet
+        bullets[currentBullet-1]->Move();
+        //Draw the bullet
+        bullets[currentBullet-1]->Draw(g);
+
+        //Detects if the Bullet is out of the screen
+        if (bullets[currentBullet-1]->OutScreen(area)) {
+          //Delete ptr
+          delete this->bullets[currentBullet-1];
+          //Delete form the list
+          bullets->Remove(bullets[currentBullet-1]);
+        }
+      }
+    
   }
 };
 

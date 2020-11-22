@@ -98,6 +98,7 @@ namespace ZionEscape {
       this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MainActivity::MainActivity_Paint);
       this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainActivity::MainActivity_KeyDown);
       this->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &MainActivity::MainActivity_KeyUp);
+      this->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MainActivity::MainActivity_MouseClick);
       this->ResumeLayout(false);
 
     }
@@ -111,6 +112,7 @@ namespace ZionEscape {
     }
 
     this->player->Draw(world);
+    this->player->ActionBullets(world, this->ClientRectangle);
     this->player->DrawHearts(world);
   }
 
@@ -168,5 +170,9 @@ namespace ZionEscape {
       }
     }
   }
-};
+  private: System::Void MainActivity_MouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) {
+    //When you click, the player shoot a bullet in the direction of the mouse
+    this->player->Shoot(e->Location.X, e->Location.Y);
+  }
+  };
 }
