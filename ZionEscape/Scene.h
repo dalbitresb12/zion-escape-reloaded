@@ -6,47 +6,10 @@
 #include "SceneSpawner.h"
 #include "BitmapManager.h"
 #include "Enums.h"
+#include "DataTypes.h"
 
 using namespace System::Drawing;
 using namespace System::Collections::Generic;
-
-class DoorLocations {
-public:
-  bool Up, Down, Left, Right;
-
-  DoorLocations() {
-    this->SetAll(false, false, false, false);
-  }
-
-  DoorLocations(bool value) {
-    this->SetAll(value);
-  }
-
-  DoorLocations(bool up, bool down, bool left, bool right) {
-    this->SetAll(up, down, left, right);
-  }
-
-  ~DoorLocations() {}
-
-  bool IsAllTrue() {
-    return Up && Down && Left && Right;
-  }
-
-  void SetAll(bool value) {
-    SetAll(value, value, value, value);
-  }
-
-  void SetAll(bool x, bool y) {
-    SetAll(y, y, x, x);
-  }
-
-  void SetAll(bool up, bool down, bool left, bool right) {
-    this->Up = up;
-    this->Down = down;
-    this->Left = left;
-    this->Right = right;
-  }
-};
 
 ref class Scene {
   Bitmap^ background;

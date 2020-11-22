@@ -4,23 +4,34 @@
 #define _MAP_H_
 
 #include "Scene.h"
+#include "DataTypes.h"
 
 using namespace System;
 using namespace System::Drawing;
 using namespace System::Collections::Generic;
 
+namespace Defaults {
+  namespace Map {
+    const int MinScenes = 40;
+    const int MaxScenes = 50;
+    const int MinDepth = 5;
+    const int MaxDepth = 7;
+  }
+}
+
 ref class Map {
   Scene^ currentScene;
   Random^ rnd;
-  int seed;
-  int maxScenes;
+  const int seed;
+  const int maxScenes;
+  const MinMax<short>^ depthCount;
   bool isGenerating;
   bool generated;
 
 public:
-  Map() : Map(40, 50, Environment::TickCount) {}
+  Map() : Map(Defaults::Map::MinScenes, Defaults::Map::MaxScenes, Environment::TickCount) {}
 
-  Map(int seed) : Map(40, 50, seed) {}
+  Map(int seed) : Map(Defaults::Map::MinScenes, Defaults::Map::MaxScenes, seed) {}
 
   Map(int min, int max) : Map(min, max, Environment::TickCount) {}
 
@@ -28,12 +39,14 @@ public:
     this->seed = seed;
     this->rnd = gcnew Random(seed);
     this->maxScenes = rnd->Next(min, max);
+    this->depthCount = gcnew MinMax<short>(Defaults::Map::MinDepth, Defaults::Map::MaxDepth);
     this->generated = false;
   }
 
   ~Map() {
     delete currentScene;
     delete rnd;
+    delete depthCount;
   }
 
   void StartGeneration() {
@@ -41,6 +54,8 @@ public:
     if (generated)
       return;
 
+    // Initialize depth counter
+    int depth = 0;
     // Set the position of the first scene in the virtual grid
     Point position = Point(0, 0);
     // Initialize points List (only used to detect collisions)
@@ -52,7 +67,7 @@ public:
     // Create the default spawners
     currentScene->CreateSpawners(points);
     // Start recursive generation
-    GenerateScene(currentScene, points);
+    GenerateScene(currentScene, points, depth);
     // Finish generation
     generated = true;
   }
@@ -75,7 +90,10 @@ public:
   }
 
 private:
-  void GenerateScene(Scene^ scene, Dictionary<Point, int>^ points) {
+  void GenerateScene(Scene^ scene, Dictionary<Point, int>^ points, int& depth) {
+    // Increase the depth counter
+    depth += 1;
+
     for each (KeyValuePair<Direction, SceneSpawner^> element in scene->GetSpawners()) {
       // Save the reference to the current spawner as a local
       SceneSpawner^ currentSpawner = element.Value;
@@ -106,8 +124,7 @@ private:
       // Initialize values for the new scene
       DoorLocations doorLocations;
       
-
-      if (points->Count < maxScenes) {
+      if (points->Count < maxScenes && depth < depthCount->Max) {
         // Set default values
         doorLocations.SetAll(true);
         // Get a random open or closed door
@@ -120,7 +137,7 @@ private:
             doorLocations.Left = rnd->Next(0, 2);
           if (doorNeeded != Direction::Right)
             doorLocations.Right = rnd->Next(0, 2);
-        } while (doorLocations.IsAllTrue());
+        } while (GeneratorCondition(doorLocations, doorNeeded, depth, depthCount->Min));
       } else {
         // If the number of scenes reaches the max scenes,
         // the current scene needs to be closed
@@ -153,11 +170,13 @@ private:
       // Delete the spawner because the scene has been created
       delete currentSpawner;
       // Continue generating more scenes using recursion
-      GenerateScene(generatedScene, points);
+      GenerateScene(generatedScene, points, depth);
     }
 
     // Clear the List since all the spawners have been used
     scene->GetSpawners()->Clear();
+    // Decrease the depthc counter
+    depth -= 1;
   }
 
   void DrawScene(Graphics^ world, Scene^ scene, List<int>^ drawnNodes) {
@@ -182,6 +201,26 @@ private:
       Scene^ neighbour = element.Value;
       DrawScene(world, neighbour, drawnNodes);
     }
+  }
+
+  static bool GeneratorCondition(DoorLocations doors, Direction doorNeeded, int depth, int minDepth) {
+    bool allTrue = doors.IsAllTrue();
+    bool closedScene = false;
+    switch (doorNeeded) {
+      case Direction::Up:
+        closedScene = doors.Up && !doors.Down && !doors.Right && !doors.Left;
+        break;
+      case Direction::Down:
+        closedScene = !doors.Up && doors.Down && !doors.Right && !doors.Left;
+        break;
+      case Direction::Left:
+        closedScene = !doors.Up && !doors.Down && doors.Right && !doors.Left;
+        break;
+      case Direction::Right:
+        closedScene = !doors.Up && !doors.Down && !doors.Right && doors.Left;
+        break;
+    }
+    return allTrue || (closedScene && depth < minDepth);
   }
 };
 
