@@ -157,7 +157,7 @@ namespace ZionEscape {
       Point deltas = npc->GetDelta();
       npc->Move(deltas.X, deltas.Y);
       //If the health of the NPC is 0, it's dead
-      if (npc->GetHealth() == 0) {
+      if (npc->GetHealth() <= 0) {
         //Delete ptr
         delete npc;
         //Delete form the list

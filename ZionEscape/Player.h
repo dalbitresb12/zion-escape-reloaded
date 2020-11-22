@@ -13,7 +13,7 @@ ref class Player : public Entity {
   List<Bullet^>^ bullets;
 public:
   Player(Point pos)
-    : Entity(EntityType::Player, pos, 3, 10.f, 1.f) {
+    : Entity(EntityType::Player, pos, 3U, 10.f, 1.f) {
     BitmapManager^ bmpManager = BitmapManager::GetInstance();
     Bitmap^ image = bmpManager->GetImage("assets\\sprites\\principal\\principal_m.png");
     this->bullets = gcnew List<Bullet^>;
@@ -21,7 +21,7 @@ public:
   }
 
   Player(Bitmap^ image, short nCols, short nRows, Point pos)
-    : Entity(EntityType::Player, pos, 3, 10.f, 2.f) {
+    : Entity(EntityType::Player, pos, 3U, 10.f, 2.f) {
     this->SetImage(image, nCols, nRows);
   }
 
