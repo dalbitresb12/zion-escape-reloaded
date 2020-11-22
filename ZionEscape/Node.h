@@ -25,7 +25,8 @@ public:
     this->parent = nullptr;
   }
   ~Node() {
-    delete parent;
+    if (parent != nullptr)
+      delete parent;
   }
   int GetFCost() {
     return this->gCost + this->hCost;
