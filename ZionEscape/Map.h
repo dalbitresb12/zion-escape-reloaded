@@ -43,12 +43,14 @@ public:
 
     // Set the position of the first scene in the virtual grid
     Point position = Point(0, 0);
+    // Initialize points List (only used to detect collisions)
+    Dictionary<Point, int>^ points = gcnew Dictionary<Point, int>;
     // Initialize the first scene
     currentScene = gcnew Scene(DoorLocations(true), position);
-    // Initialize points List (only used to detect collisions)
-    List<Point>^ points = gcnew List<Point>;
     // Add the first Point
-    points->Add(position);
+    points->Add(position, currentScene->GetHashCode());
+    // Create the default spawners
+    currentScene->CreateSpawners(points);
     // Start recursive generation
     GenerateScene(currentScene, points);
     // Finish generation
@@ -56,7 +58,12 @@ public:
   }
 
   void Draw(Graphics^ world) {
-    DrawScene(world, currentScene);
+    List<int>^ drawnNodes = gcnew List<int>;
+
+    DrawScene(world, currentScene, drawnNodes);
+
+    drawnNodes->Clear();
+    delete drawnNodes;
   }
 
   bool IsGenerated() {
@@ -68,7 +75,7 @@ public:
   }
 
 private:
-  void GenerateScene(Scene^ scene, List<Point>^ points) {
+  void GenerateScene(Scene^ scene, Dictionary<Point, int>^ points) {
     for each (KeyValuePair<Direction, SceneSpawner^> element in scene->GetSpawners()) {
       // Save the reference to the current spawner as a local
       SceneSpawner^ currentSpawner = element.Value;
@@ -81,24 +88,24 @@ private:
       Point position = currentSpawner->GetPos();
       // Get the door direction that the next scene will need
       Direction doorNeeded = currentSpawner->GetParentDirection();
-      bool spawnerCollides = false;
 
-      // Check all scenes for possible collisions
-      for each (Point point in points) {
-        if (position.Equals(point)) {
-          spawnerCollides = true;
-          break;
+      // Detect possible collisions. Continues to the next
+      // loop and deletes the current spawner if a collision
+      // was found.
+      if (points->ContainsKey(position)) {
+        int hashCode;
+        points->TryGetValue(position, hashCode);
+
+        if (hashCode != currentSpawner->GetHashCode()) {
+          scene->SetDoorValue(EnumUtilities::GetInverseDirection(doorNeeded), false);
+          delete currentSpawner;
+          continue;
         }
-      }
-
-      // Continue to next loop and delete the current spawner
-      if (spawnerCollides) {
-        delete currentSpawner;
-        continue;
       }
 
       // Initialize values for the new scene
       DoorLocations doorLocations;
+      
 
       if (points->Count < maxScenes) {
         // Set default values
@@ -135,10 +142,14 @@ private:
 
       // Create the new scene
       Scene^ generatedScene = gcnew Scene(doorLocations, position);
-      // Save the Point to the List
-      points->Add(position);
+      // Create the spawners and add them to the points List
+      generatedScene->CreateSpawners(points, scene, doorNeeded);
+      // Remove the spawner from the Dictionary
+      points->Remove(position);
+      // Save the Point to the Dictionary with the scene hash
+      points->Add(position, generatedScene->GetHashCode());
       // Add as a neighbour to the current scene
-      scene->AddNeighbour(EnumUtilities::GetInverseDirection(doorNeeded), generatedScene);
+      scene->AddNeighbour(element.Key, generatedScene);
       // Delete the spawner because the scene has been created
       delete currentSpawner;
       // Continue generating more scenes using recursion
@@ -149,7 +160,10 @@ private:
     scene->GetSpawners()->Clear();
   }
 
-  void DrawScene(Graphics^ world, Scene^ scene) {
+  void DrawScene(Graphics^ world, Scene^ scene, List<int>^ drawnNodes) {
+    if (drawnNodes->Contains(scene->GetHashCode()))
+      return;
+
     Point position = scene->GetPos();
     Size size = scene->GetBackgroundSize();
     Point worldPos = Point((position.X + 10) * size.Width, (position.Y + 10) * size.Height);
@@ -162,20 +176,11 @@ private:
     }
 
     scene->Draw(world);
+    drawnNodes->Add(scene->GetHashCode());
 
     for each (KeyValuePair<Direction, Scene^> element in scene->GetNeighbours()) {
       Scene^ neighbour = element.Value;
-      DrawScene(world, neighbour);
-    }
-  }
-
-  static void CloseDoor(Direction doorNeeded, Scene^ scene) {
-    scene->SetDoorValue(EnumUtilities::GetInverseDirection(doorNeeded), false);
-  }
-
-  static void CloseDoorScene(Direction doorNeeded, Scene^ sceneA, Scene^ sceneB) {
-    if (!sceneB->GetDoorValue(doorNeeded)) {
-      sceneA->SetDoorValue(EnumUtilities::GetInverseDirection(doorNeeded), false);
+      DrawScene(world, neighbour, drawnNodes);
     }
   }
 };

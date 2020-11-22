@@ -62,7 +62,6 @@ public:
     this->neighbours = gcnew Dictionary<Direction, Scene^>;
     this->spawners = gcnew Dictionary<Direction, SceneSpawner^>;
     this->position = position;
-    CreateSpawners();
     ImageSelector();
   }
 
@@ -151,12 +150,20 @@ public:
     world->DrawImage(background, worldPos);
   }
 
-  void CreateSpawners() {
-    for each (Direction dir in doors) {
-      Direction inverse = EnumUtilities::GetInverseDirection(dir);
-      Point pos = EnumUtilities::GetPositionFromDirection(position, dir, 1);
-      SceneSpawner^ spawner = gcnew SceneSpawner(inverse, pos);
-      AddSpawner(dir, spawner);
+  void CreateSpawners(Dictionary<Point, int>^ points, Scene^ parentScene, Direction parentDirection) {
+    AddNeighbour(parentDirection, parentScene);
+
+    for each (Direction direction in doors) {
+      if (direction == parentDirection)
+        continue;
+
+      CreateSpawner(points, direction);
+    }
+  }
+
+  void CreateSpawners(Dictionary<Point, int>^ points) {
+    for each (Direction direction in doors) {
+      CreateSpawner(points, direction);
     }
   }
 
@@ -218,6 +225,15 @@ private:
     if (locations.Down) doors->Add(Direction::Down);
     if (locations.Left) doors->Add(Direction::Left);
     if (locations.Right) doors->Add(Direction::Right);
+  }
+
+  void CreateSpawner(Dictionary<Point, int>^ points, Direction direction) {
+    Point pos = EnumUtilities::GetPositionFromDirection(position, direction, 1);
+    Direction inverse = EnumUtilities::GetInverseDirection(direction);
+    SceneSpawner^ spawner = gcnew SceneSpawner(inverse, pos);
+    AddSpawner(direction, spawner);
+    if (!points->ContainsKey(pos))
+      points->Add(pos, spawner->GetHashCode());
   }
 
   void AddSpawner(Direction direction, SceneSpawner^ spawner) {
