@@ -21,6 +21,7 @@ namespace ZionEscape {
   public ref class MainActivity : public Form {
     System::ComponentModel::IContainer^ components;
     System::Windows::Forms::Timer^ MovementTimer;
+    System::Windows::Forms::Timer^ AnimationTimer;
     // User-defined properties.
     Game^ game;
     Bitmap^ background;
@@ -30,8 +31,7 @@ namespace ZionEscape {
     List<NPC^>^ npcs;
 
     List<Keys>^ keysPressed;
-  private: System::Windows::Forms::Timer^ AnimationTimer;
-         List<Keys>^ validKeys;
+    List<Keys>^ validKeys;
 
   public:
     MainActivity() {
@@ -86,20 +86,20 @@ namespace ZionEscape {
       // MovementTimer
       // 
       this->MovementTimer->Enabled = true;
-      this->MovementTimer->Interval = 50;
+      this->MovementTimer->Interval = 20;
       this->MovementTimer->Tick += gcnew System::EventHandler(this, &MainActivity::MovementTimer_Tick);
       // 
       // AnimationTimer
       // 
       this->AnimationTimer->Enabled = true;
-      this->AnimationTimer->Interval = 50;
+      this->AnimationTimer->Interval = 80;
       this->AnimationTimer->Tick += gcnew System::EventHandler(this, &MainActivity::AnimationTimer_Tick);
       // 
       // MainActivity
       // 
-      this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
+      this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
       this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-      this->ClientSize = System::Drawing::Size(1248, 768);
+      this->ClientSize = System::Drawing::Size(936, 624);
       this->DoubleBuffered = true;
       this->Margin = System::Windows::Forms::Padding(4);
       this->Name = L"MainActivity";
