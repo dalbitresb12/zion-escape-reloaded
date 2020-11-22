@@ -43,6 +43,11 @@ public:
     else if (this->drawingArea.Y > area.Height || this->drawingArea.Y + this->drawingArea.Height < 0) return true;
     return false;
   }
+
+  bool Collides(Rectangle area) {
+    return this->drawingArea.IntersectsWith(area);
+  }
+
 };
 
 #endif // !_BULLET_H_

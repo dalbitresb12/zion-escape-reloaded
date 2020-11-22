@@ -13,7 +13,7 @@ ref class Player : public Entity {
   List<Bullet^>^ bullets;
 public:
   Player(Point pos)
-    : Entity(EntityType::Player, pos, 3, 10.f, 2.f) {
+    : Entity(EntityType::Player, pos, 3, 10.f, 1.f) {
     BitmapManager^ bmpManager = BitmapManager::GetInstance();
     Bitmap^ image = bmpManager->GetImage("assets\\sprites\\principal\\principal_m.png");
     this->bullets = gcnew List<Bullet^>;
@@ -68,26 +68,38 @@ public:
     this->bullets->Add(gcnew Bullet(Size(20,20), this->drawingArea.X+10, this->drawingArea.Y+20, posX, posY, 10));
   }
 
-  void ActionBullets(Graphics^ g, Rectangle area) {
+  void ActionBullets(Graphics^ g, Rectangle area, List<NPC^>^ npcs) {
     //Check if there are bullets
-    if(this->bullets->Count > 0)
+    if (this->bullets->Count > 0)
       //Check all the Bullets in the List
       for (unsigned currentBullet = this->bullets->Count; currentBullet > 0; currentBullet--) {
 
+        bool isDeleted = false;
         //Move the bullet
         bullets[currentBullet-1]->Move();
         //Draw the bullet
         bullets[currentBullet-1]->Draw(g);
 
+        //Check if the bullet collides with any Corrupt or Assasin
+        for each (NPC ^ npc in npcs)
+          if (npc->GetEntityType() == EntityType::Corrupt || npc->GetEntityType() == EntityType::Assassin)
+            if (bullets[currentBullet - 1]->Collides(npc->GetDrawingArea())) {
+              npc->SetHealth(npc->GetHealth() - this->GetDamagePoints());
+              isDeleted = true;
+              break;
+            }
+       
         //Detects if the Bullet is out of the screen
-        if (bullets[currentBullet-1]->OutScreen(area)) {
+        if (bullets[currentBullet-1]->OutScreen(area))
+          isDeleted = true;
+
+        if (isDeleted) {
           //Delete ptr
-          delete this->bullets[currentBullet-1];
+          delete this->bullets[currentBullet - 1];
           //Delete form the list
-          bullets->Remove(bullets[currentBullet-1]);
+          bullets->Remove(bullets[currentBullet - 1]);
         }
       }
-    
   }
 };
 

@@ -123,7 +123,7 @@ namespace ZionEscape {
     }
 
     this->player->Draw(world);
-    this->player->ActionBullets(world, this->ClientRectangle);
+    this->player->ActionBullets(world, this->ClientRectangle, this->npcs);
     this->player->DrawHearts(world);
   }
 
@@ -156,6 +156,15 @@ namespace ZionEscape {
     for each (NPC ^ npc in npcs) {
       Point deltas = npc->GetDelta();
       npc->Move(deltas.X, deltas.Y);
+      //If the health of the NPC is 0, it's dead
+      if (npc->GetHealth() == 0) {
+        //Delete ptr
+        delete npc;
+        //Delete form the list
+        npcs->Remove(npc);
+        //The for must be break, beacuse it won't consider the same npc
+        break;
+      }
     }
 
     for each (Keys key in keysPressed) {
@@ -166,19 +175,22 @@ namespace ZionEscape {
   }
 
   private: void ResetPathfinders() {
-    for each (NPC ^ npc in npcs) {
-      if (npc->GetEntityType() == EntityType::Ally || npc->GetEntityType() == EntityType::Assassin) {
-        Pathfinder::FindPath(mapGrid, npc->GetPosition(), player->GetPosition(), npc);
-      }
-      else if (npc->GetEntityType() == EntityType::Corrupt) {
-        Random r;
-        List<Ally^>^ allies = gcnew List<Ally^>;
-        for each (NPC ^ possibleAlly in npcs) {
-          if (possibleAlly->GetEntityType() == EntityType::Ally)
-            allies->Add((Ally^)possibleAlly);
+    //Check if there are npcs
+    if (npcs->Count > 0) {
+      for each (NPC ^ npc in npcs) {
+        if (npc->GetEntityType() == EntityType::Ally || npc->GetEntityType() == EntityType::Assassin) {
+          Pathfinder::FindPath(mapGrid, npc->GetPosition(), player->GetPosition(), npc);
         }
-        Ally^ ally = allies[r.Next(0, allies->Count)];
-        Pathfinder::FindPath(mapGrid, npc->GetPosition(), ally->GetPosition(), npc);
+        else if (npc->GetEntityType() == EntityType::Corrupt) {
+          Random r;
+          List<Ally^>^ allies = gcnew List<Ally^>;
+          for each (NPC ^ possibleAlly in npcs) {
+            if (possibleAlly->GetEntityType() == EntityType::Ally)
+              allies->Add((Ally^)possibleAlly);
+          }
+          Ally^ ally = allies[r.Next(0, allies->Count)];
+          Pathfinder::FindPath(mapGrid, npc->GetPosition(), ally->GetPosition(), npc);
+        }
       }
     }
   }

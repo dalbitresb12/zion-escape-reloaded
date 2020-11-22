@@ -102,6 +102,10 @@ public:
     Point pos = Point(col * size.Width, row * size.Height);
     return Rectangle(pos, size);
   }
+
+  Rectangle GetDrawingArea() {
+    return this->drawingArea;
+  }
 };
 
 #endif // !_SPRITE_H_
