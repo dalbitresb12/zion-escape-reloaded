@@ -83,7 +83,7 @@ public:
         //Check if the bullet collides with any Corrupt or Assasin
         for each (NPC ^ npc in npcs)
           if (npc->GetEntityType() == EntityType::Corrupt || npc->GetEntityType() == EntityType::Assassin)
-            if (bullets[currentBullet - 1]->Collides(npc->GetDrawingArea())) {
+            if (bullets[currentBullet - 1]->Collision(npc)) {
               npc->SetHealth(npc->GetHealth() - this->GetDamagePoints());
               isDeleted = true;
               break;

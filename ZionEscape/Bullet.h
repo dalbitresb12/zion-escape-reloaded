@@ -3,14 +3,18 @@
 #ifndef _BULLET_H_
 #define _BULLET_H_
 
-ref class Bullet {
-  Rectangle drawingArea;
+#include "Entity.h"
+
+ref class Bullet: public Entity {
   float floatX, floatY, speed;
   double angle;
 
 public:
-  Bullet(Size size, float posX, float posY, float posTargetX, float posTargetY, float speed) {
-    this->drawingArea = Rectangle(Point(posX, posY), size);
+  Bullet(Size size, float posX, float posY, float posTargetX, float posTargetY, float speed)
+    : Entity(EntityType::Obstacle,Point(posX, posY), speed, 0.f, 0.f) {
+    BitmapManager^ bmpManager = BitmapManager::GetInstance();
+    Bitmap^ image = bmpManager->GetImage("assets\\sprites\\misc\\bullet.png");
+    this->SetImage(image, 1, 1);
     //Position of the bullet (float)
     this->floatX = this->drawingArea.X;
     this->floatY = this->drawingArea.Y;
@@ -22,19 +26,12 @@ public:
 
   ~Bullet(){}
 
-  void Move() {
+  void Move() override {
     //Set a new position for the bullet
     this->floatX += Math::Cos(this->angle) * this->speed;
     this->floatY -= Math::Sin(this->angle) * this->speed;
     //Round the value of the float
-    this->drawingArea.X = Math::Round(floatX);
-    this->drawingArea.Y = Math::Round(floatY);
-  }
-
-  void Draw(Graphics^ g) {
-    //Draw the bullet
-    BitmapManager^ bmpManager = BitmapManager::GetInstance();
-    g->DrawImage(bmpManager->GetImage("assets\\sprites\\misc\\bullet.png"), this->drawingArea);
+    this->SetPosition(Point(Math::Round(floatX), Math::Round(floatY)));
   }
 
   bool OutScreen(Rectangle area) {
@@ -44,9 +41,7 @@ public:
     return false;
   }
 
-  bool Collides(Rectangle area) {
-    return this->drawingArea.IntersectsWith(area);
-  }
+  void SetSpriteDirection(Direction direction) override{}
 
 };
 
