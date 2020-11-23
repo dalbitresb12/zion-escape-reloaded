@@ -95,6 +95,7 @@ public:
 
         if (isDeleted) {
           //Delete ptr
+          this->bullets[currentBullet - 1] = nullptr;
           delete this->bullets[currentBullet - 1];
           //Delete form the list
           bullets->Remove(bullets[currentBullet - 1]);

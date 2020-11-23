@@ -158,10 +158,11 @@ namespace ZionEscape {
       npc->Move(deltas.X, deltas.Y);
       //If the health of the NPC is 0, it's dead
       if (npc->GetHealth() <= 0) {
-        //Delete ptr
-        delete npc;
         //Delete form the list
         npcs->Remove(npc);
+        //Delete ptr
+        npc = nullptr;
+        delete npc;
         //The for must be break, beacuse it won't consider the same npc
         break;
       }
