@@ -19,7 +19,7 @@ public:
 
   void ConvertToAlly() {
     BitmapManager^ bmpManager = BitmapManager::GetInstance();
-    Bitmap^ image = bmpManager->GetImage("assets\\sprites\\aliados\\aliado-malo.png");
+    Bitmap^ image = bmpManager->GetImage("assets\\sprites\\aliados\\aliado-corrupto.png");
     this->SetImage(image, 4, 4);
   }
 

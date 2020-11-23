@@ -154,6 +154,33 @@ namespace ZionEscape {
     for each (NPC ^ npc in npcs) {
       Point deltas = npc->GetDelta();
       npc->Move(deltas.X, deltas.Y);
+
+      //Corrupt convertion - If the NPC is a Corrupt
+      if (npc->GetEntityType() == EntityType::Corrupt) {
+        //Looking for the allies
+        for each (NPC ^ other in npcs) {
+          if (other->GetEntityType() == EntityType::Ally)
+            //If the corrupts collides with an ally,
+            if (npc->Collision(other)) {
+              //Reference the corrupt
+              Corrupt^ corrupt = (Corrupt^)npc;
+              //Conver the corrup to a fake ally
+              corrupt->ConvertToAlly();
+              //And the health points of the ally are reduced
+              other->SetHealth(other->GetHealth() - npc->GetDamagePoints());
+            }
+        }
+      }
+      //If the health of the NPC is 0, it's dead
+      if (npc->GetHealth() <= 0) {
+        //Delete form the list
+        npcs->Remove(npc);
+        //Delete ptr
+        npc = nullptr;
+        delete npc;
+        //The for must be break, beacuse it won't consider the same npc
+        break;
+      }
     }
 
     for each (Keys key in keysPressed) {
@@ -164,31 +191,24 @@ namespace ZionEscape {
   }
 
   private: void ResetPathfinders() {
-    for each (NPC ^ npc in npcs) {
-      if (npc->GetEntityType() == EntityType::Ally || npc->GetEntityType() == EntityType::Assassin) {
-        Pathfinder::FindPath(mapGrid, npc->GetPosition(), player->GetPosition(), npc);
-      }
-      else if (npc->GetEntityType() == EntityType::Corrupt) {
-        Random r;
-        List<Ally^>^ allies = gcnew List<Ally^>;
-        for each (NPC ^ possibleAlly in npcs) {
-          if (possibleAlly->GetEntityType() == EntityType::Ally)
-            allies->Add((Ally^)possibleAlly);
+    if (npcs->Count > 0) {
+      for each (NPC ^ npc in npcs) {
+        if (npc->GetEntityType() == EntityType::Ally || npc->GetEntityType() == EntityType::Assassin) {
+          Pathfinder::FindPath(mapGrid, npc->GetPosition(), player->GetPosition(), npc);
         }
-        Ally^ ally = allies[r.Next(0, allies->Count)];
-        Pathfinder::FindPath(mapGrid, npc->GetPosition(), ally->GetPosition(), npc);
-      }
-
-      //Corrupt convertion - If the NPC is a Corrupt
-      if (npc->GetEntityType() == EntityType::Corrupt) {
-        //Looking for the allies
-        for each (NPC ^ other in npcs) {
-          if (other->GetEntityType() == EntityType::Ally){
-            
+        else if (npc->GetEntityType() == EntityType::Corrupt) {
+          Random r;
+          List<Ally^>^ allies = gcnew List<Ally^>;
+          for each (NPC ^ possibleAlly in npcs) {
+            if (possibleAlly->GetEntityType() == EntityType::Ally)
+              allies->Add((Ally^)possibleAlly);
+          }
+          if (allies->Count > 0) {
+            Ally^ ally = allies[r.Next(0, allies->Count)];
+            Pathfinder::FindPath(mapGrid, npc->GetPosition(), ally->GetPosition(), npc);
           }
         }
       }
-
     }
   }
   private: void AnimationTimer_Tick(Object^ sender, EventArgs^ e) {
