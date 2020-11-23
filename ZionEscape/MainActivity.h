@@ -160,7 +160,7 @@ namespace ZionEscape {
         //And its cooldown is equal or less than 0
         if (npc->GetCooldown() <= 0) {
           //If the assasin collides with the player (The health of the player must be greater than 0)
-          if (this->player->Collides(npc->GetDrawingArea()) && this->player->GetHealth() > 0.f) {
+          if (this->player->Collision(npc) && this->player->GetHealth() > 0.f) {
             //Assasin damages the player
             this->player->SetHealth(this->player->GetHealth() - npc->GetDamagePoints());
             //And its cooldown will be half a second to attack again
