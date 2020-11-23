@@ -178,6 +178,17 @@ namespace ZionEscape {
         Ally^ ally = allies[r.Next(0, allies->Count)];
         Pathfinder::FindPath(mapGrid, npc->GetPosition(), ally->GetPosition(), npc);
       }
+
+      //Corrupt convertion - If the NPC is a Corrupt
+      if (npc->GetEntityType() == EntityType::Corrupt) {
+        //Looking for the allies
+        for each (NPC ^ other in npcs) {
+          if (other->GetEntityType() == EntityType::Ally){
+            
+          }
+        }
+      }
+
     }
   }
   private: void AnimationTimer_Tick(Object^ sender, EventArgs^ e) {
