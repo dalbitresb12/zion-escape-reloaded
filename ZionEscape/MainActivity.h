@@ -189,8 +189,10 @@ namespace ZionEscape {
             if (possibleAlly->GetEntityType() == EntityType::Ally)
               allies->Add((Ally^)possibleAlly);
           }
-          Ally^ ally = allies[r.Next(0, allies->Count)];
-          Pathfinder::FindPath(mapGrid, npc->GetPosition(), ally->GetPosition(), npc);
+          if (allies->Count > 0) {
+            Ally^ ally = allies[r.Next(0, allies->Count)];
+            Pathfinder::FindPath(mapGrid, npc->GetPosition(), ally->GetPosition(), npc);
+          }
         }
       }
     }
