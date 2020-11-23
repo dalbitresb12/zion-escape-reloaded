@@ -52,6 +52,10 @@ public:
       heartPos.X += 46;
     }
   }
+
+  bool Collides(Rectangle area) {
+    return this->drawingArea.IntersectsWith(area);
+  }
 };
 
 #endif // !_PLAYER_H_

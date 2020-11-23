@@ -154,6 +154,24 @@ namespace ZionEscape {
     for each (NPC ^ npc in npcs) {
       Point deltas = npc->GetDelta();
       npc->Move(deltas.X, deltas.Y);
+
+      //Enemy Damge - If the NPC is an assasin
+      if (npc->GetEntityType() == EntityType::Assassin) {
+        //And its cooldown is equal or less than 0
+        if (npc->GetCooldown() <= 0) {
+          //If the assasin collides with the player
+          if (this->player->Collides(npc->GetDrawingArea())) {
+            //Assasin damages the player
+            this->player->SetHealth(this->player->GetHealth() - npc->GetDamagePoints());
+            //And its cooldown will be half a second to attack again
+            npc->SetCooldown(500/MovementTimer->Interval);
+          }
+        }
+        else {
+          //Each tick the cooldown will be reduced if it's greater than 0
+          npc->SetCooldown(npc->GetCooldown() - 1);
+        }
+      }
     }
 
     for each (Keys key in keysPressed) {

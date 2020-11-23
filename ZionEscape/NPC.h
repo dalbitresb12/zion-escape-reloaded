@@ -10,12 +10,15 @@ using namespace System::Collections::Generic;
 
 ref class NPC abstract : public Entity {
   bool pathEnded;
+  short cooldown;
 
 public:
   List<Node^>^ path;
 
   NPC(EntityType entityType, Point pos, unsigned short velocity, float healthPoints, float damagePoints)
-    : Entity(entityType, pos, velocity, healthPoints, damagePoints) {}
+    : Entity(entityType, pos, velocity, healthPoints, damagePoints) {
+    this->cooldown = 0;
+  }
 
   ~NPC() {
     if (path != nullptr) {
@@ -64,6 +67,14 @@ public:
 
     for each (Direction direction in GetDirectionFromDelta(deltaX, deltaY))
       this->SetSpriteDirection(direction);
+  }
+
+  void SetCooldown(short value) {
+    this->cooldown = value;
+  }
+
+  short GetCooldown() {
+    return this->cooldown;
   }
 };
 
