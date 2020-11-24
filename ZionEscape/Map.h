@@ -93,6 +93,15 @@ public:
     delete drawnNodes;
   }
 
+  bool ChangeScene(Direction direction) {
+    Scene^ scene;
+    if (currentScene->GetNeighbours()->TryGetValue(direction, scene)) {
+      currentScene = scene;
+      return true;
+    }
+    return false;
+  }
+
   bool IsGenerated() {
     return this->generated;
   }
