@@ -6,6 +6,7 @@
 #include "Scene.h"
 #include "DataTypes.h"
 #include "MathUtils.h"
+#include "Pathfinder.h"
 
 using namespace System;
 using namespace System::Drawing;
@@ -22,6 +23,7 @@ namespace Defaults {
 ref class Map {
   Scene^ currentScene;
   Random^ rnd;
+  Point furthestScene;
   const int seed;
   int maxScenes;
   const MinMax<short>^ depthCount;
@@ -177,14 +179,25 @@ private:
 
       // Create the new scene
       Scene^ generatedScene = gcnew Scene(doorLocations, position);
+
       // Create the spawners and add them to the points List
       generatedScene->CreateSpawners(points, rnd, scene, doorNeeded);
+
       // Remove the spawner from the Dictionary
       points->Remove(position);
       // Save the Point to the Dictionary with the scene hash
       points->Add(position, generatedScene->GetHashCode());
+
+      // Get the distance between this scene and (0, 0)
+      // using the same algorithm as for the Pathfinder.
+      // Then calculate if this one is more than the current
+      // furthest scene.
+      if (Pathfinder::GetDistance(Point(0, 0), position) > Pathfinder::GetDistance(Point(0, 0), furthestScene))
+        furthestScene = position;
+
       // Add as a neighbour to the current scene
       scene->AddNeighbour(element.Key, generatedScene);
+
       // Delete the spawner because the scene has been created
       delete currentSpawner;
       // Continue generating more scenes using recursion
@@ -208,6 +221,8 @@ private:
 
     if (position.Equals(Point(0, 0))) {
       world->FillRectangle(Brushes::Crimson, rect);
+    } else if (position.Equals(furthestScene)) {
+      world->FillRectangle(Brushes::BlueViolet, rect);
     } else {
       world->FillRectangle(Brushes::CornflowerBlue, rect);
     }
