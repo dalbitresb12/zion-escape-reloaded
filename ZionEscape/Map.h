@@ -80,14 +80,14 @@ public:
     isGenerating = false;
   }
 
-  void Draw(Graphics^ world) {
+  void DrawGizmos(Graphics^ world) {
     // Prevent execution when there's nothing to draw
     if (currentScene == nullptr)
       return;
 
     // Initialize List to prevent an infinite loop
     List<int>^ drawnNodes = gcnew List<int>;
-    DrawScene(world, currentScene, drawnNodes);
+    DrawSceneGizmos(world, currentScene, drawnNodes);
     // Clear the List and delete
     drawnNodes->Clear();
     delete drawnNodes;
@@ -219,12 +219,13 @@ private:
     depth -= 1;
   }
 
-  void DrawScene(Graphics^ world, Scene^ scene, List<int>^ drawnNodes) {
+  void DrawSceneGizmos(Graphics^ world, Scene^ scene, List<int>^ drawnNodes) {
     if (drawnNodes->Contains(scene->GetHashCode()))
       return;
 
+    Bitmap^ minimapImage = DoorLocations::GetImage(scene->GetDoorLocations());
     Point position = scene->GetPos();
-    Size size = scene->GetBackgroundSize();
+    Size size = minimapImage->Size;
     Point worldPos = Point((position.X + 10) * size.Width, (position.Y + 10) * size.Height);
     Rectangle rect = Rectangle(worldPos, size);
 
@@ -235,13 +236,14 @@ private:
     } else {
       world->FillRectangle(Brushes::CornflowerBlue, rect);
     }
+    world->DrawImage(minimapImage, worldPos);
 
-    scene->Draw(world);
+    // scene->Draw(world);
     drawnNodes->Add(scene->GetHashCode());
 
     for each (KeyValuePair<Direction, Scene^> element in scene->GetNeighbours()) {
       Scene^ neighbour = element.Value;
-      DrawScene(world, neighbour, drawnNodes);
+      DrawSceneGizmos(world, neighbour, drawnNodes);
     }
   }
 

@@ -45,6 +45,14 @@ public:
         break;
     }
   }
+
+  static bool CheckIfType(NPC^ npc) {
+    return npc->GetEntityType() == EntityType::Ally;
+  }
+
+  static Ally^ ConvertFromNPC(NPC^ npc) {
+    return (Ally^)npc;
+  }
 };
 
 #endif // !_ALLY_H_

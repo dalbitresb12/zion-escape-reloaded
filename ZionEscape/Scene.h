@@ -25,7 +25,6 @@ public:
     this->neighbours = gcnew Dictionary<Direction, Scene^>;
     this->spawners = gcnew Dictionary<Direction, SceneSpawner^>;
     this->position = position;
-    ImageSelector();
   }
 
   ~Scene() {
@@ -35,15 +34,11 @@ public:
     }
 
     if (spawners != nullptr) {
-      for each (KeyValuePair<Direction, SceneSpawner^> element in spawners)
-        delete element.Value;
       spawners->Clear();
       delete spawners;
     }
 
     if (neighbours != nullptr) {
-      for each (KeyValuePair<Direction, Scene^> element in neighbours)
-        delete element.Value;
       neighbours->Clear();
       delete neighbours;
     }
@@ -54,63 +49,16 @@ public:
     background = bmpManager->GetImage(EnumUtilities::GetPathFromBackground(image));
   }
 
-  //Temporal Image Selector -> Works as  a reference
-  void ImageSelector() {
-    BitmapManager^ bmpManager = BitmapManager::GetInstance();
-    bool up = GetDoorValue(Direction::Up);
-    bool down = GetDoorValue(Direction::Down);
-    bool left = GetDoorValue(Direction::Left);
-    bool right = GetDoorValue(Direction::Right);
-
-    if (!up && down && !right && !left)
-      background = bmpManager->GetImage("assets\\sprites\\colliders\\D.png");
-
-    else if (!up && down && right && !left)
-      background = bmpManager->GetImage("assets\\sprites\\colliders\\DR.png");
-
-    else if (up && down && right && left)
-      background = bmpManager->GetImage("assets\\sprites\\colliders\\G.png");
-
-    else if (!up && !down && !right && left)
-      background = bmpManager->GetImage("assets\\sprites\\colliders\\L.png");
-
-    else if (!up && !down && right && left)
-      background = bmpManager->GetImage("assets\\sprites\\colliders\\RL.png");
-
-    else if (!up && !down && right && !left)
-      background = bmpManager->GetImage("assets\\sprites\\colliders\\R.png");
-
-    else if (up && !down && !right && !left)
-      background = bmpManager->GetImage("assets\\sprites\\colliders\\T.png");
-
-    else if (up && down && !right && !left)
-      background = bmpManager->GetImage("assets\\sprites\\colliders\\TD.png");
-
-    else if (up && !down && !right && left)
-      background = bmpManager->GetImage("assets\\sprites\\colliders\\TL.png");
-
-    else if (up && !down && right && !left)
-      background = bmpManager->GetImage("assets\\sprites\\colliders\\TR.png");
-
-    else if (!up && down && !right && left)
-      background = bmpManager->GetImage("assets\\sprites\\colliders\\DL.png");
-
-    else if (!up && down && right && left)
-      background = bmpManager->GetImage("assets\\sprites\\colliders\\DRL.png");
-
-    else if (up && down && !right && left)
-      background = bmpManager->GetImage("assets\\sprites\\colliders\\TDL.png");
-
-    else if (up && down && right && !left)
-      background = bmpManager->GetImage("assets\\sprites\\colliders\\TDR.png");
-
-    else if (up && !down && right && left)
-      background = bmpManager->GetImage("assets\\sprites\\colliders\\TRL.png");
+  void Draw(Graphics^ world) {
+    Draw(world, Point(0, 0));
   }
 
-  void Draw(Graphics^ world) {
-    Point worldPos = Point((position.X + 10) * background->Width, (position.Y + 10) * background->Height);
-    world->DrawImage(background, worldPos);
+  void Draw(Graphics^ world, Point position) {
+    // Prevent execution if there's no background to draw
+    if (background == nullptr)
+      return;
+
+    world->DrawImage(background, position);
   }
 
   void CreateSpawners(Dictionary<Point, int>^ points, Random^ rnd, Scene^ parentScene, Direction parentDirection) {
@@ -158,7 +106,6 @@ public:
       doors->Add(direction);
     else if (!value && doors->Contains(direction))
       doors->Remove(direction);
-    this->ImageSelector();
   }
 
   bool GetDoorValue(Direction direction) {
