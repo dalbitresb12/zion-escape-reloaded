@@ -35,15 +35,11 @@ public:
     }
 
     if (spawners != nullptr) {
-      for each (KeyValuePair<Direction, SceneSpawner^> element in spawners)
-        delete element.Value;
       spawners->Clear();
       delete spawners;
     }
 
     if (neighbours != nullptr) {
-      for each (KeyValuePair<Direction, Scene^> element in neighbours)
-        delete element.Value;
       neighbours->Clear();
       delete neighbours;
     }
