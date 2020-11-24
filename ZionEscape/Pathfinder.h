@@ -13,6 +13,7 @@ using namespace System::Collections::Generic;
 ref class Pathfinder {
 private:
   Pathfinder() {}
+  ~Pathfinder() {}
 
 public:
   static void FindPath(Grid^ grid, Point startPos, Point targetPos, NPC^ npc) {
@@ -71,8 +72,12 @@ public:
   }
 
   static int GetDistance(Node^ a, Node^ b) {
-    int distanceX = Math::Abs(a->gridPos.X - b->gridPos.X);
-    int distanceY = Math::Abs(a->gridPos.Y - b->gridPos.Y);
+    return GetDistance(a->gridPos, b->gridPos);
+  }
+
+  static int GetDistance(Point a, Point b) {
+    int distanceX = Math::Abs(a.X - b.X);
+    int distanceY = Math::Abs(a.Y - b.Y);
 
     if (distanceX > distanceY)
       return 14 * distanceY + 10 * (distanceX - distanceY);

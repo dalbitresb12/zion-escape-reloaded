@@ -33,6 +33,7 @@ public:
     this->row = 0;
     this->animatable = animatable;
   }
+  ~Sprite() {}
 
   void SetImage(Bitmap^ image, short nCols, short nRows) {
     this->image = image;
@@ -56,7 +57,7 @@ public:
     SetAnimatable(true);
   }
 
-  void StopAnimation() {
+  virtual void StopAnimation() {
     SetAnimatable(false);
     col = 0;
   }
@@ -78,7 +79,8 @@ public:
   }
 
   void ShiftCol() {
-    this->col = (this->col + 1) % this->nCols;
+    if (this->animatable)
+      this->col = (this->col + 1) % this->nCols;
   }
 
   short GetRow() {
@@ -95,10 +97,6 @@ public:
     if (image == nullptr) return;
 
     world->DrawImage(image, this->drawingArea, this->GetCropArea(), GraphicsUnit::Pixel);
-
-    // If the bool animatable is false, the col won't be added by 1. Because of this, it won't be animated
-    if (this->animatable)
-      this->ShiftCol();
   }
 
   Rectangle GetCropArea() {

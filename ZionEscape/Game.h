@@ -16,6 +16,9 @@ using namespace System::Drawing::Drawing2D;
 // TO DO: Remove when UI to show the map seed is added
 using namespace System::Diagnostics;
 
+using namespace System::Threading;
+using namespace System::Threading::Tasks;
+
 ref class Game {
   Map^ map;
   GraphicsPath^ unwalkableLayer;
@@ -44,10 +47,20 @@ public:
   bool HasInitialized() {
     return initialized;
   }
+  ~Game() {
+    delete map;
+  }
 
-  void StartGeneration(Graphics^ g) {
-    this->map->StartGeneration(g);
-    
+  void MapGeneration() {
+    if (!map->IsGenerating() && !map->IsGenerated()) {
+      Action^ action = gcnew Action(map, &Map::StartGeneration);
+      Task^ generator = Task::Factory->StartNew(action, TaskCreationOptions::LongRunning);
+    }
+  }
+
+  void DrawMapGizmos(Graphics^ world) {
+    if (this->map->IsGenerated())
+      this->map->Draw(world);
   }
 
   bool IsGenerated() {
