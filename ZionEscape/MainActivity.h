@@ -32,7 +32,8 @@ namespace ZionEscape {
       InitializeComponent();
 
       // User-defined code.
-      this->game = gcnew Game();
+      game = gcnew Game();
+      game->MapGeneration();
     }
 
   protected:
@@ -85,11 +86,8 @@ namespace ZionEscape {
     if (game != nullptr) {
       if (!game->HasInitialized()) {
         game->Init(ClientRectangle.Size);
-        // POSSIBLE CAUSE OF DEBUGGER ERROR
-        // game->ResetPathfinders();
       }
 
-      game->StartGeneration(world);
       game->Paint(world);
     }
   }
@@ -111,11 +109,9 @@ namespace ZionEscape {
     }
   }
   private: void AnimationTimer_Tick(Object^ sender, EventArgs^ e) {
-    for each (NPC ^ npc in npcs) {
-      npc->ShiftCol();
+    if (game != nullptr) {
+      game->AnimationTick();
     }
-
-    player->ShiftCol();
   }
 };
 }

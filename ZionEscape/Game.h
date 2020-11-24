@@ -7,17 +7,19 @@
 #include "Grid.h"
 #include "Pathfinder.h"
 #include "NPC.h"
-#include "Player.h"
 #include "Ally.h"
+#include "Assassin.h"
+#include "Corrupt.h"
+#include "Player.h"
+#include "Enums.h"
 
 using namespace System;
 using namespace System::Drawing;
 using namespace System::Drawing::Drawing2D;
-// TO DO: Remove when UI to show the map seed is added
-using namespace System::Diagnostics;
-
 using namespace System::Threading;
 using namespace System::Threading::Tasks;
+// TO DO: Remove when UI to show the map seed is added
+using namespace System::Diagnostics;
 
 ref class Game {
   Map^ map;
@@ -33,15 +35,16 @@ ref class Game {
 
 public:
   Game() {
-    // POSSIBLE CAUSE OF DEBUGGER ERROR
     map = gcnew Map();
     initialized = false;
   }
 
   void Init(Size ClientSize) {
     player = gcnew Player(Point(ClientSize.Width / 2, ClientSize.Height / 2));
+    InitNPCs();
     InitGrid(ClientSize);
     initialized = true;
+    ResetPathfinders();
   }
 
   bool HasInitialized() {
@@ -49,18 +52,6 @@ public:
   }
   ~Game() {
     delete map;
-  }
-
-  void MapGeneration() {
-    if (!map->IsGenerating() && !map->IsGenerated()) {
-      Action^ action = gcnew Action(map, &Map::StartGeneration);
-      Task^ generator = Task::Factory->StartNew(action, TaskCreationOptions::LongRunning);
-    }
-  }
-
-  void DrawMapGizmos(Graphics^ world) {
-    if (this->map->IsGenerated())
-      this->map->Draw(world);
   }
 
   bool IsGenerated() {
@@ -71,17 +62,41 @@ public:
     return this->map->GetSeed();
   }
 
+  void DrawMapGizmos(Graphics^ world) {
+    if (this->map->IsGenerated())
+      this->map->DrawGizmos(world);
+  }
+
+  void MapGeneration() {
+    if (!map->IsGenerating() && !map->IsGenerated()) {
+      Action^ action = gcnew Action(map, &Map::StartGeneration);
+      Task^ generator = Task::Factory->StartNew(action, TaskCreationOptions::LongRunning);
+    }
+  }
+
   void Paint(Graphics^ world) {
     // TO DO: Add Draw for current scene when #19 is merged
     // map->DrawCurrent(world);
-    for each (NPC ^ npc in npcs) {
-      npc->Draw(world);
+
+    BitmapManager^ bmpManager = BitmapManager::GetInstance();
+    world->DrawImage(bmpManager->GetImage(EnumUtilities::GetPathFromBackground(BackgroundImage::Scene1)), Point(0, 0));
+
+    if (map != nullptr) {
+      DrawMapGizmos(world);
     }
 
-    // Add the player to the scene
-    player->Draw(world);
-    // TO DO: Move this to future UI controller
-    player->DrawHearts(world);
+    if (npcs != nullptr) {
+      for each (NPC ^ npc in npcs) {
+        npc->Draw(world);
+      }
+    }
+
+    if (player != nullptr) {
+      // Add the player to the scene
+      player->Draw(world);
+      // TO DO: Move this to future UI controller
+      player->DrawHearts(world);
+    }
   }
 
   void KeyDown(KeyEventArgs^ e) {
@@ -99,15 +114,47 @@ public:
   }
 
   void MovementTick() {
-    for each (NPC ^ npc in npcs) {
-      Point deltas = npc->GetDelta();
-      npc->Move(deltas.X, deltas.Y);
+    // Prevent execution if NPCs is nullptr
+    // This will prevent the worst error in the debugger, ever:
+    // 'System.NullReferenceException' occurred in Unknown Module
+    // Don't suffer what I suffered. Don't forget to check this first.
+    if (npcs != nullptr) {
+      for each (NPC ^ npc in npcs) {
+        Point deltas = npc->GetDelta();
+        npc->Move(deltas.X, deltas.Y);
+      }
     }
 
-    player->MoveUsingKeysList();
+    if (player != nullptr) {
+      player->MoveUsingKeysList();
+    }
+  }
+
+  void AnimationTick() {
+    if (npcs != nullptr) {
+      for each (NPC ^ npc in npcs) {
+        npc->ShiftCol();
+      }
+    }
+
+    if (player != nullptr) {
+      player->ShiftCol();
+    }
   }
 
   void ResetPathfinders() {
+    // Prevent execution if NPCs is nullptr
+    // This will prevent the worst error in the debugger, ever:
+    // 'System.NullReferenceException' occurred in Unknown Module
+    // Don't suffer what I suffered. Don't forget to check this first.
+    if (npcs == nullptr)
+      return;
+
+    // Get a List with only Allies
+    List<Ally^>^ allies = npcs->
+      FindAll(gcnew Predicate<NPC^>(&Ally::CheckIfType))->
+      ConvertAll<Ally^>(gcnew Converter<NPC^, Ally^>(&Ally::ConvertFromNPC));
+
     for each (NPC ^ npc in npcs) {
       if (npc->GetEntityType() == EntityType::Ally || npc->GetEntityType() == EntityType::Assassin) {
         Pathfinder::FindPath(mapGrid, npc->GetPosition(), player->GetPosition(), npc);
@@ -119,11 +166,6 @@ public:
         // If it isn't assigned (nullptr) we assign it one Ally randomly.
         // This property could be public (it needs to be accesible everywhere).
         Random r;
-        List<Ally^>^ allies = gcnew List<Ally^>;
-        for each (NPC ^ possibleAlly in npcs) {
-          if (possibleAlly->GetEntityType() == EntityType::Ally)
-            allies->Add((Ally^)possibleAlly);
-        }
         Ally^ ally = allies[r.Next(0, allies->Count)];
         Pathfinder::FindPath(mapGrid, npc->GetPosition(), ally->GetPosition(), npc);
       }
@@ -144,9 +186,9 @@ private:
   void InitNPCs() {
     npcs = gcnew List<NPC^>;
     npcs->Add(gcnew Ally(Point(700, 200)));
-    //npcs->Add(gcnew Ally(Point(450, 200)));
-    //npcs->Add(gcnew Assassin(Point(300, 100)));
-    //npcs->Add(gcnew Corrupt(Point(300, 100)));
+    npcs->Add(gcnew Ally(Point(450, 200)));
+    npcs->Add(gcnew Assassin(Point(300, 100)));
+    npcs->Add(gcnew Corrupt(Point(300, 100)));
   }
 };
 
