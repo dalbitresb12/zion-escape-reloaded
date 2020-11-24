@@ -42,6 +42,7 @@ namespace ZionEscape {
       this->Cursor = gcnew System::Windows::Forms::Cursor("assets\\sprites\\misc\\cursor.ico");
 
       this->game = gcnew Game();
+      this->game->MapGeneration();
 
       unwalkableLayer = gcnew GraphicsPath();
       Point gridWorldSize = Point(background->Width, background->Height);
@@ -116,8 +117,13 @@ namespace ZionEscape {
 #pragma endregion
   private: void MainActivity_Paint(Object^ sender, PaintEventArgs^ e) {
     Graphics^ world = e->Graphics;
+
+    // TO DO: Move all of this to Game class and use rendering logic
     world->DrawImage(this->background, Point(0, 0));
-    this->game->StartGeneration(world);
+
+    // Draw the map preview
+    this->game->DrawMapGizmos(world);
+
     for each (NPC ^ npc in npcs) {
       npc->Draw(world);
     }
@@ -152,7 +158,6 @@ namespace ZionEscape {
   }
 
   private: void MovementTimer_Tick(Object^ sender, EventArgs^ e) {
-
     for each (NPC ^ npc in npcs) {
       Point deltas = npc->GetDelta();
       npc->Move(deltas.X, deltas.Y);
