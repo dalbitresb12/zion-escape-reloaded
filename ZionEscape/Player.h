@@ -8,18 +8,21 @@
 
 using namespace System;
 
-ref class Player : public Entity {
-  // Set defaults easily
-  static const unsigned int velocity = 3U;
-  static const float initialHealth = 10.f;
-  static const float damagePoints = 2.f;
+namespace Defaults {
+  namespace Player {
+    const unsigned short Velocity = 3;
+    const float InitialHealth = 10.f;
+    const float DamagePoints = 2.f;
+  }
+}
 
+ref class Player : public Entity {
   array<Keys>^ movementKeys;
   List<Keys>^ keysPressed;
 
 public:
   Player(Point pos)
-    : Entity(EntityType::Player, pos, velocity, initialHealth, damagePoints) {
+    : Entity(EntityType::Player, pos, Defaults::Player::Velocity, Defaults::Player::InitialHealth, Defaults::Player::DamagePoints) {
     BitmapManager^ bmpManager = BitmapManager::GetInstance();
     Bitmap^ image = bmpManager->GetImage("assets\\sprites\\principal\\principal_m.png");
     this->SetImage(image, 4, 4);
@@ -28,7 +31,7 @@ public:
   }
 
   Player(Bitmap^ image, short nCols, short nRows, Point pos)
-    : Entity(EntityType::Player, pos, velocity, initialHealth, damagePoints) {
+    : Entity(EntityType::Player, pos, Defaults::Player::Velocity, Defaults::Player::InitialHealth, Defaults::Player::DamagePoints) {
     this->SetImage(image, nCols, nRows);
   }
 
