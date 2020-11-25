@@ -13,6 +13,9 @@
 #include "Corrupt.h"
 #include "Player.h"
 #include "Enums.h"
+#include "Scene.h"
+#include "BitmapManager.h"
+#include "DataTypes.h"
 
 using namespace System;
 using namespace System::Drawing;
@@ -24,7 +27,6 @@ using namespace System::Diagnostics;
 
 ref class Game {
   Map^ map;
-  GraphicsPath^ unwalkableLayer;
   Grid^ mapGrid;
   Player^ player;
   // TO DO: Get this from the current scene on the map
@@ -76,11 +78,7 @@ public:
   }
 
   void Paint(Graphics^ world) {
-    // TO DO: Add Draw for current scene when #19 is merged
-    // map->DrawCurrent(world);
-
-    BitmapManager^ bmpManager = BitmapManager::GetInstance();
-    world->DrawImage(bmpManager->GetImage(EnumUtilities::GetPathFromBackground(BackgroundImage::Scene1)), Point(0, 0));
+    map->DrawCurrent(world);
 
     if (map != nullptr) {
       DrawMapGizmos(world);
@@ -128,7 +126,35 @@ public:
     }
 
     if (player != nullptr) {
-      player->MoveUsingKeysList();
+      if (player->MoveUsingKeysList(mapGrid->walkableLayer)) {
+        BitmapManager^ bmpManager = BitmapManager::GetInstance();
+        Point position = player->GetPosition();
+        Size size = player->GetSize();
+
+        // Up
+        if (position.Y < 78) {
+          map->ChangeScene(Direction::Up);
+          player->SetPosition(position.X - size.Width / 2, 519 - size.Height);
+        }
+        // Down
+        if (position.Y > 536) {
+          map->ChangeScene(Direction::Down);
+          player->SetPosition(position.X - size.Width / 2, 104);
+        }
+        // Left
+        if (position.X < 78) {
+          map->ChangeScene(Direction::Left);
+          player->SetPosition(830 - size.Width, position.Y - size.Height / 2);
+        }
+        // Right
+        if (position.X > 850) {
+          map->ChangeScene(Direction::Right);
+          player->SetPosition(104, position.Y - size.Height / 2);
+        }
+
+        // mapGrid->walkableLayer = GetWalkableLayer(map->GetCurrentScene());
+        mapGrid->UpdateNodes(GetWalkableLayer(map->GetCurrentScene()));
+      }
     }
   }
 
@@ -175,14 +201,38 @@ public:
   }
 
 private:
+  static GraphicsPath^ GetWalkableLayer(Scene^ scene) {
+    // TO DO: Get this from the current scene on the map
+    GraphicsPath^ walkableLayer = gcnew GraphicsPath();
+    walkableLayer->AddRectangle(Rectangle(Point(103, 103), Size(728, 417)));
+
+    BitmapManager^ bmpManager = BitmapManager::GetInstance();
+    Bitmap^ doorImage = bmpManager->GetImage("assets\\sprites\\misc\\door.png");
+    int width = doorImage->Width;
+    int height = doorImage->Height; 
+ 
+    DoorLocations doorLocations = scene->GetDoorLocations();
+    if (doorLocations.Up) {
+      walkableLayer->AddRectangle(Rectangle(Point(422, 27), Size(width, height)));
+    }
+    if (doorLocations.Down) {
+      walkableLayer->AddRectangle(Rectangle(Point(422, 520), Size(width, height)));
+    }
+    if (doorLocations.Left) {
+      walkableLayer->AddRectangle(Rectangle(Point(27, 266), Size(height, width)));
+    }
+    if (doorLocations.Right) {
+      walkableLayer->AddRectangle(Rectangle(Point(831, 266), Size(height, width)));
+    }
+
+    return walkableLayer;
+  }
+
   void InitGrid(Size ClientSize) {
     Point gridWorldSize = Point(ClientSize);
     PointF nodeRadius = PointF(18, 10);
 
-    // TO DO: Get this from the current scene on the map
-    unwalkableLayer = gcnew GraphicsPath();
-
-    mapGrid = gcnew Grid(unwalkableLayer, gridWorldSize, nodeRadius);
+    mapGrid = gcnew Grid(GetWalkableLayer(map->GetCurrentScene()), gridWorldSize, nodeRadius);
   }
 
   void InitNPCs() {
