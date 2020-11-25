@@ -32,15 +32,19 @@ public:
     CreateMenu(world, clientSize, mouseLoc);
   }
 
-  static void DrawCredits(Graphics^ world) {
+  static void DrawCredits(Graphics^ world, Point mouseLoc) {
     BitmapManager^ bmpManager = BitmapManager::GetInstance();
     Bitmap^ background = bmpManager->GetImage("assets\\sprites\\misc\\menu-bg.png");
     Bitmap^ credits = bmpManager->GetImage("assets\\sprites\\misc\\credits.png");
     world->DrawImage(background, Point(0, 0));
     world->DrawImage(credits, Point(0, 0));
+
+    Rectangle backRectangle = GetTextRectangle("Volver");
+    Brush^ backBrush = IsHovering(backRectangle, mouseLoc) ? Brushes::SlateGray : Brushes::White;
+    world->DrawString("Volver", optionsFont, backBrush, backRectangle.Location);
   }
 
-  static void DrawPause(Graphics^ world) {
+  static void DrawPause(Graphics^ world, Point mouseLoc) {
     BitmapManager^ bmpManager = BitmapManager::GetInstance();
     Bitmap^ background = bmpManager->GetImage("assets\\sprites\\misc\\menu-bg.png");
     world->DrawImage(background, Point(0, 0));
@@ -49,7 +53,12 @@ public:
     world->DrawString("Pausa", titleFont, Brushes::White, pauseRectangle.Location);
 
     Rectangle exitRectangle = GetTextRectangle("Salir");
-    world->DrawString("Salir", optionsFont, Brushes::White, exitRectangle.Location);
+    Brush^ exitBrush = IsHovering(exitRectangle, mouseLoc) ? Brushes::SlateGray : Brushes::White;
+    world->DrawString("Salir", optionsFont, exitBrush, exitRectangle.Location);
+
+    Rectangle backRectangle = GetTextRectangle("Volver");
+    Brush^ backBrush = IsHovering(backRectangle, mouseLoc) ? Brushes::SlateGray : Brushes::White;
+    world->DrawString("Volver", optionsFont, backBrush, backRectangle.Location);
   }
 
   static UserInterface ClickEvent(Point mouseLoc, UserInterface currentUI) {
@@ -62,6 +71,16 @@ public:
       if (IsHovering(rect, mouseLoc)) {
         if (element.Key == "Salir") {
           Application::Exit();
+        }
+
+        if (currentUI == UserInterface::Credits) {
+          if (element.Key == "Volver")
+            return UserInterface::MainMenu;
+        }
+
+        if (currentUI == UserInterface::Pause) {
+          if (element.Key == "Volver")
+            return UserInterface::InGame;
         }
 
         if (currentUI == UserInterface::MainMenu) {
@@ -133,6 +152,9 @@ private:
     }
     if (!textRectangles->ContainsKey("Pausa")) {
       CreateText("Pausa", world, titleFont, clientSize, Size(0, 0));
+    }
+    if (!textRectangles->ContainsKey("Volver")) {
+      CreateText("Volver", world, optionsFont, clientSize, Size(-350, -250));
     }
   }
 

@@ -101,12 +101,24 @@ namespace ZionEscape {
         game->Init(ClientSize);
       }
 
+      if (!MovementTimer->Enabled) {
+        MovementTimer->Start();
+      }
+
+      if (!AnimationTimer->Enabled) {
+        AnimationTimer->Start();
+      }
+
       game->Paint(world);
     } else if (currentUI == UserInterface::Pause) {
-      UI::DrawPause(world);
+      UI::DrawPause(world, mouseLoc);
     } else if (currentUI == UserInterface::Credits) {
-      UI::DrawCredits(world);
+      UI::DrawCredits(world, mouseLoc);
     } else if (currentUI == UserInterface::MainMenu) {
+      if (game != nullptr) {
+        game = nullptr;
+      }
+
       UI::DrawMenu(world, ClientSize, mouseLoc);
     }
   }
