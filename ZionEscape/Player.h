@@ -85,11 +85,17 @@ public:
       StopAnimation();
   }
 
-  void MoveUsingKeysList() {
+  bool MoveUsingKeysList(GraphicsPath^ walkableLayer) {
+    if (keysPressed->Count == 0) {
+      return false;
+    }
+
     for each (Keys key in keysPressed) {
       if (!IsValidKey(key)) break;
-      Move(key);
+      Move(key, walkableLayer);
     }
+
+    return true;
   }
 
 private:

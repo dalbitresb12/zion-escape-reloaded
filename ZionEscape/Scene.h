@@ -58,7 +58,33 @@ public:
     if (background == nullptr)
       return;
 
+    BitmapManager^ bmpManager = BitmapManager::GetInstance();
+    Bitmap^ door = bmpManager->GetImage("assets\\sprites\\misc\\door.png");
+    DoorLocations locations = GetDoorLocations();
+
     world->DrawImage(background, position);
+
+    if (locations.Up) {
+      world->DrawImage(door, Point(422, 27));
+    }
+
+    if (locations.Down) {
+      door->RotateFlip(RotateFlipType::Rotate180FlipNone);
+      world->DrawImage(door, Point(422, 520));
+      door->RotateFlip(RotateFlipType::Rotate180FlipNone);
+    }
+
+    if (locations.Left) {
+      door->RotateFlip(RotateFlipType::Rotate270FlipNone);
+      world->DrawImage(door, Point(27, 266));
+      door->RotateFlip(RotateFlipType::Rotate90FlipNone);
+    }
+
+    if (locations.Right) {
+      door->RotateFlip(RotateFlipType::Rotate90FlipNone);
+      world->DrawImage(door, Point(831, 266));
+      door->RotateFlip(RotateFlipType::Rotate270FlipNone);
+    }
   }
 
   void CreateSpawners(Dictionary<Point, int>^ points, Random^ rnd, Scene^ parentScene, Direction parentDirection) {
