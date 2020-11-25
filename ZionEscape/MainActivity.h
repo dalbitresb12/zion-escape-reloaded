@@ -24,6 +24,7 @@ namespace ZionEscape {
     System::Windows::Forms::Timer^ MovementTimer;
     System::Windows::Forms::Timer^ AnimationTimer;
     // User-defined properties.
+    UserInterface currentUI;
     Game^ game;
 
   public:
@@ -32,8 +33,7 @@ namespace ZionEscape {
       InitializeComponent();
 
       // User-defined code.
-      game = gcnew Game();
-      game->MapGeneration();
+      currentUI = UserInterface::MainMenu;
     }
 
   protected:
@@ -82,9 +82,16 @@ namespace ZionEscape {
 #pragma endregion
   private: void MainActivity_Paint(Object^ sender, PaintEventArgs^ e) {
     Graphics^ world = e->Graphics;
+    world->SmoothingMode = SmoothingMode::AntiAlias;
 
-    if (game != nullptr) {
+    if (currentUI == UserInterface::MainMenu) {
+      UI::DrawMenu(world, ClientRectangle.Size);
+    }
+
+    if (game != nullptr && currentUI == UserInterface::InGame) {
       if (!game->HasInitialized()) {
+        game = gcnew Game();
+        game->MapGeneration();
         game->Init(ClientRectangle.Size);
       }
 
@@ -109,6 +116,8 @@ namespace ZionEscape {
     }
   }
   private: void AnimationTimer_Tick(Object^ sender, EventArgs^ e) {
+
+
     if (game != nullptr) {
       game->AnimationTick();
     }

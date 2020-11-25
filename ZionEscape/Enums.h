@@ -19,6 +19,10 @@ public enum class BackgroundImage {
   Scene1, Scene2, Scene3, Scene4
 };
 
+public enum class UserInterface {
+  MainMenu, Credits, Pause, InGame
+};
+
 namespace EnumUtilities {
   static String^ GetPathFromBackground(BackgroundImage image) {
     switch (image) {
