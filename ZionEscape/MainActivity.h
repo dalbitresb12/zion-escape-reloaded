@@ -73,6 +73,7 @@ namespace ZionEscape {
       this->Margin = System::Windows::Forms::Padding(4);
       this->Name = L"MainActivity";
       this->Text = L"Zion Escape";
+      this->Cursor = gcnew System::Windows::Forms::Cursor("assets\\sprites\\misc\\cursor.ico");
       this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MainActivity::MainActivity_Paint);
       this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainActivity::MainActivity_KeyDown);
       this->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &MainActivity::MainActivity_KeyUp);
