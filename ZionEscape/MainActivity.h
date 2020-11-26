@@ -158,10 +158,11 @@ namespace ZionEscape {
 
   private: void MovementTimer_Tick(Object^ sender, EventArgs^ e) {
     if (game != nullptr) {
-      game->MovementTick();
+      game->MovementTick(MovementTimer->Interval);
       Invalidate();
     }
   }
+
   private: void AnimationTimer_Tick(Object^ sender, EventArgs^ e) {
     if (game != nullptr) {
       game->AnimationTick();
