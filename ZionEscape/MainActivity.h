@@ -158,41 +158,11 @@ namespace ZionEscape {
 
   private: void MovementTimer_Tick(Object^ sender, EventArgs^ e) {
     if (game != nullptr) {
-      game->MovementTick();
+      game->MovementTick(MovementTimer->Interval);
       Invalidate();
     }
-
-    for each (NPC ^ npc in npcs) {
-      Point deltas = npc->GetDelta();
-      npc->Move(deltas.X, deltas.Y);
-
-      //Enemy Damge - If the NPC is an assassin
-      if (npc->GetEntityType() == EntityType::Assassin) {
-        //Reference the assassin
-        Assassin^ assassin = (Assassin^) npc;
-        //And its cooldown is equal or less than 0
-        if (assassin->GetCooldown() <= 0) {
-          //If the assasin collides with the player (The health of the player must be greater than 0)
-          if (this->player->Collision(assassin) && this->player->GetHealth() > 0.f) {
-            //Assasin damages the player
-            this->player->SetHealth(this->player->GetHealth() - assassin->GetDamagePoints());
-            //And its cooldown will be half a second to attack again
-            assassin->SetCooldown(500/MovementTimer->Interval);
-          }
-        }
-        else {
-          //Each tick the cooldown will be reduced if it's greater than 0
-          assassin->SetCooldown(assassin->GetCooldown() - 1);
-        }
-      }
-    }
-
-    for each (Keys key in keysPressed) {
-      if (!validKeys->Contains(key)) break;
-      player->Move(key);
-    }
-    Refresh();
   }
+
   private: void AnimationTimer_Tick(Object^ sender, EventArgs^ e) {
     if (game != nullptr) {
       game->AnimationTick();

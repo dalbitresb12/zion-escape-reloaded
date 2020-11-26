@@ -113,7 +113,7 @@ public:
     player->KeyUp(e);
   }
 
-  void MovementTick() {
+  void MovementTick(int tickInterval) {
     // Prevent execution if NPCs is nullptr
     // This will prevent the worst error in the debugger, ever:
     // 'System.NullReferenceException' occurred in Unknown Module
@@ -122,6 +122,25 @@ public:
       for each (NPC ^ npc in npcs) {
         Point deltas = npc->GetDelta();
         npc->Move(deltas.X, deltas.Y);
+
+        // Enemy Damage - If the NPC is an assassin
+        if (npc->GetEntityType() == EntityType::Assassin) {
+          // Reference the assassin
+          Assassin^ assassin = (Assassin^)npc;
+          // And its cooldown is equal or less than 0
+          if (assassin->GetCooldown() <= 0) {
+            // If the assasin collides with the player (The health of the player must be greater than 0)
+            if (player->HasCollision(assassin) && player->GetHealth() > 0.f) {
+              // Assasin damages the player
+              player->SetHealth(player->GetHealth() - assassin->GetDamagePoints());
+              // And its cooldown will be half a second to attack again
+              assassin->SetCooldown(500 / tickInterval);
+            }
+          } else {
+            // Each tick the cooldown will be reduced if it's greater than 0
+            assassin->SetCooldown(assassin->GetCooldown() - 1);
+          }
+        }
       }
     }
 
@@ -152,8 +171,12 @@ public:
           player->SetPosition(104, position.Y - size.Height / 2);
         }
 
-        // mapGrid->walkableLayer = GetWalkableLayer(map->GetCurrentScene());
-        mapGrid->UpdateNodes(GetWalkableLayer(map->GetCurrentScene()));
+        // O^2 = Too slow, too much CPU
+        // Didn't have time to optimize it
+        // mapGrid->UpdateNodes(GetWalkableLayer(map->GetCurrentScene()));
+
+        // This one is faster
+        mapGrid->walkableLayer = GetWalkableLayer(map->GetCurrentScene());
       }
     }
   }
@@ -201,15 +224,20 @@ public:
   }
 
 private:
-  static GraphicsPath^ GetWalkableLayer(Scene^ scene) {
+  static GraphicsPath^ GetSceneWalkableLayer(Scene^ scene) {
     // TO DO: Get this from the current scene on the map
     GraphicsPath^ walkableLayer = gcnew GraphicsPath();
     walkableLayer->AddRectangle(Rectangle(Point(103, 103), Size(728, 417)));
+    return walkableLayer;
+  }
+
+  static GraphicsPath^ GetWalkableLayer(Scene^ scene) {
+    GraphicsPath^ walkableLayer = GetSceneWalkableLayer(scene);
 
     BitmapManager^ bmpManager = BitmapManager::GetInstance();
     Bitmap^ doorImage = bmpManager->GetImage("assets\\sprites\\misc\\door.png");
     int width = doorImage->Width;
-    int height = doorImage->Height; 
+    int height = doorImage->Height;
  
     DoorLocations doorLocations = scene->GetDoorLocations();
     if (doorLocations.Up) {
@@ -232,7 +260,7 @@ private:
     Point gridWorldSize = Point(ClientSize);
     PointF nodeRadius = PointF(18, 10);
 
-    mapGrid = gcnew Grid(GetWalkableLayer(map->GetCurrentScene()), gridWorldSize, nodeRadius);
+    mapGrid = gcnew Grid(GetSceneWalkableLayer(map->GetCurrentScene()), gridWorldSize, nodeRadius);
   }
 
   void InitNPCs() {
