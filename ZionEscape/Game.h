@@ -29,11 +29,7 @@ ref class Game {
   Map^ map;
   Grid^ mapGrid;
   Player^ player;
-  // TO DO: Get this from the current scene on the map
-  // This one should only be a List of Allies, since those
-  // are the ones that should always be with the player.
-  // All the other NPCs should only be tied to a single scene.
-  List<NPC^>^ npcs;
+  List<Ally^>^ allies;
   bool initialized;
 
 public:
@@ -44,7 +40,7 @@ public:
 
   void Init(Size ClientSize) {
     player = gcnew Player(Point(ClientSize.Width / 2, ClientSize.Height / 2));
-    InitNPCs();
+    InitAllies();
     InitGrid(ClientSize);
     initialized = true;
     ResetPathfinders();
@@ -84,16 +80,19 @@ public:
       DrawMapGizmos(world);
     }
 
-    if (npcs != nullptr) {
-      for each (NPC ^ npc in npcs) {
-        npc->Draw(world);
+    if (allies != nullptr) {
+      for each (Ally ^ ally in allies) {
+        ally->Draw(world);
       }
     }
 
     if (player != nullptr) {
       // Add the player to the scene
       player->Draw(world);
-      player->ActionBullets(world, ClientRectangle, npcs);
+      if (map->GetCurrentScene()->GetNPCList() != nullptr)
+        player->ActionBullets(world, ClientRectangle, map->GetCurrentScene()->GetNPCList());
+      else
+        player->ActionBullets(world, ClientRectangle);
 
       // Draw the player health using the UI controller
       UI::DrawHearts(world, player->GetHealth());
@@ -119,43 +118,12 @@ public:
   }
 
   void MovementTick(int tickInterval) {
-    // Prevent execution if NPCs is nullptr
-    // This will prevent the worst error in the debugger, ever:
-    // 'System.NullReferenceException' occurred in Unknown Module
-    // Don't suffer what I suffered. Don't forget to check this first.
-    if (npcs != nullptr) {
-      for each (NPC ^ npc in npcs) {
-        Point deltas = npc->GetDelta();
-        npc->Move(deltas.X, deltas.Y, mapGrid);
+    map->GetCurrentScene()->MoveNPCS(mapGrid, player, tickInterval);
 
-        // Enemy Damage - If the NPC is an assassin
-        if (npc->GetEntityType() == EntityType::Assassin) {
-          // Reference the assassin
-          Assassin^ assassin = (Assassin^)npc;
-          // And its cooldown is equal or less than 0
-          if (assassin->GetCooldown() <= 0) {
-            // If the assasin collides with the player (The health of the player must be greater than 0)
-            if (player->HasCollision(assassin) && player->GetHealth() > 0.f) {
-              // Assasin damages the player
-              player->SetHealth(player->GetHealth() - assassin->GetDamagePoints());
-              // And its cooldown will be half a second to attack again
-              assassin->SetCooldown(500 / tickInterval);
-            }
-          } else {
-            // Each tick the cooldown will be reduced if it's greater than 0
-            assassin->SetCooldown(assassin->GetCooldown() - 1);
-          }
-        }
-
-        //If the health of the NPC is 0, it's dead
-        if (npc->GetHealth() <= 0) {
-          //Delete form the list
-          npcs->Remove(npc);
-          //Delete ptr
-          npc = nullptr;
-          //The for must be break, beacuse it won't consider the same npc
-          break;
-        }
+    if (allies != nullptr) {
+      for each (Ally ^ ally in allies) {
+        Point deltas = ally->GetDelta();
+        ally->Move(deltas.X, deltas.Y, mapGrid);
       }
     }
 
@@ -204,9 +172,11 @@ public:
   }
 
   void AnimationTick() {
-    if (npcs != nullptr) {
-      for each (NPC ^ npc in npcs) {
-        npc->ShiftCol();
+    map->GetCurrentScene()->AnimateNPCS();
+
+    if (allies != nullptr) {
+      for each (Ally ^ ally in allies) {
+        ally->ShiftCol();
       }
     }
 
@@ -220,54 +190,26 @@ public:
     // This will prevent the worst error in the debugger, ever:
     // 'System.NullReferenceException' occurred in Unknown Module
     // Don't suffer what I suffered. Don't forget to check this first.
-    if (npcs == nullptr)
+    if (allies == nullptr)
       return;
-
-    // Get a List with only Allies
-    List<Ally^>^ allies = npcs->
-      FindAll(gcnew Predicate<NPC^>(&Ally::CheckIfType))->
-      ConvertAll<Ally^>(gcnew Converter<NPC^, Ally^>(&Ally::ConvertFromNPC));
 
     Node^ playerNode = mapGrid->GetNodeFromWorldPoint(player->GetPosition());
     List<Node^>^ playerNeighbours = mapGrid->GetNeighbours(playerNode);
 
-    if (npcs->Count > 0) {
-      for each (NPC ^ npc in npcs) {
-        if (npc->GetEntityType() == EntityType::Ally || npc->GetEntityType() == EntityType::Assassin) {
-          Node^ currentNode = mapGrid->GetNodeFromWorldPoint(npc->GetPosition());
-          if (!playerNeighbours->Contains(currentNode)) {
-            Pathfinder::FindPath(mapGrid, npc->GetPosition(), player->GetPosition(), npc);
-          }
-        }
-        else if (npc->GetEntityType() == EntityType::Corrupt) {
-          Corrupt^ corrupt = (Corrupt^)npc;
-
-          if (corrupt->tracking == nullptr) {
-            Random r;
-            corrupt->tracking = allies[r.Next(0, allies->Count)];
-          }
-
-          Node^ allyNode = mapGrid->GetNodeFromWorldPoint(corrupt->tracking->GetPosition());
-          List<Node^>^ allyNeighbours = mapGrid->GetNeighbours(allyNode);
-          Node^ currentNode = mapGrid->GetNodeFromWorldPoint(npc->GetPosition());
-          if (!allyNeighbours->Contains(currentNode)) {
-            Pathfinder::FindPath(mapGrid, corrupt->GetPosition(), corrupt->tracking->GetPosition(), npc);
-          }
-        }
+    for each (Ally ^ ally in allies) {
+      Node^ currentNode = mapGrid->GetNodeFromWorldPoint(ally->GetPosition());
+      if (!playerNeighbours->Contains(currentNode)) {
+        Pathfinder::FindPath(mapGrid, ally->GetPosition(), player->GetPosition(), ally);
       }
     }
-    
+
+    map->GetCurrentScene()->ResetPathfinders(mapGrid, playerNeighbours, player->GetPosition(), allies);
   }
 
 private:
-  static GraphicsPath^ GetSceneWalkableLayer(Scene^ scene) {
+  static GraphicsPath^ GetWalkableLayer(Scene^ scene) {
     GraphicsPath^ walkableLayer = gcnew GraphicsPath();
     walkableLayer->AddRectangle(Rectangle(Point(103, 103), Size(728, 417)));
-    return walkableLayer;
-  }
-
-  static GraphicsPath^ GetWalkableLayer(Scene^ scene) {
-    GraphicsPath^ walkableLayer = GetSceneWalkableLayer(scene);
 
     BitmapManager^ bmpManager = BitmapManager::GetInstance();
     Bitmap^ doorImage = bmpManager->GetImage("assets\\sprites\\misc\\door.png");
@@ -298,14 +240,10 @@ private:
     mapGrid = gcnew Grid(GetWalkableLayer(map->GetCurrentScene()), gridWorldSize, nodeRadius);
   }
 
-  void InitNPCs() {
-    npcs = gcnew List<NPC^>;
-    npcs->Add(gcnew Ally(Point(700, 200)));
-    npcs->Add(gcnew Ally(Point(450, 200)));
-    npcs->Add(gcnew Assassin(Point(400, 200)));
-    npcs->Add(gcnew Assassin(Point(300, 400)));
-    npcs->Add(gcnew Corrupt(Point(300, 100)));
-    npcs->Add(gcnew Corrupt(Point(567, 145)));
+  void InitAllies() {
+    allies = gcnew List<Ally^>;
+    allies->Add(gcnew Ally(Point(700, 200)));
+    allies->Add(gcnew Ally(Point(450, 200)));
   }
 };
 

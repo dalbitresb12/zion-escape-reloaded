@@ -29,6 +29,7 @@ ref class Map {
   const MinMax<short>^ depthCount;
   bool isGenerating;
   bool generated;
+  bool generateAssassins;
 
 public:
   Map() : Map(RoundToInt(Defaults::Map::MinScenes), RoundToInt(Defaults::Map::MaxScenes), Environment::TickCount) {}
@@ -38,6 +39,7 @@ public:
   Map(int min, int max) : Map(min, max, Environment::TickCount) {}
 
   Map(int min, int max, int seed) : seed(seed) {
+    this->generateAssassins = false;
     this->rnd = gcnew Random(seed);
     this->maxScenes = rnd->Next(min, max);
     int minDepth = RoundToInt(min / (2.0 + 0.1 * min));
@@ -106,9 +108,20 @@ public:
     Scene^ scene;
     if (currentScene->GetNeighbours()->TryGetValue(direction, scene)) {
       currentScene = scene;
+      Random rnd;
+
+      if (!currentScene->IsExplored()) {
+        currentScene->CreateNPCS(rnd.Next(2), generateAssassins ? rnd.Next(3) : 0);
+        currentScene->Explore();
+      }
+
       return true;
     }
     return false;
+  }
+
+  void ActivateAsssasins() {
+    generateAssassins = true;
   }
 
   Scene^ GetCurrentScene(){

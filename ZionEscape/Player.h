@@ -112,6 +112,34 @@ public:
         }
       }
   }
+
+  void ActionBullets(Graphics^ g, Rectangle area) {
+    //Check if there are bullets
+    if (this->bullets->Count > 0)
+      //Check all the Bullets in the List
+      for (unsigned currentBullet = this->bullets->Count; currentBullet > 0; currentBullet--) {
+
+        bool isDeleted = false;
+        //Move the bullet
+        bullets[currentBullet - 1]->Move();
+        //Draw the bullet
+        bullets[currentBullet - 1]->Draw(g);
+
+        //Detects if the Bullet is out of the screen
+        if (bullets[currentBullet - 1]->OutScreen(area))
+          isDeleted = true;
+
+        if (isDeleted) {
+          //Delete ptr
+          this->bullets[currentBullet - 1] = nullptr;
+          delete this->bullets[currentBullet - 1];
+          //Delete form the list
+          bullets->Remove(bullets[currentBullet - 1]);
+        }
+      }
+  }
+
+
   void KeyUp(KeyEventArgs^ e) {
     if (keysPressed->Contains(e->KeyCode))
       keysPressed->Remove(e->KeyCode);
