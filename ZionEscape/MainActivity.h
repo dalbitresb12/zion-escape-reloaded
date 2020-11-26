@@ -29,7 +29,9 @@ namespace ZionEscape {
     UserInterface currentUI;
     Point prevMouseLoc;
     Point mouseLoc;
-    Game^ game;
+  private: System::Windows::Forms::Timer^ MessageTimer;
+  private: System::Windows::Forms::Label^ MessageLabel;
+         Game^ game;
 
   public:
     MainActivity() {
@@ -57,31 +59,49 @@ namespace ZionEscape {
       this->MovementTimer = (gcnew System::Windows::Forms::Timer(this->components));
       this->AnimationTimer = (gcnew System::Windows::Forms::Timer(this->components));
       this->PathfinderTimer = (gcnew System::Windows::Forms::Timer(this->components));
+      this->MessageTimer = (gcnew System::Windows::Forms::Timer(this->components));
+      this->MessageLabel = (gcnew System::Windows::Forms::Label());
       this->SuspendLayout();
       // 
       // MovementTimer
       // 
-      this->MovementTimer->Enabled = false;
       this->MovementTimer->Interval = 20;
       this->MovementTimer->Tick += gcnew System::EventHandler(this, &MainActivity::MovementTimer_Tick);
       // 
       // AnimationTimer
       // 
-      this->AnimationTimer->Enabled = false;
       this->AnimationTimer->Interval = 80;
       this->AnimationTimer->Tick += gcnew System::EventHandler(this, &MainActivity::AnimationTimer_Tick);
       // 
       // PathfinderTimer
       // 
-      this->PathfinderTimer->Enabled = false;
       this->PathfinderTimer->Interval = 200;
       this->PathfinderTimer->Tick += gcnew System::EventHandler(this, &MainActivity::PathfinderTimer_Tick);
+      // 
+      // MessageTimer
+      // 
+      this->MessageTimer->Tick += gcnew System::EventHandler(this, &MainActivity::MessageTimer_Tick);
+      // 
+     // MessageLabel
+     // 
+      this->MessageLabel->AutoSize = true;
+      this->MessageLabel->BackColor = System::Drawing::Color::Transparent;
+      this->MessageLabel->Font = (gcnew System::Drawing::Font(L"High Tower Text", 20.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+        static_cast<System::Byte>(0)));
+      this->MessageLabel->ForeColor = System::Drawing::Color::Black;
+      this->MessageLabel->Location = System::Drawing::Point(144, 270);
+      this->MessageLabel->Name = L"MessageLabel";
+      this->MessageLabel->Size = System::Drawing::Size(417, 32);
+      this->MessageLabel->TabIndex = 0;
+      this->MessageLabel->Text = L"Conque buscan nuestra ayuda . . .";
+      this->MessageLabel->Visible = false;
       // 
       // MainActivity
       // 
       this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
       this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
       this->ClientSize = System::Drawing::Size(936, 624);
+      this->Controls->Add(this->MessageLabel);
       this->DoubleBuffered = true;
       this->Margin = System::Windows::Forms::Padding(4);
       this->Name = L"MainActivity";
@@ -92,6 +112,7 @@ namespace ZionEscape {
       this->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MainActivity::MainActivity_MouseClick);
       this->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &MainActivity::MainActivity_MouseMove);
       this->ResumeLayout(false);
+      this->PerformLayout();
 
     }
 #pragma endregion
@@ -173,7 +194,7 @@ namespace ZionEscape {
 
   private: void MovementTimer_Tick(Object^ sender, EventArgs^ e) {
     if (game != nullptr) {
-      game->MovementTick(MovementTimer->Interval);
+      game->MovementTick(MovementTimer->Interval, MessageLabel, MessageTimer);
       Invalidate();
     }
   }
@@ -210,6 +231,10 @@ namespace ZionEscape {
   private: void PathfinderTimer_Tick(Object^ sender, EventArgs^ e) {
     if (game != nullptr)
       game->ResetPathfinders();
+  }
+   private: System::Void MessageTimer_Tick(System::Object^ sender, System::EventArgs^ e) {
+     if (game != nullptr)
+       game->PrintLetterTick(MessageLabel, MessageTimer);
   }
 };
 }
