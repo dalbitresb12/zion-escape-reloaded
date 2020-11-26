@@ -61,7 +61,6 @@ public:
     if (!keysPressed->Contains(e->KeyCode)) {
       keysPressed->Add(e->KeyCode);
       StartAnimation();
-      // ResetPathfinders();
     }
   }
 

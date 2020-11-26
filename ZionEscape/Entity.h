@@ -83,7 +83,7 @@ public:
     Move(direction, nullptr);
   }
 
-  virtual void Move(int deltaX, int deltaY) {
+  virtual void Move(int deltaX, int deltaY, Grid^ grid) {
     for each (Direction direction in GetDirectionFromDelta(deltaX, deltaY))
       Move(direction);
   }
