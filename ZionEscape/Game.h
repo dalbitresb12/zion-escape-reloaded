@@ -73,7 +73,7 @@ public:
     }
   }
 
-  void Paint(Graphics^ world) {
+  void Paint(Graphics^ world, Rectangle ClientRectangle) {
     map->DrawCurrent(world);
 
     if (map != nullptr) {
@@ -89,6 +89,10 @@ public:
     if (player != nullptr) {
       // Add the player to the scene
       player->Draw(world);
+      if (map->GetCurrentScene()->GetNPCList() != nullptr)
+        player->ActionBullets(world, ClientRectangle, map->GetCurrentScene()->GetNPCList());
+      else
+        player->ActionBullets(world, ClientRectangle);
 
       // Draw the player health using the UI controller
       UI::DrawHearts(world, player->GetHealth());
@@ -107,6 +111,10 @@ public:
 
   void KeyUp(KeyEventArgs^ e) {
     player->KeyUp(e);
+  }
+
+  void MouseClick(MouseEventArgs^ e) {
+     player->Shoot(e->Location.X, e->Location.Y);
   }
 
   void MovementTick(int tickInterval) {

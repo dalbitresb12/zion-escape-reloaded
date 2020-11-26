@@ -122,7 +122,7 @@ namespace ZionEscape {
         PathfinderTimer->Start();
       }
 
-      game->Paint(world);
+      game->Paint(world, ClientRectangle);
     } else if (currentUI == UserInterface::Pause) {
       UI::DrawPause(world, mouseLoc);
     } else if (currentUI == UserInterface::Credits) {
@@ -202,6 +202,8 @@ namespace ZionEscape {
 
   private: void MainActivity_MouseClick(Object^ sender, MouseEventArgs^ e) {
     currentUI = UI::ClickEvent(e->Location, currentUI);
+    if (game != nullptr)
+      game->MouseClick(e);
     Invalidate();
   }
 

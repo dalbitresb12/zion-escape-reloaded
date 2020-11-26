@@ -69,9 +69,7 @@ public:
       Rectangle rect = element.Value;
 
       if (IsHovering(rect, mouseLoc)) {
-        if (element.Key == "Salir") {
-          Application::Exit();
-        }
+        
 
         if (currentUI == UserInterface::Credits) {
           if (element.Key == "Volver")
@@ -81,11 +79,15 @@ public:
         if (currentUI == UserInterface::Pause) {
           if (element.Key == "Volver")
             return UserInterface::InGame;
+          else if (element.Key == "Salir")
+            Application::Exit();
         }
 
         if (currentUI == UserInterface::MainMenu) {
           if (element.Key == "Iniciar")
             return UserInterface::InGame;
+          else if (element.Key == "Salir")
+            Application::Exit();
           else if (element.Key == "Creditos")
             return UserInterface::Credits;
         }

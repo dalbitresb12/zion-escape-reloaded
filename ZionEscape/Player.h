@@ -5,6 +5,9 @@
 
 #include "BitmapManager.h"
 #include "Entity.h"
+#include "Bullet.h"
+
+using namespace System::Collections::Generic;
 
 using namespace System;
 
@@ -19,12 +22,13 @@ namespace Defaults {
 ref class Player : public Entity {
   array<Keys>^ movementKeys;
   List<Keys>^ keysPressed;
-
+  List<Bullet^>^ bullets;
 public:
   Player(Point pos)
     : Entity(EntityType::Player, pos, Defaults::Player::Velocity, Defaults::Player::InitialHealth, Defaults::Player::DamagePoints) {
     BitmapManager^ bmpManager = BitmapManager::GetInstance();
     Bitmap^ image = bmpManager->GetImage("assets\\sprites\\principal\\principal_m.png");
+    this->bullets = gcnew List<Bullet^>;
     this->SetImage(image, 4, 4);
     this->movementKeys = gcnew array<Keys> { Keys::A, Keys::D, Keys::S, Keys::W };
     this->keysPressed = gcnew List<Keys>;
@@ -35,7 +39,12 @@ public:
     this->SetImage(image, nCols, nRows);
   }
 
-  ~Player() {}
+  ~Player() {
+    for each (Bullet ^ bullet in this->bullets)
+      delete bullet;
+    this->bullets->Clear();
+    delete this->bullets;
+  }
 
   void SetSpriteDirection(Direction direction) override {
     switch (direction) {
@@ -63,6 +72,73 @@ public:
       StartAnimation();
     }
   }
+
+  //Create a Bullet
+  void Shoot(float posX, float posY) {
+    this->bullets->Add(gcnew Bullet(Size(20,20), this->drawingArea.X+10, this->drawingArea.Y+20, posX, posY, 10));
+  }
+
+  void ActionBullets(Graphics^ g, Rectangle area, List<NPC^>^ npcs) {
+    //Check if there are bullets
+    if (this->bullets->Count > 0)
+      //Check all the Bullets in the List
+      for (unsigned currentBullet = this->bullets->Count; currentBullet > 0; currentBullet--) {
+
+        bool isDeleted = false;
+        //Move the bullet
+        bullets[currentBullet-1]->Move();
+        //Draw the bullet
+        bullets[currentBullet-1]->Draw(g);
+
+        //Check if the bullet collides with any Corrupt or Assasin
+        for each (NPC ^ npc in npcs)
+          if (npc->GetEntityType() == EntityType::Corrupt || npc->GetEntityType() == EntityType::Assassin)
+            if (bullets[currentBullet - 1]->HasCollision(npc)) {
+              npc->SetHealth(npc->GetHealth() - this->GetDamagePoints());
+              isDeleted = true;
+              break;
+            }
+       
+        //Detects if the Bullet is out of the screen
+        if (bullets[currentBullet-1]->OutScreen(area))
+          isDeleted = true;
+
+        if (isDeleted) {
+          //Delete ptr
+          this->bullets[currentBullet - 1] = nullptr;
+          delete this->bullets[currentBullet - 1];
+          //Delete form the list
+          bullets->Remove(bullets[currentBullet - 1]);
+        }
+      }
+  }
+
+  void ActionBullets(Graphics^ g, Rectangle area) {
+    //Check if there are bullets
+    if (this->bullets->Count > 0)
+      //Check all the Bullets in the List
+      for (unsigned currentBullet = this->bullets->Count; currentBullet > 0; currentBullet--) {
+
+        bool isDeleted = false;
+        //Move the bullet
+        bullets[currentBullet - 1]->Move();
+        //Draw the bullet
+        bullets[currentBullet - 1]->Draw(g);
+
+        //Detects if the Bullet is out of the screen
+        if (bullets[currentBullet - 1]->OutScreen(area))
+          isDeleted = true;
+
+        if (isDeleted) {
+          //Delete ptr
+          this->bullets[currentBullet - 1] = nullptr;
+          delete this->bullets[currentBullet - 1];
+          //Delete form the list
+          bullets->Remove(bullets[currentBullet - 1]);
+        }
+      }
+  }
+
 
   void KeyUp(KeyEventArgs^ e) {
     if (keysPressed->Contains(e->KeyCode))

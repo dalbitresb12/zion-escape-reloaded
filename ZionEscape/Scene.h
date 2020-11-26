@@ -92,6 +92,16 @@ public:
     if (npcs != nullptr) {
       for each (NPC ^ npc in npcs) {
         npc->Draw(world);
+
+        //If the health of the NPC is 0, it's dead
+        if (npc->GetHealth() <= 0) {
+          //Delete form the list
+          npcs->Remove(npc);
+          //Delete ptr
+          npc = nullptr;
+          //The for must be break, beacuse it won't consider the same npc
+          break;
+        }
       }
     }
   }
