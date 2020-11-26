@@ -136,6 +136,10 @@ public:
     return this->isGenerating;
   }
 
+  bool IsAssassinActivated() {
+    return this->generateAssassins;
+  }
+
   int GetSeed() {
     return this->seed;
   }

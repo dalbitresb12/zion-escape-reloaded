@@ -16,6 +16,7 @@
 #include "Scene.h"
 #include "BitmapManager.h"
 #include "DataTypes.h"
+#include "MessageBox.h"
 
 using namespace System;
 using namespace System::Drawing;
@@ -30,6 +31,7 @@ ref class Game {
   Grid^ mapGrid;
   Player^ player;
   List<Ally^>^ allies;
+  Messagebox^ messagebox;
   bool initialized;
 
 public:
@@ -51,6 +53,7 @@ public:
   }
   ~Game() {
     delete map;
+    delete messagebox;
   }
 
   bool IsGenerated() {
@@ -109,6 +112,10 @@ public:
       // Draw the player health using the UI controller
       UI::DrawHearts(world, player->GetHealth());
     }
+
+    if (messagebox != nullptr && messagebox->GetActivated()) {
+      messagebox->Draw(world);
+    }
   }
 
   void KeyDown(KeyEventArgs^ e) {
@@ -116,6 +123,10 @@ public:
     if (e->KeyCode == Keys::P) {
       Debug::WriteLine("Seed: {0}", GetMapSeed());
       return;
+    }
+
+    if (e->KeyCode == Keys::M) {
+      map->ActivateAsssasins();
     }
 
     player->KeyDown(e);
@@ -129,7 +140,7 @@ public:
      player->Shoot(e->Location.X, e->Location.Y);
   }
 
-  void MovementTick(int tickInterval) {
+  void MovementTick(int tickInterval, Label^ label, Windows::Forms::Timer^ MessageTimer) {
     map->GetCurrentScene()->MoveNPCS(mapGrid, player, tickInterval, allies);
 
     if (allies != nullptr) {
@@ -181,6 +192,16 @@ public:
         }
       }
     }
+
+    if (map->IsAssassinActivated() && messagebox == nullptr && label != nullptr) {
+      messagebox = gcnew Messagebox(label);
+      label->Visible = true;
+      MessageTimer->Start();
+    }
+  }
+
+  void PrintLetterTick(Label^ label, Windows::Forms::Timer^ MessageTimer) {
+    messagebox->PrintLetter(label, MessageTimer);
   }
 
   void AnimationTick() {
