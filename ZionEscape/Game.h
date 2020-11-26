@@ -83,6 +83,18 @@ public:
     if (allies != nullptr) {
       for each (Ally ^ ally in allies) {
         ally->Draw(world);
+
+        //If the health of the NPC is 0, it's dead
+        if (ally->GetHealth() <= 0) {
+          //Delete form the list
+          allies->Remove(ally);
+          //Delete ptr
+          ally = nullptr;
+          //The for must be break, beacuse it won't consider the same npc
+          break;
+        }
+
+
       }
     }
 
@@ -118,7 +130,7 @@ public:
   }
 
   void MovementTick(int tickInterval) {
-    map->GetCurrentScene()->MoveNPCS(mapGrid, player, tickInterval);
+    map->GetCurrentScene()->MoveNPCS(mapGrid, player, tickInterval, allies);
 
     if (allies != nullptr) {
       for each (Ally ^ ally in allies) {
@@ -196,14 +208,16 @@ public:
     Node^ playerNode = mapGrid->GetNodeFromWorldPoint(player->GetPosition());
     List<Node^>^ playerNeighbours = mapGrid->GetNeighbours(playerNode);
 
-    for each (Ally ^ ally in allies) {
-      Node^ currentNode = mapGrid->GetNodeFromWorldPoint(ally->GetPosition());
-      if (!playerNeighbours->Contains(currentNode)) {
-        Pathfinder::FindPath(mapGrid, ally->GetPosition(), player->GetPosition(), ally);
+    if (allies->Count > 0) {
+      for each (Ally ^ ally in allies) {
+        Node^ currentNode = mapGrid->GetNodeFromWorldPoint(ally->GetPosition());
+        if (!playerNeighbours->Contains(currentNode)) {
+          Pathfinder::FindPath(mapGrid, ally->GetPosition(), player->GetPosition(), ally);
+        }
       }
-    }
 
-    map->GetCurrentScene()->ResetPathfinders(mapGrid, playerNeighbours, player->GetPosition(), allies);
+      map->GetCurrentScene()->ResetPathfinders(mapGrid, playerNeighbours, player->GetPosition(), allies);
+    }
   }
 
 private:

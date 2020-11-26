@@ -212,7 +212,7 @@ public:
     }
   }
 
-  void MoveNPCS(Grid^ grid, Player^ player, int tickInterval) {
+  void MoveNPCS(Grid^ grid, Player^ player, int tickInterval, List<Ally^>^ allies) {
     // Prevent execution if NPCs is nullptr
     // This will prevent the worst error in the debugger, ever:
     // 'System.NullReferenceException' occurred in Unknown Module
@@ -239,6 +239,21 @@ public:
             // Each tick the cooldown will be reduced if it's greater than 0
             assassin->SetCooldown(assassin->GetCooldown() - 1);
           }
+        }
+
+        //Corrupt convertion - If the NPC is a Corrupt
+        if (npc->GetEntityType() == EntityType::Corrupt) {
+          //Looking for the allies
+          for each (Ally ^ ally in allies)
+              //If the corrupts collides with an ally,
+              if (npc->HasCollision((NPC^)ally)) {
+                //Reference the corrupt
+                Corrupt^ corrupt = (Corrupt^)npc;
+                //Conver the corrup to a fake ally
+                corrupt->ConvertToAlly();
+                //And the health points of the ally are reduced
+                ally->SetHealth(ally->GetHealth() - npc->GetDamagePoints());
+              }
         }
       }
     }
@@ -269,6 +284,7 @@ public:
       } else if (npc->GetEntityType() == EntityType::Corrupt) {
         Corrupt^ corrupt = (Corrupt^)npc;
 
+      if(allies->Count>0)
         if (corrupt->tracking == nullptr) {
           Random r;
           corrupt->tracking = allies[r.Next(0, allies->Count)];
