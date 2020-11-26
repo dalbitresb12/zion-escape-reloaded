@@ -11,7 +11,7 @@ ref class Assassin : public NPC {
   short cooldown;
 public:
   Assassin(Point pos)
-    : NPC(EntityType::Assassin, pos, 3U, 3.f, 1.f) {
+    : NPC(EntityType::Assassin, pos, 5U, 3.f, 1.f) {
     BitmapManager^ bmpManager = BitmapManager::GetInstance();
     Bitmap^ image = bmpManager->GetImage("assets\\sprites\\asesinos\\asesino.png");
     this->SetImage(image, 3, 4);
