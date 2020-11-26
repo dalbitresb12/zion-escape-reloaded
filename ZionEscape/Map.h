@@ -68,6 +68,8 @@ public:
     Dictionary<Point, int>^ points = gcnew Dictionary<Point, int>;
     // Initialize the first scene
     currentScene = gcnew Scene(DoorLocations(true), position);
+    // Set the background of this scene
+    currentScene->SetBackground(EnumUtilities::GetRandomBackground(rnd));
     // Add the first Point
     points->Add(position, currentScene->GetHashCode());
     // Create the default spawners
@@ -80,17 +82,37 @@ public:
     isGenerating = false;
   }
 
-  void Draw(Graphics^ world) {
+  void DrawCurrent(Graphics^ world) {
+    if (currentScene == nullptr)
+      return;
+
+    currentScene->Draw(world);
+  }
+
+  void DrawGizmos(Graphics^ world) {
     // Prevent execution when there's nothing to draw
     if (currentScene == nullptr)
       return;
 
     // Initialize List to prevent an infinite loop
     List<int>^ drawnNodes = gcnew List<int>;
-    DrawScene(world, currentScene, drawnNodes);
+    DrawSceneGizmos(world, currentScene, drawnNodes);
     // Clear the List and delete
     drawnNodes->Clear();
     delete drawnNodes;
+  }
+
+  bool ChangeScene(Direction direction) {
+    Scene^ scene;
+    if (currentScene->GetNeighbours()->TryGetValue(direction, scene)) {
+      currentScene = scene;
+      return true;
+    }
+    return false;
+  }
+
+  Scene^ GetCurrentScene(){
+    return currentScene;
   }
 
   bool IsGenerated() {
@@ -180,6 +202,9 @@ private:
       // Create the new scene
       Scene^ generatedScene = gcnew Scene(doorLocations, position);
 
+      // Set the background of this scene
+      generatedScene->SetBackground(EnumUtilities::GetRandomBackground(rnd));
+
       // Create the spawners and add them to the points List
       generatedScene->CreateSpawners(points, rnd, scene, doorNeeded);
 
@@ -210,29 +235,32 @@ private:
     depth -= 1;
   }
 
-  void DrawScene(Graphics^ world, Scene^ scene, List<int>^ drawnNodes) {
+  void DrawSceneGizmos(Graphics^ world, Scene^ scene, List<int>^ drawnNodes) {
     if (drawnNodes->Contains(scene->GetHashCode()))
       return;
 
+    Bitmap^ minimapImage = DoorLocations::GetImage(scene->GetDoorLocations());
     Point position = scene->GetPos();
-    Size size = scene->GetBackgroundSize();
+    Size size = minimapImage->Size;
     Point worldPos = Point((position.X + 10) * size.Width, (position.Y + 10) * size.Height);
     Rectangle rect = Rectangle(worldPos, size);
-
-    if (position.Equals(Point(0, 0))) {
+    
+    if (position.Equals(currentScene->GetPos())) {
+      world->FillRectangle(Brushes::DeepPink, rect);
+    } else if (position.Equals(Point(0, 0))) {
       world->FillRectangle(Brushes::Crimson, rect);
     } else if (position.Equals(furthestScene)) {
       world->FillRectangle(Brushes::BlueViolet, rect);
     } else {
       world->FillRectangle(Brushes::CornflowerBlue, rect);
     }
+    world->DrawImage(minimapImage, worldPos);
 
-    scene->Draw(world);
     drawnNodes->Add(scene->GetHashCode());
 
     for each (KeyValuePair<Direction, Scene^> element in scene->GetNeighbours()) {
       Scene^ neighbour = element.Value;
-      DrawScene(world, neighbour, drawnNodes);
+      DrawSceneGizmos(world, neighbour, drawnNodes);
     }
   }
 
