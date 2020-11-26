@@ -7,6 +7,12 @@
 #include "BitmapManager.h"
 #include "Enums.h"
 #include "DataTypes.h"
+#include "NPC.h"
+#include "Grid.h"
+#include "Player.h"
+#include "Ally.h"
+#include "Corrupt.h"
+#include "Assassin.h"
 
 using namespace System::Drawing;
 using namespace System::Collections::Generic;
@@ -14,8 +20,10 @@ using namespace System::Collections::Generic;
 ref class Scene {
   Bitmap^ background;
   List<Direction>^ doors;
+  List<NPC^>^ npcs;
   Dictionary<Direction, Scene^>^ neighbours;
   Dictionary<Direction, SceneSpawner^>^ spawners;
+  bool explored;
   // Only used to check collisions
   Point position;
 
@@ -42,11 +50,6 @@ public:
       neighbours->Clear();
       delete neighbours;
     }
-  }
-
-  void SetBackground(BackgroundImage image) {
-    BitmapManager^ bmpManager = BitmapManager::GetInstance();
-    background = bmpManager->GetImage(EnumUtilities::GetPathFromBackground(image));
   }
 
   void Draw(Graphics^ world) {
@@ -84,6 +87,12 @@ public:
       door->RotateFlip(RotateFlipType::Rotate90FlipNone);
       world->DrawImage(door, Point(831, 266));
       door->RotateFlip(RotateFlipType::Rotate270FlipNone);
+    }
+
+    if (npcs != nullptr) {
+      for each (NPC ^ npc in npcs) {
+        npc->Draw(world);
+      }
     }
   }
 
@@ -127,11 +136,24 @@ public:
     return neighbours;
   }
 
+  void SetBackground(BackgroundImage image) {
+    BitmapManager^ bmpManager = BitmapManager::GetInstance();
+    background = bmpManager->GetImage(EnumUtilities::GetPathFromBackground(image));
+  }
+
+  void Explore() {
+    explored = true;
+  }
+
   void SetDoorValue(Direction direction, bool value) {
     if (value && !doors->Contains(direction))
       doors->Add(direction);
     else if (!value && doors->Contains(direction))
       doors->Remove(direction);
+  }
+
+  bool IsExplored() {
+    return explored;
   }
 
   bool GetDoorValue(Direction direction) {
@@ -153,6 +175,103 @@ public:
 
   Dictionary<Direction, SceneSpawner^>^ GetSpawners() {
     return spawners;
+  }
+
+  List<NPC^>^ GetNPCList() {
+    return npcs;
+  }
+
+  void CreateNPCS(int corrupts, int assassins) {
+    if (npcs == nullptr) {
+      npcs = gcnew List<NPC^>;
+    }
+
+    Random rnd;
+    for (int i = 0; i < corrupts; ++i) {
+      int x = rnd.Next(143, 858);
+      int y = rnd.Next(143, 520);
+      Corrupt^ entity = gcnew Corrupt(Point(x, y));
+      npcs->Add(entity);
+    }
+
+    for (int i = 0; i < assassins; ++i) {
+      int x = rnd.Next(143, 858);
+      int y = rnd.Next(143, 520);
+      Assassin^ entity = gcnew Assassin(Point(x, y));
+      npcs->Add(entity);
+    }
+  }
+
+  void MoveNPCS(Grid^ grid, Player^ player, int tickInterval) {
+    // Prevent execution if NPCs is nullptr
+    // This will prevent the worst error in the debugger, ever:
+    // 'System.NullReferenceException' occurred in Unknown Module
+    // Don't suffer what I suffered. Don't forget to check this first.
+    if (npcs != nullptr) {
+      for each (NPC ^ npc in npcs) {
+        Point deltas = npc->GetDelta();
+        npc->Move(deltas.X, deltas.Y, grid);
+
+        // Enemy Damage - If the NPC is an assassin
+        if (npc->GetEntityType() == EntityType::Assassin) {
+          // Reference the assassin
+          Assassin^ assassin = (Assassin^)npc;
+          // And its cooldown is equal or less than 0
+          if (assassin->GetCooldown() <= 0) {
+            // If the assasin collides with the player (The health of the player must be greater than 0)
+            if (player->HasCollision(assassin) && player->GetHealth() > 0.f) {
+              // Assasin damages the player
+              player->SetHealth(player->GetHealth() - assassin->GetDamagePoints());
+              // And its cooldown will be half a second to attack again
+              assassin->SetCooldown(500 / tickInterval);
+            }
+          } else {
+            // Each tick the cooldown will be reduced if it's greater than 0
+            assassin->SetCooldown(assassin->GetCooldown() - 1);
+          }
+        }
+      }
+    }
+  }
+
+  void AnimateNPCS() {
+    if (npcs != nullptr) {
+      for each (NPC ^ npc in npcs) {
+        npc->ShiftCol();
+      }
+    }
+  }
+
+  void ResetPathfinders(Grid^ grid, List<Node^>^ playerNeighbours, Point playerPos, List<Ally^>^ allies) {
+    // Prevent execution if NPCs is nullptr
+    // This will prevent the worst error in the debugger, ever:
+    // 'System.NullReferenceException' occurred in Unknown Module
+    // Don't suffer what I suffered. Don't forget to check this first.
+    if (npcs == nullptr)
+      return;
+
+    for each (NPC ^ npc in npcs) {
+      if (npc->GetEntityType() == EntityType::Assassin) {
+        Node^ currentNode = grid->GetNodeFromWorldPoint(npc->GetPosition());
+        if (!playerNeighbours->Contains(currentNode)) {
+          Pathfinder::FindPath(grid, npc->GetPosition(), playerPos, npc);
+        }
+      } else if (npc->GetEntityType() == EntityType::Corrupt) {
+        Corrupt^ corrupt = (Corrupt^)npc;
+
+        if (corrupt->tracking == nullptr) {
+          Random r;
+          corrupt->tracking = allies[r.Next(0, allies->Count)];
+        }
+
+        Node^ allyNode = grid->GetNodeFromWorldPoint(corrupt->tracking->GetPosition());
+        List<Node^>^ allyNeighbours = grid->GetNeighbours(allyNode);
+        Node^ currentNode = grid->GetNodeFromWorldPoint(npc->GetPosition());
+        if (!allyNeighbours->Contains(currentNode)) {
+          Pathfinder::FindPath(grid, corrupt->GetPosition(), corrupt->tracking->GetPosition(), npc);
+        }
+      }
+    }
   }
 
 private:
