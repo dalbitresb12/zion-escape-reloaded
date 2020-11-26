@@ -80,7 +80,13 @@
     <ClInclude Include="Enums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Bullet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="DataTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

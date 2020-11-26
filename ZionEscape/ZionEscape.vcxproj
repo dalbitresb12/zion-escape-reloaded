@@ -172,6 +172,7 @@
     <ClInclude Include="Ally.h" />
     <ClInclude Include="Assassin.h" />
     <ClInclude Include="BitmapManager.h" />
+    <ClInclude Include="Bullet.h" />
     <ClInclude Include="Corrupt.h" />
     <ClInclude Include="DataTypes.h" />
     <ClInclude Include="Entity.h" />
@@ -192,6 +193,7 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneSpawner.h" />
     <ClInclude Include="Sprite.h" />
+    <ClInclude Include="UI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
