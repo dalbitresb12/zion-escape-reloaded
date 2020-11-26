@@ -169,6 +169,10 @@ namespace ZionEscape {
       MovementTimer->Start();
       AnimationTimer->Start();
       PathfinderTimer->Start();
+      if (game->GetMessagebox() != nullptr) {
+        MessageTimer->Start();
+        MessageLabel->Visible = true;
+      }
       Invalidate();
       return;
     }
@@ -179,6 +183,10 @@ namespace ZionEscape {
         MovementTimer->Stop();
         AnimationTimer->Stop();
         PathfinderTimer->Stop();
+        if (game->GetMessagebox() != nullptr) {
+          MessageTimer->Stop();
+          MessageLabel->Visible = false;
+        }
         Invalidate();
         return;
       }

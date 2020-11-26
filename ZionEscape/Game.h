@@ -241,6 +241,10 @@ public:
     }
   }
 
+  Messagebox^ GetMessagebox() {
+    return this->messagebox;
+  }
+
 private:
   static GraphicsPath^ GetWalkableLayer(Scene^ scene) {
     GraphicsPath^ walkableLayer = gcnew GraphicsPath();
