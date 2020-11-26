@@ -24,6 +24,7 @@ namespace ZionEscape {
     System::ComponentModel::IContainer^ components;
     System::Windows::Forms::Timer^ MovementTimer;
     System::Windows::Forms::Timer^ AnimationTimer;
+    System::Windows::Forms::Timer^ PathfinderTimer;
     // User-defined properties.
     UserInterface currentUI;
     Point prevMouseLoc;
@@ -37,6 +38,8 @@ namespace ZionEscape {
 
       // User-defined code.
       currentUI = UserInterface::MainMenu;
+      // Set custom cursor
+      Cursor = gcnew System::Windows::Forms::Cursor("assets\\sprites\\misc\\cursor.ico");
     }
 
   protected:
@@ -53,19 +56,26 @@ namespace ZionEscape {
       this->components = (gcnew System::ComponentModel::Container());
       this->MovementTimer = (gcnew System::Windows::Forms::Timer(this->components));
       this->AnimationTimer = (gcnew System::Windows::Forms::Timer(this->components));
+      this->PathfinderTimer = (gcnew System::Windows::Forms::Timer(this->components));
       this->SuspendLayout();
       // 
       // MovementTimer
       // 
-      this->MovementTimer->Enabled = true;
+      this->MovementTimer->Enabled = false;
       this->MovementTimer->Interval = 20;
       this->MovementTimer->Tick += gcnew System::EventHandler(this, &MainActivity::MovementTimer_Tick);
       // 
       // AnimationTimer
       // 
-      this->AnimationTimer->Enabled = true;
+      this->AnimationTimer->Enabled = false;
       this->AnimationTimer->Interval = 80;
       this->AnimationTimer->Tick += gcnew System::EventHandler(this, &MainActivity::AnimationTimer_Tick);
+      // 
+      // PathfinderTimer
+      // 
+      this->PathfinderTimer->Enabled = false;
+      this->PathfinderTimer->Interval = 200;
+      this->PathfinderTimer->Tick += gcnew System::EventHandler(this, &MainActivity::PathfinderTimer_Tick);
       // 
       // MainActivity
       // 
@@ -76,7 +86,6 @@ namespace ZionEscape {
       this->Margin = System::Windows::Forms::Padding(4);
       this->Name = L"MainActivity";
       this->Text = L"Zion Escape";
-      this->Cursor = gcnew System::Windows::Forms::Cursor("assets\\sprites\\misc\\cursor.ico");
       this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MainActivity::MainActivity_Paint);
       this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainActivity::MainActivity_KeyDown);
       this->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &MainActivity::MainActivity_KeyUp);
@@ -109,6 +118,10 @@ namespace ZionEscape {
         AnimationTimer->Start();
       }
 
+      if (!PathfinderTimer->Enabled) {
+        PathfinderTimer->Start();
+      }
+
       game->Paint(world);
     } else if (currentUI == UserInterface::Pause) {
       UI::DrawPause(world, mouseLoc);
@@ -134,6 +147,7 @@ namespace ZionEscape {
       currentUI = UserInterface::InGame;
       MovementTimer->Start();
       AnimationTimer->Start();
+      PathfinderTimer->Start();
       Invalidate();
       return;
     }
@@ -143,6 +157,7 @@ namespace ZionEscape {
         currentUI = UserInterface::Pause;
         MovementTimer->Stop();
         AnimationTimer->Stop();
+        PathfinderTimer->Stop();
         Invalidate();
         return;
       }
@@ -184,9 +199,15 @@ namespace ZionEscape {
 
     Invalidate();
   }
+
   private: void MainActivity_MouseClick(Object^ sender, MouseEventArgs^ e) {
     currentUI = UI::ClickEvent(e->Location, currentUI);
     Invalidate();
+  }
+
+  private: void PathfinderTimer_Tick(Object^ sender, EventArgs^ e) {
+    if (game != nullptr)
+      game->ResetPathfinders();
   }
 };
 }

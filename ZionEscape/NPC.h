@@ -43,7 +43,7 @@ public:
     return Point(deltaX, deltaY);
   }
 
-  void Move(int deltaX, int deltaY) override {
+  void Move(int deltaX, int deltaY, Grid^ grid) override {
     if (path == nullptr || !(path->Count > 0)) {
       StopAnimation();
       return;
@@ -57,9 +57,10 @@ public:
       drawingArea.Y += deltaY < 0 ? -velocity : velocity;
 
 
-    Point currentWaypoint = path[path->Count - 1]->worldPos;
+    Node^ currentWaypoint = path[path->Count - 1];
+    Node^ currentNode = grid->GetNodeFromWorldPoint(drawingArea.Location);
 
-    if (drawingArea.Location == currentWaypoint) {
+    if (currentNode->Equals(currentWaypoint)) {
       path->Remove(path[path->Count - 1]);
     }
 

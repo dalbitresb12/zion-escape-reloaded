@@ -121,7 +121,7 @@ public:
     if (npcs != nullptr) {
       for each (NPC ^ npc in npcs) {
         Point deltas = npc->GetDelta();
-        npc->Move(deltas.X, deltas.Y);
+        npc->Move(deltas.X, deltas.Y, mapGrid);
 
         // Enemy Damage - If the NPC is an assassin
         if (npc->GetEntityType() == EntityType::Assassin) {
@@ -149,34 +149,41 @@ public:
         BitmapManager^ bmpManager = BitmapManager::GetInstance();
         Point position = player->GetPosition();
         Size size = player->GetSize();
+        bool sceneChanged = false;
 
         // Up
         if (position.Y < 78) {
           map->ChangeScene(Direction::Up);
           player->SetPosition(position.X - size.Width / 2, 519 - size.Height);
+          sceneChanged = true;
         }
         // Down
         if (position.Y > 536) {
           map->ChangeScene(Direction::Down);
           player->SetPosition(position.X - size.Width / 2, 104);
+          sceneChanged = true;
         }
         // Left
         if (position.X < 78) {
           map->ChangeScene(Direction::Left);
           player->SetPosition(830 - size.Width, position.Y - size.Height / 2);
+          sceneChanged = true;
         }
         // Right
         if (position.X > 850) {
           map->ChangeScene(Direction::Right);
           player->SetPosition(104, position.Y - size.Height / 2);
+          sceneChanged = true;
         }
 
-        // O^2 = Too slow, too much CPU
-        // Didn't have time to optimize it
-        // mapGrid->UpdateNodes(GetWalkableLayer(map->GetCurrentScene()));
 
-        // This one is faster
-        mapGrid->walkableLayer = GetWalkableLayer(map->GetCurrentScene());
+        if (sceneChanged) {
+          // O^2 = Too slow, too much CPU
+          // Didn't have time to optimize it
+          mapGrid->UpdateNodes(GetWalkableLayer(map->GetCurrentScene()));
+          // This one is faster
+          // mapGrid->walkableLayer = GetWalkableLayer(map->GetCurrentScene());
+        }
       }
     }
   }
@@ -206,26 +213,35 @@ public:
       FindAll(gcnew Predicate<NPC^>(&Ally::CheckIfType))->
       ConvertAll<Ally^>(gcnew Converter<NPC^, Ally^>(&Ally::ConvertFromNPC));
 
+    Node^ playerNode = mapGrid->GetNodeFromWorldPoint(player->GetPosition());
+    List<Node^>^ playerNeighbours = mapGrid->GetNeighbours(playerNode);
+
     for each (NPC ^ npc in npcs) {
       if (npc->GetEntityType() == EntityType::Ally || npc->GetEntityType() == EntityType::Assassin) {
-        Pathfinder::FindPath(mapGrid, npc->GetPosition(), player->GetPosition(), npc);
+        Node^ currentNode = mapGrid->GetNodeFromWorldPoint(npc->GetPosition());
+        if (!playerNeighbours->Contains(currentNode)) {
+          Pathfinder::FindPath(mapGrid, npc->GetPosition(), player->GetPosition(), npc);
+        }
       } else if (npc->GetEntityType() == EntityType::Corrupt) {
-        // Probably each Corrupt should save a reference to the Ally
-        // that it is tracking, so that it can follow the same Ally
-        // and not get crazy with the Pathfinder.
-        // Maybe the Corrupt can have a property to save the tracked Ally?
-        // If it isn't assigned (nullptr) we assign it one Ally randomly.
-        // This property could be public (it needs to be accesible everywhere).
-        Random r;
-        Ally^ ally = allies[r.Next(0, allies->Count)];
-        Pathfinder::FindPath(mapGrid, npc->GetPosition(), ally->GetPosition(), npc);
+        Corrupt^ corrupt = (Corrupt^)npc;
+
+        if (corrupt->tracking == nullptr) {
+          Random r;
+          corrupt->tracking = allies[r.Next(0, allies->Count)];
+        }
+
+        Node^ allyNode = mapGrid->GetNodeFromWorldPoint(corrupt->tracking->GetPosition());
+        List<Node^>^ allyNeighbours = mapGrid->GetNeighbours(allyNode);
+        Node^ currentNode = mapGrid->GetNodeFromWorldPoint(npc->GetPosition());
+        if (!allyNeighbours->Contains(currentNode)) {
+          Pathfinder::FindPath(mapGrid, corrupt->GetPosition(), corrupt->tracking->GetPosition(), npc);
+        }
       }
     }
   }
 
 private:
   static GraphicsPath^ GetSceneWalkableLayer(Scene^ scene) {
-    // TO DO: Get this from the current scene on the map
     GraphicsPath^ walkableLayer = gcnew GraphicsPath();
     walkableLayer->AddRectangle(Rectangle(Point(103, 103), Size(728, 417)));
     return walkableLayer;
@@ -260,15 +276,17 @@ private:
     Point gridWorldSize = Point(ClientSize);
     PointF nodeRadius = PointF(18, 10);
 
-    mapGrid = gcnew Grid(GetSceneWalkableLayer(map->GetCurrentScene()), gridWorldSize, nodeRadius);
+    mapGrid = gcnew Grid(GetWalkableLayer(map->GetCurrentScene()), gridWorldSize, nodeRadius);
   }
 
   void InitNPCs() {
     npcs = gcnew List<NPC^>;
     npcs->Add(gcnew Ally(Point(700, 200)));
     npcs->Add(gcnew Ally(Point(450, 200)));
-    npcs->Add(gcnew Assassin(Point(300, 100)));
+    npcs->Add(gcnew Assassin(Point(400, 200)));
+    npcs->Add(gcnew Assassin(Point(300, 400)));
     npcs->Add(gcnew Corrupt(Point(300, 100)));
+    npcs->Add(gcnew Corrupt(Point(567, 145)));
   }
 };
 
