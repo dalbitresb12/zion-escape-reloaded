@@ -3,6 +3,7 @@
 #ifndef _GAME_H_
 #define _GAME_H_
 
+#include "UI.h"
 #include "Map.h"
 #include "Grid.h"
 #include "Pathfinder.h"
@@ -92,8 +93,9 @@ public:
     if (player != nullptr) {
       // Add the player to the scene
       player->Draw(world);
-      // TO DO: Move this to future UI controller
-      player->DrawHearts(world);
+
+      // Draw the player health using the UI controller
+      UI::DrawHearts(world, player->GetHealth());
     }
   }
 

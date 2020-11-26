@@ -21,6 +21,10 @@ public enum class BackgroundImage {
   Scene1, Scene2, Scene3, Scene4
 };
 
+public enum class UserInterface {
+  MainMenu, Credits, Pause, InGame, None
+};
+
 namespace EnumUtilities {
   static BackgroundImage GetRandomBackground(Random^ rnd) {
     // Set this maximum value to the number of elements in the enumaration.

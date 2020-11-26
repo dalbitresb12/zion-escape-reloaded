@@ -54,18 +54,6 @@ public:
     }
   }
 
-  // TO DO: Move this to UI controller
-  void DrawHearts(Graphics^ g) {
-    Point heartPos = Point(20, 15);
-    BitmapManager^ bmpManager = BitmapManager::GetInstance();
-    //Draw all the healthPoints of the player
-    for (float i = 0.f; i < this->healthPoints; i++) {
-      g->DrawImage(bmpManager->GetImage("assets\\sprites\\misc\\heart.png"), heartPos);
-      //Add the X position of where the next heart will be drawn
-      heartPos.X += 46;
-    }
-  }
-
   void KeyDown(KeyEventArgs^ e) {
     if (!IsValidKey(e->KeyCode))
       return;
