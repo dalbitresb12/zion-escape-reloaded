@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "MyForm.h"
+#include "MainActivity.h"
 
 using namespace System;
 using namespace ZionEscapeReloaded;
@@ -9,8 +9,8 @@ int main() {
   Application::EnableVisualStyles();
   // See why: https://stackoverflow.com/a/18115466
   Application::SetCompatibleTextRenderingDefault(false);
-  // Initialize MyForm
-  Application::Run(gcnew MyForm);
+  // Initialize MainActivity
+  Application::Run(gcnew MainActivity);
 
   return 0;
 }

@@ -9,11 +9,11 @@ namespace ZionEscapeReloaded {
   using namespace System::Drawing;
 
   /// <summary>
-  /// Summary for MyForm
+  /// Summary for MainActivity
   /// </summary>
-  public ref class MyForm : public System::Windows::Forms::Form {
+  public ref class MainActivity : public System::Windows::Forms::Form {
   public:
-    MyForm(void) {
+    MainActivity(void) {
       InitializeComponent();
       //
       //TODO: Add the constructor code here
@@ -24,7 +24,7 @@ namespace ZionEscapeReloaded {
     /// <summary>
     /// Clean up any resources being used.
     /// </summary>
-    ~MyForm() {
+    ~MainActivity() {
       if (components) {
         delete components;
       }
@@ -44,7 +44,7 @@ namespace ZionEscapeReloaded {
     void InitializeComponent(void) {
       this->components = gcnew System::ComponentModel::Container();
       this->Size = System::Drawing::Size(300, 300);
-      this->Text = L"MyForm";
+      this->Text = L"MainActivity";
       this->Padding = System::Windows::Forms::Padding(0);
       this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
     }
