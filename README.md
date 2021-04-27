@@ -1,18 +1,19 @@
-# Zion Escape
+# Zion Escape Reloaded
 
-Trabajo final del curso de Programación II de la carrera de Ingeniería de Software de la UPC.
+Trabajo parcial del curso de Algoritmos y Estructuras de Datos de la carrera de Ingeniería de Software de la UPC. Este proyecto se basa en el proyecto original, Zion Escape, el cual se puede encontrar [en este enlace](https://github.com/dalbitresb12/zion-escape).
 
 ## Objetivo del trabajo 🚀
 
-**ABET – EAC - Student Outcome 2**: La capacidad de aplicar el diseño de ingeniería para producir soluciones que satisfagan necesidades específicas con consideración de salud pública, seguridad y bienestar, así como factores globales, culturales, sociales, ambientales y económicos.
+- TODO
 
 ## Pre-Requisitos 📋
 
 - [_Microsoft Visual Studio 2019_](https://visualstudio.microsoft.com/) - _Community/Professional/Enterprise_
+- .NET Framework v4.8
 
 ## Compilación y Ejecución ⚙️
 
-Se pueden utilizar los archivos binarios precompilados, disponibles en GitHub como [_releases_](https://github.com/dalbitresb12/zion-escape/releases).
+Se pueden utilizar los archivos binarios precompilados, disponibles en GitHub como [_releases_](https://github.com/dalbitresb12/zion-escape-reloaded/releases).
 
 Para compilar el proyecto, se debe iniciar la compilación después de cargar la solución utilizando Visual Studio 2019.
 
@@ -24,6 +25,10 @@ Para compilar el proyecto, se debe iniciar la compilación después de cargar la
 
 - Diego Albitres Blondet - ([GitHub](https://github.com/dalbitresb12))
 - Ángel Omar Meneses Torres - ([GitHub](https://github.com/amenes12))
+- Victor Andres Orihuela Schanks
+
+Es importante también mencionar a dos autores del proyecto original que, aunque no hayan contribuido directamente en este nuevo proyecto, ambos formaron parte de la creación de la idea original y de partes de código que fueron tomadas del proyecto original.
+
 - Yamile del Rocio Izaguirre Braul - ([GitHub](https://github.com/IzaYam))
 - Franco Galindo Alvarez - ([GitHub](https://github.com/FrowsyFrog))
 
