@@ -70,14 +70,15 @@ namespace ZionEscapeReloaded {
   #pragma endregion
 
   private:
+    bool renderedBefore;
     UserInterface currentUI;
     Point prevMousePos;
     Point mousePos;
 
   private: void Init() {
+    renderedBefore = false;
     currentUI = UserInterface::MainMenu;
   }
-
   private: void MainActivity_Paint(Object^ sender, PaintEventArgs^ e) {
     Graphics^ world = e->Graphics;
     world->SmoothingMode = SmoothingMode::AntiAlias;
@@ -87,6 +88,12 @@ namespace ZionEscapeReloaded {
       case UserInterface::MainMenu:
       {
         UI::DrawMenu(world, ClientSize, mousePos);
+        break;
+      }
+      case UserInterface::Credits:
+      {
+        UI::DrawCredits(world, mousePos);
+        break;
       }
     }
   }
@@ -104,11 +111,18 @@ namespace ZionEscapeReloaded {
     mousePos = newMousePos;
 
     if (UI::HasPendingRendering(newMousePos)) {
+      renderedBefore = true;
+      // Re-render the form
+      Invalidate();
+      return;
+    }
+
+    if (renderedBefore) {
+      renderedBefore = false;
       // Re-render the form
       Invalidate();
     }
   }
-
   private: void MainActivity_MouseClick(Object^ sender, MouseEventArgs^ e) {
     // Fire any event needed in the UI
     UserInterface newUI = UI::ClickEvent(e->Location, currentUI);

@@ -110,6 +110,8 @@ public:
 
   static bool HasPendingRendering(Point mouseLoc) {
     for each (KeyValuePair<String^, Rectangle> element in textRectangles) {
+      if (element.Key == "Zion Escape" || element.Key == "Pausa")
+        continue;
       Rectangle rect = element.Value;
       if (IsHovering(rect, mouseLoc)) {
         return true;
