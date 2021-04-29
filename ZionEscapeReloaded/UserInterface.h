@@ -22,7 +22,7 @@ public ref class UI {
 
 public:
   static void DrawMenu(Graphics^ world, Size clientSize, Point mouseLoc) {
-    BitmapManager^ bmpManager = BitmapManager::GetInstance();
+    BitmapManager^ bmpManager = BitmapManager::Instance;
     Bitmap^ background = bmpManager->GetImage("assets\\sprites\\misc\\menu-bg.png");
 
     if (textRectangles->Count == 0) {
@@ -34,7 +34,7 @@ public:
   }
 
   static void DrawCredits(Graphics^ world, Point mouseLoc) {
-    BitmapManager^ bmpManager = BitmapManager::GetInstance();
+    BitmapManager^ bmpManager = BitmapManager::Instance;
     Bitmap^ background = bmpManager->GetImage("assets\\sprites\\misc\\menu-bg.png");
     Bitmap^ credits = bmpManager->GetImage("assets\\sprites\\misc\\credits.png");
     world->DrawImage(background, Point(0, 0));
@@ -46,7 +46,7 @@ public:
   }
 
   static void DrawPause(Graphics^ world, Point mouseLoc) {
-    BitmapManager^ bmpManager = BitmapManager::GetInstance();
+    BitmapManager^ bmpManager = BitmapManager::Instance;
     Bitmap^ background = bmpManager->GetImage("assets\\sprites\\misc\\menu-bg.png");
     world->DrawImage(background, Point(0, 0));
 
@@ -96,7 +96,7 @@ public:
   }
 
   static void DrawHearts(Graphics^ world, float healthPoints) {
-    BitmapManager^ bmpManager = BitmapManager::GetInstance();
+    BitmapManager^ bmpManager = BitmapManager::Instance;
     Bitmap^ heartImage = bmpManager->GetImage("assets\\sprites\\misc\\heart.png");
     Rectangle drawingArea = Rectangle(Point(20, 15), Size(30, 30));
 
