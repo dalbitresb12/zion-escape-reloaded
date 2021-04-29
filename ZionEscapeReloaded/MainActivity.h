@@ -71,8 +71,8 @@ namespace ZionEscapeReloaded {
 
   private:
     UserInterface currentUI;
-    Point prevMouseLoc;
-    Point mouseLoc;
+    Point prevMousePos;
+    Point mousePos;
 
   private: void Init() {
     currentUI = UserInterface::MainMenu;
@@ -86,7 +86,7 @@ namespace ZionEscapeReloaded {
     switch (currentUI) {
       case UserInterface::MainMenu:
       {
-        UI::DrawMenu(world, ClientSize, mouseLoc);
+        UI::DrawMenu(world, ClientSize, mousePos);
       }
     }
   }
@@ -96,14 +96,14 @@ namespace ZionEscapeReloaded {
 
     // Prevent the event from firing twice for the same mouse location
     // See https://stackoverflow.com/a/23048201
-    Point mousePos = e->Location;
-    if (mousePos == prevMouseLoc)
+    Point newMousePos = e->Location;
+    if (newMousePos == prevMousePos)
       return;
 
-    prevMouseLoc = mouseLoc;
-    mouseLoc = mousePos;
+    prevMousePos = mousePos;
+    mousePos = newMousePos;
 
-    if (UI::HasPendingRendering(mousePos)) {
+    if (UI::HasPendingRendering(newMousePos)) {
       // Re-render the form
       Invalidate();
     }
