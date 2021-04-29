@@ -48,23 +48,23 @@ namespace ZionEscapeReloaded {
     /// the contents of this method with the code editor.
     /// </summary>
     void InitializeComponent(void) {
-      this->SuspendLayout();
-      // 
-      // MainActivity
-      // 
-      this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
-      this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-      this->ClientSize = System::Drawing::Size(920, 585);
-      this->DoubleBuffered = true;
-      this->MaximizeBox = false;
-      this->MaximumSize = System::Drawing::Size(936, 624);
-      this->MinimumSize = System::Drawing::Size(936, 624);
-      this->Name = L"MainActivity";
-      this->Text = L"MainActivity";
-      this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MainActivity::MainActivity_Paint);
-      this->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MainActivity::MainActivity_MouseClick);
-      this->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &MainActivity::MainActivity_MouseMove);
-      this->ResumeLayout(false);
+        this->SuspendLayout();
+        // 
+        // MainActivity
+        // 
+        this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+        this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+        this->ClientSize = System::Drawing::Size(936, 624);
+        this->DoubleBuffered = true;
+        this->MaximizeBox = false;
+        this->MaximumSize = System::Drawing::Size(952, 663);
+        this->MinimumSize = System::Drawing::Size(952, 663);
+        this->Name = L"MainActivity";
+        this->Text = L"MainActivity";
+        this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MainActivity::MainActivity_Paint);
+        this->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MainActivity::MainActivity_MouseClick);
+        this->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &MainActivity::MainActivity_MouseMove);
+        this->ResumeLayout(false);
 
     }
   #pragma endregion
