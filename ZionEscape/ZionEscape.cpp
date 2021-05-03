@@ -10,9 +10,8 @@ int main() {
   Application::EnableVisualStyles();
   // See why: https://stackoverflow.com/a/18115466
   Application::SetCompatibleTextRenderingDefault(false);
-
-  MainActivity^ mainActivity = gcnew MainActivity();
-  Application::Run(mainActivity);
+  // Initialize MainActivity
+  Application::Run(gcnew MainActivity);
 
   return 0;
 }

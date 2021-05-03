@@ -44,6 +44,15 @@ public:
   }
 
   /**
+   * @brief Gets the global instance of BitmapManager. Creates one if it doesn't exist.
+  */
+  static property BitmapManager^ Instance {
+    BitmapManager^ get() {
+      return GetInstance();
+    }
+  }
+
+  /**
    * @brief Checks if the BitmapManager has already loaded an image.
    * @param path URI to the file path, relative to the executable file or absolute.
    * @return True if the URI was found, false otherwise.
@@ -126,4 +135,3 @@ private:
 };
 
 #endif // !_BITMAPMANAGER_H_
-

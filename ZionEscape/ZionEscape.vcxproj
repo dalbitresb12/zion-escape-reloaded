@@ -195,6 +195,7 @@
     <ClInclude Include="SceneSpawner.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="UI.h" />
+    <ClInclude Include="UserInterface.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />

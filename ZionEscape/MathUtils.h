@@ -44,4 +44,3 @@ namespace MathUtils {
 }
 
 #endif // !_MATHUTILS_H_
-

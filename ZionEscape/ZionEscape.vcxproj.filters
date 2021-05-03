@@ -92,6 +92,9 @@
     <ClInclude Include="MessageBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="UserInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ZionEscape.cpp">
