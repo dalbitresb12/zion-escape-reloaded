@@ -6,17 +6,6 @@
 #include "BitmapManager.h"
 
 using namespace System;
-using namespace System::Runtime::InteropServices;
-
-namespace StringExtensions {
-  static std::string ToStdString(String^ str) {
-    IntPtr pointer = Marshal::StringToHGlobalAnsi(str);
-    char* charPointer = reinterpret_cast<char*>(pointer.ToPointer());
-    std::string converted(charPointer, str->Length);
-    Marshal::FreeHGlobal(pointer);
-    return converted;
-  }
-}
 
 class DoorLocations {
 public:
