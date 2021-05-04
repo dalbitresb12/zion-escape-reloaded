@@ -22,7 +22,7 @@ public enum class BackgroundImage {
 };
 
 public enum class UserInterface {
-  MainMenu, Credits, Pause, InGame, LoadMenu, LoadSeed, None
+  MainMenu, Credits, Pause, InGame, LoadMenu, LoadSeed, DiedMenu, None
 };
 
 namespace EnumUtilities {

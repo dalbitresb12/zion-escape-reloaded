@@ -57,6 +57,22 @@ public:
     world->DrawString("Editar semilla", optionsFont, editBrush, editRectangle.Location);
   }
 
+  static void DrawDied(Graphics^ world, Point mouseLoc) {
+    BitmapManager^ bmpManager = BitmapManager::Instance;
+    Bitmap^ background = bmpManager->GetImage("assets\\sprites\\misc\\menu-bg.png");
+
+    world->DrawImage(background, Point(0, 0));
+
+
+    Rectangle titleRectangle = GetTextRectangle("Perdiste");
+    Brush^ titleBrush = Brushes::White;
+    world->DrawString("Perdiste", titleFont, titleBrush, titleRectangle.Location);
+
+    Rectangle exitRectangle = GetTextRectangle("Salir");
+    Brush^ exitBrush = IsHovering(exitRectangle, mouseLoc) ? Brushes::SlateGray : Brushes::White;
+    world->DrawString("Salir", optionsFont, exitBrush, exitRectangle.Location);
+  }
+
   static void DrawCredits(Graphics^ world, Point mouseLoc) {
     BitmapManager^ bmpManager = BitmapManager::Instance;
     Bitmap^ background = bmpManager->GetImage("assets\\sprites\\misc\\menu-bg.png");
@@ -88,7 +104,7 @@ public:
 
   static UserInterface ClickEvent(Point mouseLoc, UserInterface currentUI) {
     for each (KeyValuePair<String^, Rectangle> element in textRectangles) {
-      if (element.Key == "Zion Escape" || element.Key == "Pausa")
+      if (element.Key == "Zion Escape" || element.Key == "Pausa" || element.Key == "Perdiste")
         continue;
 
       Rectangle rect = element.Value;
@@ -125,6 +141,11 @@ public:
             return currentUI;
           }
         }
+
+        if (currentUI == UserInterface::DiedMenu) {
+          if (element.Key == "Salir")
+            Application::Exit();
+        }
       }
     }
     return currentUI;
@@ -145,7 +166,7 @@ public:
 
   static bool HasPendingRendering(Point mouseLoc) {
     for each (KeyValuePair<String^, Rectangle> element in textRectangles) {
-      if (element.Key == "Zion Escape" || element.Key == "Pausa")
+      if (element.Key == "Zion Escape" || element.Key == "Pausa" || element.Key == "Perdiste")
         continue;
       Rectangle rect = element.Value;
       if (IsHovering(rect, mouseLoc)) {
@@ -212,6 +233,9 @@ private:
     }
     if (!textRectangles->ContainsKey("Editar semilla")) {
       CreateText("Editar semilla", world, optionsFont, clientSize, Size(0, 150));
+    }
+    if (!textRectangles->ContainsKey("Perdiste")) {
+      CreateText("Perdiste", world, titleFont, clientSize, Size(0, 0));
     }
   }
 

@@ -189,6 +189,12 @@ namespace ZionEscape {
       }
 
       UI::DrawLoad(world, mouseLoc);
+    } else if (currentUI == UserInterface::DiedMenu) {
+      if (game != nullptr) {
+        game = nullptr;
+      }
+
+      UI::DrawDied(world, mouseLoc);
     }
   }
 
@@ -238,7 +244,7 @@ namespace ZionEscape {
   private: void MovementTimer_Tick(Object^ sender, EventArgs^ e) {
     if (game != nullptr) {
       if (game->PlayerHealth <= 0) {
-        currentUI = UserInterface::MainMenu;
+        currentUI = UserInterface::DiedMenu;
         Invalidate();
         return;
       }
