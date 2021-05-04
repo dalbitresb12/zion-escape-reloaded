@@ -28,7 +28,7 @@ public:
     while (openNodes->Count > 0) {
       Node^ node = openNodes[0];
       for (int i = 1; i < openNodes->Count; ++i) {
-        if (openNodes[i]->GetFCost() < node->GetFCost() || openNodes[i]->GetFCost() == node->GetFCost()) {
+        if (openNodes[i]->fCost < node->fCost || openNodes[i]->fCost == node->fCost) {
           if (openNodes[i]->hCost < node->hCost)
             node = openNodes[i];
         }

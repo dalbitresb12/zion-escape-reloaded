@@ -4,6 +4,9 @@
 #define _BULLET_H_
 
 #include "Entity.h"
+#include "MathUtils.h"
+
+using namespace MathUtils;
 
 ref class Bullet: public Entity {
   float floatX, floatY, speed;
@@ -11,13 +14,13 @@ ref class Bullet: public Entity {
 
 public:
   Bullet(Size size, float posX, float posY, float posTargetX, float posTargetY, float speed)
-    : Entity(EntityType::Obstacle,Point(posX, posY), speed, 0.f, 0.f) {
+    : Entity(EntityType::Obstacle, Point(Mathf::RoundToInt(posX), Mathf::RoundToInt(posY)), (unsigned short)speed, 0.f, 0.f) {
     BitmapManager^ bmpManager = BitmapManager::GetInstance();
     Bitmap^ image = bmpManager->GetImage("assets\\sprites\\misc\\bullet.png");
     this->SetImage(image, 1, 1);
     //Position of the bullet (float)
-    this->floatX = this->drawingArea.X;
-    this->floatY = this->drawingArea.Y;
+    this->floatX = (float)this->drawingArea.X;
+    this->floatY = (float)this->drawingArea.Y;
     //Calculate the angle between the player and the mouse
     this->angle = Math::Atan2(this->floatY - posTargetY, posTargetX - this->floatX);
     //Set the speed
@@ -28,10 +31,10 @@ public:
 
   void Move() override {
     //Set a new position for the bullet
-    this->floatX += Math::Cos(this->angle) * this->speed;
-    this->floatY -= Math::Sin(this->angle) * this->speed;
+    this->floatX += float(Math::Cos(this->angle) * this->speed);
+    this->floatY -= float(Math::Sin(this->angle) * this->speed);
     //Round the value of the float
-    this->SetPosition(Point(Math::Round(floatX), Math::Round(floatY)));
+    this->SetPosition(Point(Mathf::RoundToInt(floatX), Mathf::RoundToInt(floatY)));
   }
 
   bool OutScreen(Rectangle area) {

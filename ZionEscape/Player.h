@@ -74,8 +74,11 @@ public:
   }
 
   //Create a Bullet
-  void Shoot(float posX, float posY) {
-    this->bullets->Add(gcnew Bullet(Size(20,20), this->drawingArea.X+10, this->drawingArea.Y+20, posX, posY, 10));
+  void Shoot(float posTargetX, float posTargetY) {
+    float posX = float(drawingArea.X + 10);
+    float posY = float(drawingArea.Y + 20);
+    Bullet^ bullet = gcnew Bullet(Size(20, 20), posX, posY, posTargetX, posTargetY, 10.f);
+    this->bullets->Add(bullet);
   }
 
   void ActionBullets(Graphics^ g, Rectangle area, List<NPC^>^ npcs) {

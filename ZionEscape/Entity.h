@@ -59,6 +59,10 @@ public:
     return this->drawingArea.IntersectsWith(rect);
   }
 
+  virtual void Move() {
+    return;
+  }
+
   virtual void Move(Direction direction, GraphicsPath^ walkableLayer) {
     Rectangle rect = Rectangle(drawingArea);
 

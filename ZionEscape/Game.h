@@ -148,7 +148,7 @@ public:
   }
 
   void MouseClick(MouseEventArgs^ e) {
-     player->Shoot(e->Location.X, e->Location.Y);
+    player->Shoot((float)e->Location.X, (float)e->Location.Y);
   }
 
   void MovementTick(int tickInterval, Label^ label, Windows::Forms::Timer^ MessageTimer) {

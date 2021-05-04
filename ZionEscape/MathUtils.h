@@ -6,8 +6,10 @@
 using namespace System;
 
 namespace MathUtils {
-  namespace Mathf {
-    static float Clamp(float value, float min, float max) {
+  class Mathf {
+  public:
+    template <typename T>
+    static T Clamp(T value, T min, T max) {
       if (value < min)
         return min;
       else if (value > max)
@@ -16,31 +18,16 @@ namespace MathUtils {
         return value;
     }
 
-    static double Clamp(double value, double min, double max) {
-      if (value < min)
-        return min;
-      else if (value > max)
-        return max;
-      else
-        return value;
+    template <typename T>
+    static T Clamp01(T value) {
+      return Clamp(value, (T)0.0, (T)1.0);
     }
 
-    static float Clamp01(float value) {
-      return Clamp(value, 0.f, 1.f);
-    }
-
-    static double Clamp01(double value) {
-      return Clamp(value, 0.0, 1.0);
-    }
-
-    static int RoundToInt(float value) {
+    template <typename T>
+    static int RoundToInt(T value) {
       return (int)Math::Round(value);
     }
-
-    static int RoundToInt(double value) {
-      return (int)Math::Round(value);
-    }
-  }
+  };
 }
 
 #endif // !_MATHUTILS_H_

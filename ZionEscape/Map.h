@@ -11,7 +11,7 @@
 using namespace System;
 using namespace System::Drawing;
 using namespace System::Collections::Generic;
-using namespace MathUtils::Mathf;
+using namespace MathUtils;
 
 namespace Defaults {
   namespace Map {
@@ -32,9 +32,9 @@ ref class Map {
   bool generateAssassins;
 
 public:
-  Map() : Map(RoundToInt(Defaults::Map::MinScenes), RoundToInt(Defaults::Map::MaxScenes), Environment::TickCount) {}
+  Map() : Map(Mathf::RoundToInt(Defaults::Map::MinScenes), Mathf::RoundToInt(Defaults::Map::MaxScenes), Environment::TickCount) {}
 
-  Map(int seed) : Map(RoundToInt(Defaults::Map::MinScenes), RoundToInt(Defaults::Map::MaxScenes), seed) {}
+  Map(int seed) : Map(Mathf::RoundToInt(Defaults::Map::MinScenes), Mathf::RoundToInt(Defaults::Map::MaxScenes), seed) {}
 
   Map(int min, int max) : Map(min, max, Environment::TickCount) {}
 
@@ -42,8 +42,8 @@ public:
     this->generateAssassins = false;
     this->rnd = gcnew Random(seed);
     this->maxScenes = rnd->Next(min, max);
-    int minDepth = RoundToInt(min / (2.0 + 0.1 * min));
-    int maxDepth = RoundToInt(max / (2.0 + 0.1 * max));
+    int minDepth = Mathf::RoundToInt(min / (2.0 + 0.1 * min));
+    int maxDepth = Mathf::RoundToInt(max / (2.0 + 0.1 * max));
     this->depthCount = gcnew MinMax<short>(minDepth, maxDepth);
     this->isGenerating = false;
     this->generated = false;

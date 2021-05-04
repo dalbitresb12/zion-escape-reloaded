@@ -10,7 +10,7 @@ using namespace System;
 using namespace System::Drawing;
 using namespace System::Drawing::Drawing2D;
 using namespace System::Collections::Generic;
-using namespace MathUtils::Mathf;
+using namespace MathUtils;
 
 ref class Grid {
   Point gridWorldSize;
@@ -84,11 +84,11 @@ public:
     float percentX = (float)worldPos.X / gridWorldSize.X;
     float percentY = (float)worldPos.Y / gridWorldSize.Y;
 
-    percentX = Clamp01(percentX);
-    percentY = Clamp01(percentY);
+    percentX = Mathf::Clamp01(percentX);
+    percentY = Mathf::Clamp01(percentY);
 
-    int x = RoundToInt((gridSize.X - 1) * percentX);
-    int y = RoundToInt((gridSize.Y - 1) * percentY);
+    int x = Mathf::RoundToInt((gridSize.X - 1) * percentX);
+    int y = Mathf::RoundToInt((gridSize.Y - 1) * percentY);
     return grid[x, y];
   }
 
@@ -98,8 +98,8 @@ public:
 
   void DrawGizmos(Graphics^ world, Color color) {
     Pen^ pen = gcnew Pen(color, 1);
-    int nodeRadiusX = RoundToInt(nodeRadius.X);
-    int nodeRadiusY = RoundToInt(nodeRadius.Y);
+    int nodeRadiusX = Mathf::RoundToInt(nodeRadius.X);
+    int nodeRadiusY = Mathf::RoundToInt(nodeRadius.Y);
 
     for each (Node ^ node in grid) {
       Point location = Point(node->worldPos.X - nodeRadiusX, node->worldPos.Y - nodeRadiusY);
@@ -112,7 +112,7 @@ public:
   void DrawNodeOutline(Graphics^ world, Point worldPos) {
     Node^ node = GetNodeFromWorldPoint(worldPos);
     SolidBrush^ brush = gcnew SolidBrush(Color::Green);
-    Point nodePos = Point(node->worldPos.X - RoundToInt(nodeRadius.X), node->worldPos.Y - RoundToInt(nodeRadius.Y));
+    Point nodePos = Point(node->worldPos.X - Mathf::RoundToInt(nodeRadius.X), node->worldPos.Y - Mathf::RoundToInt(nodeRadius.Y));
     Size size = Size(Point::Round(nodeDiameter));
     Rectangle rect = Rectangle(nodePos, size);
     world->FillRectangle(brush, rect);

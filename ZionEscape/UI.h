@@ -11,7 +11,7 @@
 using namespace System::Drawing;
 using namespace System::Drawing::Drawing2D;
 using namespace System::Windows::Forms;
-using namespace MathUtils::Mathf;
+using namespace MathUtils;
 
 ref class UI {
   static Font^ titleFont = gcnew Font("Impact", 74);
@@ -233,8 +233,8 @@ private:
   }
 
   static Point GetPositionFromBounds(Size clientSize, Size bounds, Size offset) {
-    int x = RoundToInt((float)clientSize.Width / 2 - bounds.Width / 2 + offset.Width);
-    int y = RoundToInt((float)clientSize.Height / 2 - bounds.Height / 2 + offset.Height);
+    int x = Mathf::RoundToInt((float)clientSize.Width / 2 - bounds.Width / 2 + offset.Width);
+    int y = Mathf::RoundToInt((float)clientSize.Height / 2 - bounds.Height / 2 + offset.Height);
     return Point(x, y);
   }
 
