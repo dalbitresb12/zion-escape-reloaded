@@ -58,64 +58,67 @@ namespace ZionEscape {
 #pragma region Windows Form Designer generated code
     // Required method for Designer support - do not modify the contents of this method with the code editor.
     void InitializeComponent() {
-        this->components = (gcnew System::ComponentModel::Container());
-        this->MovementTimer = (gcnew System::Windows::Forms::Timer(this->components));
-        this->AnimationTimer = (gcnew System::Windows::Forms::Timer(this->components));
-        this->PathfinderTimer = (gcnew System::Windows::Forms::Timer(this->components));
-        this->MessageTimer = (gcnew System::Windows::Forms::Timer(this->components));
-        this->MessageLabel = (gcnew System::Windows::Forms::Label());
-        this->SuspendLayout();
-        // 
-        // MovementTimer
-        // 
-        this->MovementTimer->Interval = 20;
-        this->MovementTimer->Tick += gcnew System::EventHandler(this, &MainActivity::MovementTimer_Tick);
-        // 
-        // AnimationTimer
-        // 
-        this->AnimationTimer->Interval = 80;
-        this->AnimationTimer->Tick += gcnew System::EventHandler(this, &MainActivity::AnimationTimer_Tick);
-        // 
-        // PathfinderTimer
-        // 
-        this->PathfinderTimer->Interval = 1000;
-        this->PathfinderTimer->Tick += gcnew System::EventHandler(this, &MainActivity::PathfinderTimer_Tick);
-        // 
-        // MessageTimer
-        // 
-        this->MessageTimer->Tick += gcnew System::EventHandler(this, &MainActivity::MessageTimer_Tick);
-        // 
-        // MessageLabel
-        // 
-        this->MessageLabel->AutoSize = true;
-        this->MessageLabel->BackColor = System::Drawing::Color::Transparent;
-        this->MessageLabel->Font = (gcnew System::Drawing::Font(L"High Tower Text", 20.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                                                                static_cast<System::Byte>(0)));
-        this->MessageLabel->ForeColor = System::Drawing::Color::Black;
-        this->MessageLabel->Location = System::Drawing::Point(144, 270);
-        this->MessageLabel->Name = L"MessageLabel";
-        this->MessageLabel->Size = System::Drawing::Size(417, 32);
-        this->MessageLabel->TabIndex = 0;
-        this->MessageLabel->Text = L"Conque buscan nuestra ayuda . . .";
-        this->MessageLabel->Visible = false;
-        // 
-        // MainActivity
-        // 
-        this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
-        this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-        this->ClientSize = System::Drawing::Size(936, 624);
-        this->Controls->Add(this->MessageLabel);
-        this->DoubleBuffered = true;
-        this->Margin = System::Windows::Forms::Padding(4);
-        this->Name = L"MainActivity";
-        this->Text = L"Zion Escape";
-        this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MainActivity::MainActivity_Paint);
-        this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainActivity::MainActivity_KeyDown);
-        this->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &MainActivity::MainActivity_KeyUp);
-        this->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MainActivity::MainActivity_MouseClick);
-        this->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &MainActivity::MainActivity_MouseMove);
-        this->ResumeLayout(false);
-        this->PerformLayout();
+      this->components = (gcnew System::ComponentModel::Container());
+      this->MovementTimer = (gcnew System::Windows::Forms::Timer(this->components));
+      this->AnimationTimer = (gcnew System::Windows::Forms::Timer(this->components));
+      this->PathfinderTimer = (gcnew System::Windows::Forms::Timer(this->components));
+      this->MessageTimer = (gcnew System::Windows::Forms::Timer(this->components));
+      this->MessageLabel = (gcnew System::Windows::Forms::Label());
+      this->SuspendLayout();
+      // 
+      // MovementTimer
+      // 
+      this->MovementTimer->Interval = 20;
+      this->MovementTimer->Tick += gcnew System::EventHandler(this, &MainActivity::MovementTimer_Tick);
+      // 
+      // AnimationTimer
+      // 
+      this->AnimationTimer->Interval = 80;
+      this->AnimationTimer->Tick += gcnew System::EventHandler(this, &MainActivity::AnimationTimer_Tick);
+      // 
+      // PathfinderTimer
+      // 
+      this->PathfinderTimer->Interval = 1000;
+      this->PathfinderTimer->Tick += gcnew System::EventHandler(this, &MainActivity::PathfinderTimer_Tick);
+      // 
+      // MessageTimer
+      // 
+      this->MessageTimer->Tick += gcnew System::EventHandler(this, &MainActivity::MessageTimer_Tick);
+      // 
+      // MessageLabel
+      // 
+      this->MessageLabel->AutoSize = true;
+      this->MessageLabel->BackColor = System::Drawing::Color::Transparent;
+      this->MessageLabel->Font = (gcnew System::Drawing::Font(L"High Tower Text", 20.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+                                                              static_cast<System::Byte>(0)));
+      this->MessageLabel->ForeColor = System::Drawing::Color::Black;
+      this->MessageLabel->Location = System::Drawing::Point(144, 270);
+      this->MessageLabel->Name = L"MessageLabel";
+      this->MessageLabel->Size = System::Drawing::Size(417, 32);
+      this->MessageLabel->TabIndex = 0;
+      this->MessageLabel->Text = L"Conque buscan nuestra ayuda . . .";
+      this->MessageLabel->Visible = false;
+      // 
+      // MainActivity
+      // 
+      this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+      this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+      this->ClientSize = System::Drawing::Size(936, 624);
+      this->Controls->Add(this->MessageLabel);
+      this->DoubleBuffered = true;
+      this->Margin = System::Windows::Forms::Padding(4);
+      this->MaximizeBox = false;
+      this->MaximumSize = System::Drawing::Size(952, 663);
+      this->MinimumSize = System::Drawing::Size(952, 663);
+      this->Name = L"MainActivity";
+      this->Text = L"Zion Escape";
+      this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MainActivity::MainActivity_Paint);
+      this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainActivity::MainActivity_KeyDown);
+      this->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &MainActivity::MainActivity_KeyUp);
+      this->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MainActivity::MainActivity_MouseClick);
+      this->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &MainActivity::MainActivity_MouseMove);
+      this->ResumeLayout(false);
+      this->PerformLayout();
 
     }
 #pragma endregion
@@ -288,10 +291,13 @@ namespace ZionEscape {
   }
 
   private: void MainActivity_MouseClick(Object^ sender, MouseEventArgs^ e) {
-    currentUI = UI::ClickEvent(e->Location, currentUI);
-    if (game != nullptr)
+    UserInterface newUI = UI::ClickEvent(e->Location, currentUI);
+    if (currentUI == UserInterface::InGame && game != nullptr)
       game->MouseClick(e);
-    Invalidate();
+    if (newUI != currentUI) {
+      currentUI = newUI;
+      Invalidate();
+    }
   }
 
   private: void PathfinderTimer_Tick(Object^ sender, EventArgs^ e) {
