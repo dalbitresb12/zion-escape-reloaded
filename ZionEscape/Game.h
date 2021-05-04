@@ -17,6 +17,7 @@
 #include "BitmapManager.h"
 #include "DataTypes.h"
 #include "MessageBox.h"
+#include "FileManager.h"
 
 using namespace System;
 using namespace System::Drawing;
@@ -40,12 +41,18 @@ public:
     initialized = false;
   }
 
+  Game(int seed) {
+    map = gcnew Map(seed);
+    initialized = false;
+  }
+
   void Init(Size ClientSize) {
     player = gcnew Player(Point(ClientSize.Width / 2, ClientSize.Height / 2));
     InitAllies();
     InitGrid(ClientSize);
     initialized = true;
     ResetPathfinders();
+    SaveMapSeed();
   }
 
   bool HasInitialized() {
@@ -62,6 +69,10 @@ public:
 
   int GetMapSeed() {
     return this->map->GetSeed();
+  }
+
+  void SaveMapSeed() {
+    FileManager::SaveSeed(map->GetSeed());
   }
 
   void DrawMapGizmos(Graphics^ world) {

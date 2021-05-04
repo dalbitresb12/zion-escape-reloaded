@@ -92,7 +92,7 @@
     <ClInclude Include="MessageBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UserInterface.h">
+    <ClInclude Include="FileManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

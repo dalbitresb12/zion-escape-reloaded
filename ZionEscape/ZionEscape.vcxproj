@@ -176,6 +176,7 @@
     <ClInclude Include="Corrupt.h" />
     <ClInclude Include="DataTypes.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="FileManager.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Enums.h" />
     <ClInclude Include="Grid.h" />
@@ -195,7 +196,6 @@
     <ClInclude Include="SceneSpawner.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="UI.h" />
-    <ClInclude Include="UserInterface.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />

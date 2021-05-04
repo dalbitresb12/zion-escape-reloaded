@@ -4,11 +4,13 @@
 #define _UI_H_
 
 #include "BitmapManager.h"
+#include "FileManager.h"
 #include "Enums.h"
 #include "MathUtils.h"
 
 using namespace System::Drawing;
 using namespace System::Drawing::Drawing2D;
+using namespace System::Windows::Forms;
 using namespace MathUtils::Mathf;
 
 ref class UI {
@@ -21,7 +23,7 @@ ref class UI {
 
 public:
   static void DrawMenu(Graphics^ world, Size clientSize, Point mouseLoc) {
-    BitmapManager^ bmpManager = BitmapManager::GetInstance();
+    BitmapManager^ bmpManager = BitmapManager::Instance;
     Bitmap^ background = bmpManager->GetImage("assets\\sprites\\misc\\menu-bg.png");
 
     if (textRectangles->Count == 0) {
@@ -32,8 +34,31 @@ public:
     CreateMenu(world, clientSize, mouseLoc);
   }
 
+  static void DrawLoad(Graphics^ world, Point mouseLoc) {
+    BitmapManager^ bmpManager = BitmapManager::Instance;
+    Bitmap^ background = bmpManager->GetImage("assets\\sprites\\misc\\menu-bg.png");
+
+    world->DrawImage(background, Point(0,0));
+
+    Rectangle titleRectangle = GetTextRectangle("Zion Escape");
+    Brush^ titleBrush = Brushes::White;
+    world->DrawString("Zion Escape", titleFont, titleBrush, titleRectangle.Location);
+
+    Rectangle loadRectangle = GetTextRectangle("Cargar");
+    Brush^ loadBrush = IsHovering(loadRectangle, mouseLoc) ? Brushes::SlateGray : Brushes::White;
+    world->DrawString("Cargar", optionsFont, loadBrush, loadRectangle.Location);
+
+    Rectangle newRectangle = GetTextRectangle("Nuevo");
+    Brush^ newBrush = IsHovering(newRectangle, mouseLoc) ? Brushes::SlateGray : Brushes::White;
+    world->DrawString("Nuevo", optionsFont, newBrush, newRectangle.Location);
+
+    Rectangle editRectangle = GetTextRectangle("Editar semilla");
+    Brush^ editBrush = IsHovering(editRectangle, mouseLoc) ? Brushes::SlateGray : Brushes::White;
+    world->DrawString("Editar semilla", optionsFont, editBrush, editRectangle.Location);
+  }
+
   static void DrawCredits(Graphics^ world, Point mouseLoc) {
-    BitmapManager^ bmpManager = BitmapManager::GetInstance();
+    BitmapManager^ bmpManager = BitmapManager::Instance;
     Bitmap^ background = bmpManager->GetImage("assets\\sprites\\misc\\menu-bg.png");
     Bitmap^ credits = bmpManager->GetImage("assets\\sprites\\misc\\credits.png");
     world->DrawImage(background, Point(0, 0));
@@ -45,7 +70,7 @@ public:
   }
 
   static void DrawPause(Graphics^ world, Point mouseLoc) {
-    BitmapManager^ bmpManager = BitmapManager::GetInstance();
+    BitmapManager^ bmpManager = BitmapManager::Instance;
     Bitmap^ background = bmpManager->GetImage("assets\\sprites\\misc\\menu-bg.png");
     world->DrawImage(background, Point(0, 0));
 
@@ -69,8 +94,6 @@ public:
       Rectangle rect = element.Value;
 
       if (IsHovering(rect, mouseLoc)) {
-        
-
         if (currentUI == UserInterface::Credits) {
           if (element.Key == "Volver")
             return UserInterface::MainMenu;
@@ -85,11 +108,22 @@ public:
 
         if (currentUI == UserInterface::MainMenu) {
           if (element.Key == "Iniciar")
-            return UserInterface::InGame;
+            return UserInterface::LoadMenu;
           else if (element.Key == "Salir")
             Application::Exit();
           else if (element.Key == "Creditos")
             return UserInterface::Credits;
+        }
+
+        if (currentUI == UserInterface::LoadMenu) {
+          if (element.Key == "Cargar")
+            return UserInterface::LoadSeed;
+          else if (element.Key == "Nuevo")
+            return UserInterface::InGame;
+          else if (element.Key == "Editar semilla") {
+            FileManager::OpenSeedFile();
+            return currentUI;
+          }
         }
       }
     }
@@ -97,7 +131,7 @@ public:
   }
 
   static void DrawHearts(Graphics^ world, float healthPoints) {
-    BitmapManager^ bmpManager = BitmapManager::GetInstance();
+    BitmapManager^ bmpManager = BitmapManager::Instance;
     Bitmap^ heartImage = bmpManager->GetImage("assets\\sprites\\misc\\heart.png");
     Rectangle drawingArea = Rectangle(Point(20, 15), Size(30, 30));
 
@@ -107,6 +141,18 @@ public:
       // Add the X position of where the next heart will be drawn
       drawingArea.X += 33;
     }
+  }
+
+  static bool HasPendingRendering(Point mouseLoc) {
+    for each (KeyValuePair<String^, Rectangle> element in textRectangles) {
+      if (element.Key == "Zion Escape" || element.Key == "Pausa")
+        continue;
+      Rectangle rect = element.Value;
+      if (IsHovering(rect, mouseLoc)) {
+        return true;
+      }
+    }
+    return false;
   }
 
 private:
@@ -157,6 +203,15 @@ private:
     }
     if (!textRectangles->ContainsKey("Volver")) {
       CreateText("Volver", world, optionsFont, clientSize, Size(-350, -250));
+    }
+    if (!textRectangles->ContainsKey("Cargar")) {
+      CreateText("Cargar", world, optionsFont, clientSize, Size(0, -50));
+    }
+    if (!textRectangles->ContainsKey("Nuevo")) {
+      CreateText("Nuevo", world, optionsFont, clientSize, Size(0, 50));
+    }
+    if (!textRectangles->ContainsKey("Editar semilla")) {
+      CreateText("Editar semilla", world, optionsFont, clientSize, Size(0, 150));
     }
   }
 

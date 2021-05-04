@@ -124,9 +124,19 @@ namespace ZionEscape {
     world->SmoothingMode = SmoothingMode::AntiAlias;
     world->TextRenderingHint = TextRenderingHint::AntiAlias;
 
-    if (currentUI == UserInterface::InGame) {
+    if (currentUI == UserInterface::InGame || currentUI == UserInterface::LoadSeed) {
       if (game == nullptr) {
-        game = gcnew Game();
+        if (currentUI == UserInterface::LoadSeed) {
+          int seed = FileManager::LoadSeed();
+          if (seed != 0) {
+            game = gcnew Game(seed);
+          } else {
+            game = gcnew Game();
+          }
+          currentUI = UserInterface::InGame;
+        } else {
+          game = gcnew Game();
+        }
         game->MapGeneration();
       }
 
@@ -157,11 +167,17 @@ namespace ZionEscape {
       }
 
       UI::DrawMenu(world, ClientSize, mouseLoc);
+    } else if (currentUI == UserInterface::LoadMenu) {
+      if (game != nullptr) {
+        game = nullptr;
+      }
+
+      UI::DrawLoad(world, mouseLoc);
     }
   }
 
   private: void MainActivity_KeyDown(Object^ sender, KeyEventArgs^ e) {
-    if (currentUI == UserInterface::Credits && e->KeyCode == Keys::Escape) {
+    if ((currentUI == UserInterface::Credits || currentUI == UserInterface::LoadMenu) && e->KeyCode == Keys::Escape) {
       currentUI = UserInterface::MainMenu;
       Invalidate();
       return;
