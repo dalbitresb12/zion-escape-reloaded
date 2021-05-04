@@ -28,10 +28,11 @@ public:
     if (parent != nullptr)
       delete parent;
   }
-  // TO DO: Change to property get
-  // https://docs.microsoft.com/en-us/cpp/dotnet/how-to-use-properties-in-cpp-cli?view=msvc-160
-  int GetFCost() {
-    return this->gCost + this->hCost;
+
+  property int fCost {
+    int get() {
+      return gCost + hCost;
+    }
   }
 };
 
