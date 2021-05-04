@@ -166,6 +166,22 @@ namespace ZionEscape {
         game = nullptr;
       }
 
+      if (MovementTimer->Enabled) {
+        MovementTimer->Stop();
+      }
+
+      if (AnimationTimer->Enabled) {
+        AnimationTimer->Stop();
+      }
+
+      if (PathfinderTimer->Enabled) {
+        PathfinderTimer->Stop();
+      }
+
+      if (MessageTimer->Enabled) {
+        MessageTimer->Stop();
+      }
+
       UI::DrawMenu(world, ClientSize, mouseLoc);
     } else if (currentUI == UserInterface::LoadMenu) {
       if (game != nullptr) {
@@ -188,7 +204,7 @@ namespace ZionEscape {
       MovementTimer->Start();
       AnimationTimer->Start();
       PathfinderTimer->Start();
-      if (game->GetMessagebox() != nullptr) {
+      if (game->MsgBox != nullptr) {
         MessageTimer->Start();
         MessageLabel->Visible = true;
       }
@@ -202,7 +218,7 @@ namespace ZionEscape {
         MovementTimer->Stop();
         AnimationTimer->Stop();
         PathfinderTimer->Stop();
-        if (game->GetMessagebox() != nullptr) {
+        if (game->MsgBox != nullptr) {
           MessageTimer->Stop();
           MessageLabel->Visible = false;
         }
@@ -221,6 +237,12 @@ namespace ZionEscape {
 
   private: void MovementTimer_Tick(Object^ sender, EventArgs^ e) {
     if (game != nullptr) {
+      if (game->PlayerHealth <= 0) {
+        currentUI = UserInterface::MainMenu;
+        Invalidate();
+        return;
+      }
+
       game->MovementTick(MovementTimer->Interval, MessageLabel, MessageTimer);
       Invalidate();
     }
@@ -270,7 +292,7 @@ namespace ZionEscape {
     if (game != nullptr)
       game->ResetPathfinders();
   }
-   private: System::Void MessageTimer_Tick(System::Object^ sender, System::EventArgs^ e) {
+   private: void MessageTimer_Tick(System::Object^ sender, System::EventArgs^ e) {
      if (game != nullptr)
        game->PrintLetterTick(MessageLabel, MessageTimer);
   }

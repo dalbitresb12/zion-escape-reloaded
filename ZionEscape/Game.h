@@ -24,7 +24,6 @@ using namespace System::Drawing;
 using namespace System::Drawing::Drawing2D;
 using namespace System::Threading;
 using namespace System::Threading::Tasks;
-// TO DO: Remove when UI to show the map seed is added
 using namespace System::Diagnostics;
 
 ref class Game {
@@ -120,7 +119,7 @@ public:
       UI::DrawHearts(world, player->GetHealth());
     }
 
-    if (messagebox != nullptr && messagebox->GetActivated()) {
+    if (messagebox != nullptr && messagebox->IsActivated) {
       messagebox->Draw(world);
     }
   }
@@ -134,9 +133,18 @@ public:
 
     if (e->KeyCode == Keys::M) {
       map->ActivateAsssasins();
+      return;
     }
 
-    player->KeyDown(e);
+    if (messagebox == nullptr) {
+      player->KeyDown(e);
+      return;
+    }
+
+    if (!messagebox->IsActivated) {
+      player->KeyDown(e);
+      return;
+    }
   }
 
   void KeyUp(KeyEventArgs^ e) {
@@ -147,7 +155,12 @@ public:
     player->Shoot((float)e->Location.X, (float)e->Location.Y);
   }
 
-  void MovementTick(int tickInterval, Label^ label, Windows::Forms::Timer^ MessageTimer) {
+  void MovementTick(int tickInterval, Label^ label, System::Windows::Forms::Timer^ MessageTimer) {
+    // If the message box has appeared, we stop this timer
+    if (messagebox != nullptr && messagebox->IsActivated) {
+      return;
+    }
+
     map->GetCurrentScene()->MoveNPCS(mapGrid, player, tickInterval, allies);
 
     if (allies != nullptr) {
@@ -206,11 +219,16 @@ public:
     }
   }
 
-  void PrintLetterTick(Label^ label, Windows::Forms::Timer^ MessageTimer) {
+  void PrintLetterTick(Label^ label, System::Windows::Forms::Timer^ MessageTimer) {
     messagebox->PrintLetter(label, MessageTimer);
   }
 
   void AnimationTick() {
+    // If the message box has appeared, we stop this timer
+    if (messagebox != nullptr && messagebox->IsActivated) {
+      return;
+    }
+
     map->GetCurrentScene()->AnimateNPCS();
 
     if (allies != nullptr) {
@@ -225,6 +243,11 @@ public:
   }
 
   void ResetPathfinders() {
+    // If the message box has appeared, we stop this timer
+    if (messagebox != nullptr && messagebox->IsActivated) {
+      return;
+    }
+
     // Prevent execution if NPCs is nullptr
     // This will prevent the worst error in the debugger, ever:
     // 'System.NullReferenceException' occurred in Unknown Module
@@ -248,8 +271,16 @@ public:
     map->GetCurrentScene()->ResetPathfinders(mapGrid, playerNeighbours, player->GetPosition(), allies);
   }
 
-  Messagebox^ GetMessagebox() {
-    return this->messagebox;
+  property Messagebox^ MsgBox {
+    Messagebox^ get() {
+      return messagebox;
+    }
+  }
+
+  property float PlayerHealth {
+    float get() {
+      return player->GetHealth();
+    }
   }
 
 private:
