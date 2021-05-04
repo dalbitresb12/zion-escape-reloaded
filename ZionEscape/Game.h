@@ -102,13 +102,9 @@ public:
         if (ally->GetHealth() <= 0) {
           //Delete form the list
           allies->Remove(ally);
-          //Delete ptr
-          ally = nullptr;
           //The for must be break, beacuse it won't consider the same npc
           break;
         }
-
-
       }
     }
 
@@ -163,7 +159,6 @@ public:
 
     if (player != nullptr) {
       if (player->MoveUsingKeysList(mapGrid->walkableLayer)) {
-        BitmapManager^ bmpManager = BitmapManager::GetInstance();
         Point position = player->GetPosition();
         Size size = player->GetSize();
         bool sceneChanged = false;
@@ -198,7 +193,7 @@ public:
           // O^2 = Too slow, too much CPU
           // Didn't have time to optimize it
           mapGrid->UpdateNodes(GetWalkableLayer(map->GetCurrentScene()));
-          // This one is faster
+          // This one is faster, but has bugs
           // mapGrid->walkableLayer = GetWalkableLayer(map->GetCurrentScene());
         }
       }
@@ -247,9 +242,10 @@ public:
           Pathfinder::FindPath(mapGrid, ally->GetPosition(), player->GetPosition(), ally);
         }
       }
-
-      map->GetCurrentScene()->ResetPathfinders(mapGrid, playerNeighbours, player->GetPosition(), allies);
     }
+
+    // We must reset the pathfinders of the entities from the map
+    map->GetCurrentScene()->ResetPathfinders(mapGrid, playerNeighbours, player->GetPosition(), allies);
   }
 
   Messagebox^ GetMessagebox() {

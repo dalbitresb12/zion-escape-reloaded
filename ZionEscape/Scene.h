@@ -244,16 +244,17 @@ public:
         //Corrupt convertion - If the NPC is a Corrupt
         if (npc->GetEntityType() == EntityType::Corrupt) {
           //Looking for the allies
-          for each (Ally ^ ally in allies)
-              //If the corrupts collides with an ally,
-              if (npc->HasCollision((NPC^)ally)) {
-                //Reference the corrupt
-                Corrupt^ corrupt = (Corrupt^)npc;
-                //Conver the corrup to a fake ally
-                corrupt->ConvertToAlly();
-                //And the health points of the ally are reduced
-                ally->SetHealth(ally->GetHealth() - npc->GetDamagePoints());
-              }
+          for each (Ally ^ ally in allies) {
+            //If the corrupts collides with an ally,
+            if (npc->HasCollision((NPC^)ally)) {
+              //Reference the corrupt
+              Corrupt^ corrupt = (Corrupt^)npc;
+              //Conver the corrup to a fake ally
+              corrupt->ConvertToAlly();
+              //And the health points of the ally are reduced
+              ally->SetHealth(ally->GetHealth() - npc->GetDamagePoints());
+            }
+          }
         }
       }
     }
@@ -283,18 +284,30 @@ public:
         }
       } else if (npc->GetEntityType() == EntityType::Corrupt) {
         Corrupt^ corrupt = (Corrupt^)npc;
+        Node^ currentNode = grid->GetNodeFromWorldPoint(corrupt->GetPosition());
 
-      if(allies->Count>0)
-        if (corrupt->tracking == nullptr) {
+        if (allies->Count == 0) {
+          corrupt->tracking = nullptr;
+          if (!playerNeighbours->Contains(currentNode)) {
+            Pathfinder::FindPath(grid, corrupt->GetPosition(), playerPos, corrupt);
+          }
+          continue;
+        }
+
+        if (corrupt->tracking != nullptr && corrupt->tracking->GetHealth() <= 0) {
+          corrupt->tracking = nullptr;
+          continue;
+        }
+
+        if (allies->Count > 0 && corrupt->tracking == nullptr) {
           Random r;
           corrupt->tracking = allies[r.Next(0, allies->Count)];
         }
 
         Node^ allyNode = grid->GetNodeFromWorldPoint(corrupt->tracking->GetPosition());
         List<Node^>^ allyNeighbours = grid->GetNeighbours(allyNode);
-        Node^ currentNode = grid->GetNodeFromWorldPoint(npc->GetPosition());
         if (!allyNeighbours->Contains(currentNode)) {
-          Pathfinder::FindPath(grid, corrupt->GetPosition(), corrupt->tracking->GetPosition(), npc);
+          Pathfinder::FindPath(grid, corrupt->GetPosition(), corrupt->tracking->GetPosition(), corrupt);
         }
       }
     }
