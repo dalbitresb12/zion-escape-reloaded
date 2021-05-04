@@ -29,9 +29,10 @@ namespace ZionEscape {
     UserInterface currentUI;
     Point prevMouseLoc;
     Point mouseLoc;
+    Game^ game;
+    bool renderedBefore;
   private: System::Windows::Forms::Timer^ MessageTimer;
   private: System::Windows::Forms::Label^ MessageLabel;
-         Game^ game;
 
   public:
     MainActivity() {
@@ -42,6 +43,8 @@ namespace ZionEscape {
       currentUI = UserInterface::MainMenu;
       // Set custom cursor
       Cursor = gcnew System::Windows::Forms::Cursor("assets\\sprites\\misc\\cursor.ico");
+      // Set rendering optimization
+      renderedBefore = false;
     }
 
   protected:
@@ -226,7 +229,18 @@ namespace ZionEscape {
     prevMouseLoc = mouseLoc;
     mouseLoc = mousePos;
 
-    Invalidate();
+    if (UI::HasPendingRendering(mousePos)) {
+      renderedBefore = true;
+      // Re-render the form
+      Invalidate();
+      return;
+    }
+
+    if (renderedBefore) {
+      renderedBefore = false;
+      // Re-render the form
+      Invalidate();
+    }
   }
 
   private: void MainActivity_MouseClick(Object^ sender, MouseEventArgs^ e) {
