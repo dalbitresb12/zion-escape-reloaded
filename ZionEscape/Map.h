@@ -147,30 +147,30 @@ public:
 private:
   void GenerateScene(Scene^ scene, Dictionary<Point, int>^ points, int& depth) {
     // Increase the depth counter
-    depth += 1;
+    depth += 1; // O(1)
 
-    for each (KeyValuePair<Direction, SceneSpawner^> element in scene->GetSpawners()) {
+    for each (KeyValuePair<Direction, SceneSpawner^> element in scene->GetSpawners()) { // O(n)
       // Save the reference to the current spawner as a local
-      SceneSpawner^ currentSpawner = element.Value;
+      SceneSpawner^ currentSpawner = element.Value; // O(1)
 
       // Skip the current spawner since it is nullptr
-      if (currentSpawner == nullptr)
+      if (currentSpawner == nullptr) // O(1)
         continue;
 
       // Get the possible position of this scene
-      Point position = currentSpawner->GetPos();
+      Point position = currentSpawner->GetPos(); // O(1)
       // Get the door direction that the next scene will need
-      Direction doorNeeded = currentSpawner->GetParentDirection();
+      Direction doorNeeded = currentSpawner->GetParentDirection(); // O(1)
 
       // Detect possible collisions. Continues to the next
       // loop and deletes the current spawner if a collision
       // was found.
-      if (points->ContainsKey(position)) {
+      if (points->ContainsKey(position)) { // O(1): https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2.containskey?view=netframework-4.8#remarks
         int hashCode;
-        points->TryGetValue(position, hashCode);
+        points->TryGetValue(position, hashCode); // O(1): https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2.trygetvalue?view=netframework-4.8#remarks
 
-        if (hashCode != currentSpawner->GetHashCode()) {
-          scene->SetDoorValue(EnumUtilities::GetInverseDirection(doorNeeded), false);
+        if (hashCode != currentSpawner->GetHashCode()) { // O(1)
+          scene->SetDoorValue(EnumUtilities::GetInverseDirection(doorNeeded), false); // O(1)
           delete currentSpawner;
           continue;
         }
@@ -181,10 +181,10 @@ private:
       
       if (points->Count < maxScenes && depth < depthCount->Max) {
         // Set probability
-        int probability = 0 + 2 * depth;
+        int probability = 0 + 2 * depth; // 2 = O(2)
 
         // Set default values
-        doorLocations.SetAll(true);
+        doorLocations.SetAll(true); // O(1)
 
         // Get a random open or closed door
         do {
@@ -217,17 +217,18 @@ private:
       }
 
       // Create the new scene
-      Scene^ generatedScene = gcnew Scene(doorLocations, position);
+      Scene^ generatedScene = gcnew Scene(doorLocations, position); // O(1)
 
       // Set the background of this scene
-      generatedScene->SetBackground(EnumUtilities::GetRandomBackground(rnd));
+      generatedScene->SetBackground(EnumUtilities::GetRandomBackground(rnd)); // O(1)
 
       // Create the spawners and add them to the points List
       generatedScene->CreateSpawners(points, rnd, scene, doorNeeded);
 
       // Remove the spawner from the Dictionary
-      points->Remove(position);
+      points->Remove(position); // O(1): https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2.remove?view=netframework-4.8#overloads
       // Save the Point to the Dictionary with the scene hash
+      // O(1) in most cases, O(n) if it has to be resized: https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2.add?view=netframework-4.8#remarks
       points->Add(position, generatedScene->GetHashCode());
 
       // Get the distance between this scene and (0, 0)
