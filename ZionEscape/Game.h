@@ -125,6 +125,11 @@ public:
   }
 
   void KeyDown(KeyEventArgs^ e) {
+    // If the message box has appeared, we stop this event
+    if (messagebox != nullptr && messagebox->IsActivated) {
+      return;
+    }
+
     // Temporary map seed viewer
     if (e->KeyCode == Keys::P) {
       Debug::WriteLine("Seed: {0}", GetMapSeed());
@@ -148,10 +153,20 @@ public:
   }
 
   void KeyUp(KeyEventArgs^ e) {
+    // If the message box has appeared, we stop this event
+    if (messagebox != nullptr && messagebox->IsActivated) {
+      return;
+    }
+
     player->KeyUp(e);
   }
 
   void MouseClick(MouseEventArgs^ e) {
+    // If the message box has appeared, we stop this event
+    if (messagebox != nullptr && messagebox->IsActivated) {
+      return;
+    }
+
     player->Shoot((float)e->Location.X, (float)e->Location.Y);
   }
 
