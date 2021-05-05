@@ -16,44 +16,44 @@ private:
   ~Pathfinder() {}
 
 public:
-  static void FindPath(Grid^ grid, Point startPos, Point targetPos, NPC^ npc) {
-    Node^ startNode = grid->GetNodeFromWorldPoint(startPos);
-    Node^ targetNode = grid->GetNodeFromWorldPoint(targetPos);
+  static void FindPath(Grid^ grid, Point startPos, Point targetPos, NPC^ npc) { // 2n^3 + 23n^2 + 5n + 9t = O(2n^3)
+    Node^ startNode = grid->GetNodeFromWorldPoint(startPos); // 2t
+    Node^ targetNode = grid->GetNodeFromWorldPoint(targetPos); // 2t
 
-    List<Node^>^ openNodes = gcnew List<Node^>;
-    HashSet<Node^>^ closedNodes = gcnew HashSet<Node^>;
+    List<Node^>^ openNodes = gcnew List<Node^>; // 2t
+    HashSet<Node^>^ closedNodes = gcnew HashSet<Node^>; // 2t
 
-    openNodes->Add(startNode);
+    openNodes->Add(startNode); // O(1)
 
-    while (openNodes->Count > 0) {
-      Node^ node = openNodes[0];
-      for (int i = 1; i < openNodes->Count; ++i) {
-        if (openNodes[i]->fCost < node->fCost || openNodes[i]->fCost == node->fCost) {
-          if (openNodes[i]->hCost < node->hCost)
-            node = openNodes[i];
+    while (openNodes->Count > 0) { // n * (2t + 1t + n(9t) + n + 1t + 2t + 2n^2 + 13n) = 2n^3 + 23n^2 + 5n
+      Node^ node = openNodes[0]; // 2t
+      for (int i = 1; i < openNodes->Count; ++i) { // 1t + n(9t)
+        if (openNodes[i]->fCost < node->fCost || openNodes[i]->fCost == node->fCost) { // 5
+          if (openNodes[i]->hCost < node->hCost) // 2t
+            node = openNodes[i]; // 2t
         }
       }
 
-      openNodes->Remove(node);
-      closedNodes->Add(node);
+      openNodes->Remove(node); // O(n)
+      closedNodes->Add(node); // O(1)
 
-      if (node == targetNode) {
+      if (node == targetNode) { // 2t
         npc->path = RetracePath(startNode, targetNode);
         return;
       }
 
-      for each (Node ^ neighbour in grid->GetNeighbours(node)) {
-        if (!neighbour->walkable || closedNodes->Contains(neighbour))
+      for each (Node ^ neighbour in grid->GetNeighbours(node)) { // n * (2t + 3t + 2n + 8t) = 2n^2 + 13n
+        if (!neighbour->walkable || closedNodes->Contains(neighbour)) // 2t
           continue;
 
-        int newCostToNeighbour = node->gCost + GetDistance(node, neighbour);
-        if (newCostToNeighbour < neighbour->gCost || !openNodes->Contains(neighbour)) {
-          neighbour->gCost = newCostToNeighbour;
-          neighbour->hCost = GetDistance(neighbour, targetNode);
-          neighbour->parent = node;
+        int newCostToNeighbour = node->gCost + GetDistance(node, neighbour); // 3t
+        if (newCostToNeighbour < neighbour->gCost || !openNodes->Contains(neighbour)) { // 4t + (1t + 2t + 1t + 2n) = 2n + 8t
+          neighbour->gCost = newCostToNeighbour; // 1t
+          neighbour->hCost = GetDistance(neighbour, targetNode); // 2t
+          neighbour->parent = node; // 1t
 
-          if (!openNodes->Contains(neighbour))
-            openNodes->Add(neighbour);
+          if (!openNodes->Contains(neighbour)) // O(n) + O(n)
+            openNodes->Add(neighbour); // O(n)
         }
       }
     }
