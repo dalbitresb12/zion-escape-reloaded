@@ -186,6 +186,14 @@ namespace ZionEscape {
       }
 
       UI::DrawMenu(world, ClientSize, mouseLoc);
+
+      // Aquí es donde se utilizaba el método sobrecargado
+      // para utilizar los lambdas y los controles nativos de
+      // Windows Forms. Se intentó :(
+      //this->SuspendLayout();
+      //UI::DrawMenu(world, this->ClientSize, this->Controls);
+      //this->ResumeLayout(false);
+      //this->PerformLayout();
     } else if (currentUI == UserInterface::LoadMenu) {
       if (game != nullptr) {
         game = nullptr;
