@@ -141,13 +141,11 @@ public:
       return;
     }
 
-    if (messagebox == nullptr) {
+    if (messagebox == nullptr || (messagebox != nullptr && !messagebox->IsActivated)) {
       player->KeyDown(e);
-      return;
-    }
-
-    if (!messagebox->IsActivated) {
-      player->KeyDown(e);
+      for each (Ally ^ ally in allies) {
+        ally->Target = nullptr;
+      }
       return;
     }
   }
@@ -271,9 +269,24 @@ public:
 
     if (allies->Count > 0) {
       for each (Ally ^ ally in allies) {
-        Node^ currentNode = mapGrid->GetNodeFromWorldPoint(ally->GetPosition());
-        if (!playerNeighbours->Contains(currentNode)) {
-          Pathfinder::FindPath(mapGrid, ally->GetPosition(), player->GetPosition(), ally);
+        if (ally->Tracking == nullptr) {
+          ally->Tracking = player;
+        }
+
+        if (ally->Target == nullptr) {
+          Node^ currentNode = mapGrid->GetNodeFromWorldPoint(ally->Position);
+          if (playerNeighbours->Count > 0 && !playerNeighbours->Contains(currentNode)) {
+            Random r;
+            ally->Target = playerNeighbours[r.Next(0, playerNeighbours->Count)];
+          }
+        }
+
+        if (ally->Target == nullptr) {
+          continue;
+        }
+
+        if (ally->NeedsPathUpdate(mapGrid)) {
+          Pathfinder::FindPath(mapGrid, ally->Position, ally->Target->worldPos, ally);
         }
       }
     }

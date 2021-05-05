@@ -46,6 +46,30 @@ public:
     }
   }
 
+  bool NeedsPathUpdate(Grid^ grid) {
+    if (path == nullptr)
+      return true;
+
+    if (trackingTarget == nullptr && path->Count > 0)
+      return true;
+
+    if (trackingTarget == nullptr)
+      return true;
+
+    Node^ currentNode = grid->GetNodeFromWorldPoint(Position);
+    List<Node^>^ neighboors = grid->GetNeighbours(trackingTarget);
+
+    for each (Node ^ node in neighboors) {
+      if (node->Equals(currentNode))
+        return false;
+    }
+
+    if (path->Count == 0)
+      return true;
+
+    return path->Count > 0 && path[0] != trackingTarget;
+  }
+
   Point GetDelta() {
     if (path == nullptr || !(path->Count > 0))
       return Point(0, 0);
