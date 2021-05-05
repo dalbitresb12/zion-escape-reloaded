@@ -13,7 +13,48 @@ using namespace System::Drawing::Drawing2D;
 using namespace System::Windows::Forms;
 using namespace MathUtils;
 
+// Se intentó añadir lambdas, pero fallamos en el intento :(
+// Se hizo imposible generar lambdas con valores dinámicos, es
+// decir que no pudimos generar un lambda que pueda actualizar
+// otro valor que reciba por parámetro. Lo que quería hacer
+// aquí era actualizar el valor de currentUI de MainActivity,
+// para esto tendría que poder generar un lambda que pueda
+// capturar un valor, pero estos métodos tienen que recibir
+// SOLO los parámetros necesarios en System::EventHandler.
+// Por lo tanto, no podía pasarle un valor adicional para
+// actualizar este valor. Lo único que se podía hacer era
+// actualizar propiedades del mismo control, pero no mucho más.
+// Otra idea que tuve fue recibir el lambda por parámetro y
+// retornar un System::EventHandler con este lambda ya creado,
+// pero para eso se tendría que poder generar métodos y clases
+// dinámicamente y no estoy muy seguro de cómo se podía hacer
+// algo así. Finalmente, otro problema que encontré fue respecto
+// a los caracteres especiales en System::Windows::Forms::Label.
+// Cuando intenté crear el Label con el texto "Créditos", la "é"
+// no se imprimía correctamente. Tuve otras ideas de añadir lambdas
+// en otros lugares, pero ninguna se veía viable como para añadir
+// en menos de un día. :(
+class UILambdas {
+public:
+  static void LabelMouseHover(Object^ sender, EventArgs^ e) {
+    auto lambda = [](Object^ sender, EventArgs^ e) {
+      Label^ label = (Label^)sender;
+      label->ForeColor = Color::SlateGray;
+    };
+    lambda(sender, e);
+  }
+
+  static void LabelMouseLeave(Object^ sender, EventArgs^ e) {
+    auto lambda = [](Object^ sender, EventArgs^ e) {
+      Label^ label = (Label^)sender;
+      label->ForeColor = Color::White;
+    };
+    lambda(sender, e);
+  }
+};
+
 ref class UI {
+  static UserInterface renderedView = UserInterface::None;
   static Font^ titleFont = gcnew Font("Impact", 74);
   static Font^ optionsFont = gcnew Font("Impact", 40);
   static Dictionary<String^, Rectangle>^ textRectangles = gcnew Dictionary<String^, Rectangle>;
@@ -34,11 +75,54 @@ public:
     CreateMenu(world, clientSize, mouseLoc);
   }
 
+  // Este método sobrecargado se encargaba de crear la UI utilizando
+  // los controles nativos del Windows Forms, pero aquí es donde encontré
+  // el problema de los lambdas y los Label que expliqué en el comentario anterior.
+  static void DrawMenu(Graphics^ world, Size ClientSize, Control::ControlCollection^ controls) {
+    BitmapManager^ bmpManager = BitmapManager::Instance;
+    Bitmap^ background = bmpManager->GetImage("assets\\sprites\\misc\\menu-bg.png");
+    world->DrawImage(background, Point(0, 0));
+
+    // Prevent re-rendering the controls
+    if (renderedView == UserInterface::MainMenu)
+      return;
+
+    controls->Clear();
+
+    array<String^>^ buttons = gcnew array<String^> { L"Iniciar", L"Créditos", L"Salir" };
+
+    Label^ title = gcnew Label();
+    title->Text = L"Zion Escape";
+    title->Font = titleFont;
+    title->AutoSize = true;
+    title->BackColor = Color::Transparent;
+    title->ForeColor = Color::White;
+    title->Location = FindCenteredPosition(L"Zion Escape", world, titleFont, ClientSize, Size(0, -200));
+    controls->Add(title);
+
+    Size offset = Size(0, -50);
+    for each (String ^ text in buttons) {
+      Label^ label = gcnew Label();
+      label->Text = text;
+      label->Font = optionsFont;
+      label->AutoSize = true;
+      label->BackColor = Color::Transparent;
+      label->ForeColor = Color::White;
+      label->Location = FindCenteredPosition(text, world, optionsFont, ClientSize, offset);
+      label->MouseHover += gcnew EventHandler(UILambdas::LabelMouseHover);
+      label->MouseLeave += gcnew EventHandler(UILambdas::LabelMouseLeave);
+      offset = Size::Add(offset, Size(0, 100));
+      controls->Add(label);
+    }
+
+    renderedView = UserInterface::MainMenu;
+  }
+
   static void DrawLoad(Graphics^ world, Point mouseLoc) {
     BitmapManager^ bmpManager = BitmapManager::Instance;
     Bitmap^ background = bmpManager->GetImage("assets\\sprites\\misc\\menu-bg.png");
 
-    world->DrawImage(background, Point(0,0));
+    world->DrawImage(background, Point(0, 0));
 
     Rectangle titleRectangle = GetTextRectangle("Zion Escape");
     Brush^ titleBrush = Brushes::White;
@@ -186,7 +270,7 @@ private:
 
     Rectangle titleRectangle = GetTextRectangle("Zion Escape");
     world->DrawString("Zion Escape", titleFont, textBrush, titleRectangle.Location);
-    
+
     Rectangle startRectangle = GetTextRectangle("Iniciar");
     if (IsHovering(startRectangle, mouseLoc))
       textBrush = Brushes::SlateGray;
@@ -256,9 +340,14 @@ private:
     return rect.Contains(mouseLoc);
   }
 
+  static Point FindCenteredPosition(String^ text, Graphics^ world, Font^ font, Size clientSize, Size offset) {
+    Size size = Size::Round(world->MeasureString(text, font));
+    return GetPositionFromBounds(clientSize, size, offset);
+  }
+
   static Point GetPositionFromBounds(Size clientSize, Size bounds, Size offset) {
-    int x = Mathf::RoundToInt((float)clientSize.Width / 2 - bounds.Width / 2 + offset.Width);
-    int y = Mathf::RoundToInt((float)clientSize.Height / 2 - bounds.Height / 2 + offset.Height);
+    int x = Mathf::RoundToInt((float)clientSize.Width / 2 - (float)bounds.Width / 2 + offset.Width);
+    int y = Mathf::RoundToInt((float)clientSize.Height / 2 - (float)bounds.Height / 2 + offset.Height);
     return Point(x, y);
   }
 
