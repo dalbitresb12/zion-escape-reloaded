@@ -262,7 +262,7 @@ public:
     // Prevent execution if NPCs is nullptr
     // This will prevent the worst error in the debugger, ever:
     // 'System.NullReferenceException' occurred in Unknown Module
-    // Don't suffer what I suffered. Don't forget to check this first.
+    // Don't suffer what I've suffered. Don't forget to check this first.
     if (allies == nullptr)
       return;
 

@@ -35,15 +35,15 @@ public:
   ~Grid() {}
 
 private:
-  void CreateGrid(GraphicsPath^ walkableLayer) {
-    grid = gcnew array<Node^, 2>(gridSize.X, gridSize.Y);
+  void CreateGrid(GraphicsPath^ walkableLayer) { // total detallado : 14n^2 + 4n + 3 - total asintótico : O(n^2)
+    grid = gcnew array<Node^, 2>(gridSize.X, gridSize.Y); // 2t
 
-    for (int x = 0; x < gridSize.X; ++x) {
-      for (int y = 0; y < gridSize.Y; ++y) {
-        Point gridPos = Point(x, y);
-        Point worldPos = Point::Round(PointF(x * nodeDiameter.X + nodeRadius.X, y * nodeDiameter.Y + nodeRadius.Y));
-        bool walkable = walkableLayer->IsVisible(worldPos);
-        grid[x, y] = gcnew Node(worldPos, gridPos, walkable);
+    for (int x = 0; x < gridSize.X; ++x) { // 1t + n( 1t + _ _ 2t ) = 1t + n(t + 14n + t + 2t) = 14n^2 + 4n + 1
+      for (int y = 0; y < gridSize.Y; ++y) { // 1t + n( 1t + _ _ 2t ) = 1t + n(14t) = 14n + 1t
+        Point gridPos = Point(x, y); // t 
+        Point worldPos = Point::Round(PointF(x * nodeDiameter.X + nodeRadius.X, y * nodeDiameter.Y + nodeRadius.Y)); //6t
+        bool walkable = walkableLayer->IsVisible(worldPos);// 2t
+        grid[x, y] = gcnew Node(worldPos, gridPos, walkable);// 2t
       }
     }
   }
