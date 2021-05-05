@@ -53,12 +53,27 @@ public:
     SetPosition(Point(x, y));
   }
 
+  /**
+   * @deprecated 
+  */
   void SetPosition(Point point) {
     this->drawingArea.Location = point;
   }
 
+  /**
+   * @deprecated
+  */
   Point GetPosition() {
     return Point(drawingArea.X + size.Width / 2, drawingArea.Y + size.Height / 2);
+  }
+
+  property Point Position {
+    Point get() {
+      return Point(drawingArea.X + size.Width / 2, drawingArea.Y + size.Height / 2);
+    }
+    void set(Point value) {
+      drawingArea.Location = value;
+    }
   }
 
   void StartAnimation() {

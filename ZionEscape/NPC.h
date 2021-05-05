@@ -9,7 +9,8 @@
 using namespace System::Collections::Generic;
 
 ref class NPC abstract : public Entity {
-  bool pathEnded;
+  Entity^ tracking;
+  Node^ trackingTarget;
 
 public:
   List<Node^>^ path;
@@ -27,8 +28,22 @@ public:
     }
   }
 
-  bool HasEndedPath() {
-    return pathEnded;
+  property Entity^ Tracking {
+    Entity^ get() {
+      return tracking;
+    }
+    void set(Entity^ value) {
+      tracking = value;
+    }
+  }
+
+  property Node^ Target {
+    Node^ get() {
+      return trackingTarget;
+    }
+    void set(Node^ value) {
+      trackingTarget = value;
+    }
   }
 
   Point GetDelta() {
@@ -61,7 +76,7 @@ public:
     Node^ currentNode = grid->GetNodeFromWorldPoint(drawingArea.Location);
 
     if (currentNode->Equals(currentWaypoint)) {
-      path->Remove(path[path->Count - 1]);
+      path->RemoveAt(path->Count - 1);
     }
 
     for each (Direction direction in GetDirectionFromDelta(deltaX, deltaY))

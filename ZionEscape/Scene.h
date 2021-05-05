@@ -278,36 +278,36 @@ public:
 
     for each (NPC ^ npc in npcs) {
       if (npc->GetEntityType() == EntityType::Assassin) {
-        Node^ currentNode = grid->GetNodeFromWorldPoint(npc->GetPosition());
+        Node^ currentNode = grid->GetNodeFromWorldPoint(npc->Position);
         if (!playerNeighbours->Contains(currentNode)) {
-          Pathfinder::FindPath(grid, npc->GetPosition(), playerPos, npc);
+          Pathfinder::FindPath(grid, npc->Position, playerPos, npc);
         }
       } else if (npc->GetEntityType() == EntityType::Corrupt) {
         Corrupt^ corrupt = (Corrupt^)npc;
-        Node^ currentNode = grid->GetNodeFromWorldPoint(corrupt->GetPosition());
+        Node^ currentNode = grid->GetNodeFromWorldPoint(corrupt->Position);
 
         if (allies->Count == 0) {
-          corrupt->tracking = nullptr;
+          corrupt->Tracking = nullptr;
           if (!playerNeighbours->Contains(currentNode)) {
-            Pathfinder::FindPath(grid, corrupt->GetPosition(), playerPos, corrupt);
+            Pathfinder::FindPath(grid, corrupt->Position, playerPos, corrupt);
           }
           continue;
         }
 
-        if (corrupt->tracking != nullptr && corrupt->tracking->GetHealth() <= 0) {
-          corrupt->tracking = nullptr;
+        if (corrupt->Tracking != nullptr && corrupt->Tracking->GetHealth() <= 0) {
+          corrupt->Tracking = nullptr;
           continue;
         }
 
-        if (allies->Count > 0 && corrupt->tracking == nullptr) {
+        if (allies->Count > 0 && corrupt->Tracking == nullptr) {
           Random r;
-          corrupt->tracking = allies[r.Next(0, allies->Count)];
+          corrupt->Tracking = allies[r.Next(0, allies->Count)];
         }
 
-        Node^ allyNode = grid->GetNodeFromWorldPoint(corrupt->tracking->GetPosition());
+        Node^ allyNode = grid->GetNodeFromWorldPoint(corrupt->Tracking->Position);
         List<Node^>^ allyNeighbours = grid->GetNeighbours(allyNode);
         if (!allyNeighbours->Contains(currentNode)) {
-          Pathfinder::FindPath(grid, corrupt->GetPosition(), corrupt->tracking->GetPosition(), corrupt);
+          Pathfinder::FindPath(grid, corrupt->Position, corrupt->Tracking->Position, corrupt);
         }
       }
     }

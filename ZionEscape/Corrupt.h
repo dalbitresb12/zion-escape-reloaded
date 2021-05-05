@@ -10,8 +10,6 @@
 
 ref class Corrupt : public NPC {
 public:
-  Entity^ tracking;
-
   Corrupt(Point pos)
     : NPC(EntityType::Corrupt, pos, 2U, 10.f, 1.f) {
     BitmapManager^ bmpManager = BitmapManager::GetInstance();

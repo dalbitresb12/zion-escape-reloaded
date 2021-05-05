@@ -189,35 +189,31 @@ public:
       if (player->MoveUsingKeysList(mapGrid->walkableLayer)) {
         Point position = player->GetPosition();
         Size size = player->GetSize();
-        bool sceneChanged = false;
+        Point newPosition = position;
 
-        // Up
         if (position.Y < 78) {
+          // Up
           map->ChangeScene(Direction::Up);
-          player->SetPosition(position.X - size.Width / 2, 519 - size.Height);
-          sceneChanged = true;
-        }
-        // Down
-        if (position.Y > 536) {
+          newPosition = Point(position.X - size.Width / 2, 519 - size.Height);
+        } else if (position.Y > 536) {
+          // Down
           map->ChangeScene(Direction::Down);
-          player->SetPosition(position.X - size.Width / 2, 104);
-          sceneChanged = true;
-        }
-        // Left
-        if (position.X < 78) {
+          newPosition = Point(position.X - size.Width / 2, 104);
+        } else if (position.X < 78) {
+          // Left
           map->ChangeScene(Direction::Left);
-          player->SetPosition(830 - size.Width, position.Y - size.Height / 2);
-          sceneChanged = true;
-        }
-        // Right
-        if (position.X > 850) {
+          newPosition = Point(830 - size.Width, position.Y - size.Height / 2);
+        } else if (position.X > 850) {
+          // Right
           map->ChangeScene(Direction::Right);
-          player->SetPosition(104, position.Y - size.Height / 2);
-          sceneChanged = true;
+          newPosition = Point(104, position.Y - size.Height / 2);
         }
 
-
-        if (sceneChanged) {
+        if (!position.Equals(newPosition)) {
+          player->SetPosition(newPosition);
+          for each (Ally ^ ally in allies) {
+            ally->SetPosition(newPosition);
+          }
           // O^2 = Too slow, too much CPU
           // Didn't have time to optimize it
           mapGrid->UpdateNodes(GetWalkableLayer(map->GetCurrentScene()));
@@ -270,7 +266,7 @@ public:
     if (allies == nullptr)
       return;
 
-    Node^ playerNode = mapGrid->GetNodeFromWorldPoint(player->GetPosition());
+    Node^ playerNode = mapGrid->GetNodeFromWorldPoint(player->Position);
     List<Node^>^ playerNeighbours = mapGrid->GetNeighbours(playerNode);
 
     if (allies->Count > 0) {
@@ -283,7 +279,7 @@ public:
     }
 
     // We must reset the pathfinders of the entities from the map
-    map->GetCurrentScene()->ResetPathfinders(mapGrid, playerNeighbours, player->GetPosition(), allies);
+    map->GetCurrentScene()->ResetPathfinders(mapGrid, playerNeighbours, player->Position, allies);
   }
 
   property Messagebox^ MsgBox {
