@@ -2,10 +2,6 @@
 
 Trabajo parcial del curso de Algoritmos y Estructuras de Datos de la carrera de Ingeniería de Software de la UPC. Este proyecto se basa en el proyecto original, Zion Escape, el cual se puede encontrar [en este enlace](https://github.com/dalbitresb12/zion-escape).
 
-## Objetivo del trabajo 🚀
-
-- TODO
-
 ## Pre-Requisitos 📋
 
 - [_Microsoft Visual Studio 2019_](https://visualstudio.microsoft.com/) - _Community/Professional/Enterprise_
@@ -25,11 +21,11 @@ Para compilar el proyecto, se debe iniciar la compilación después de cargar la
 
 - Diego Albitres Blondet - ([GitHub](https://github.com/dalbitresb12))
 - Ángel Omar Meneses Torres - ([GitHub](https://github.com/amenes12))
-- Victor Andres Orihuela Schanks
+- Victor Andres Orihuela Schanks - ([GitHub](https://github.com/paredpiso))
 
 Es importante también mencionar a dos autores del proyecto original que, aunque no hayan contribuido directamente en este nuevo proyecto, ambos formaron parte de la creación de la idea original y de partes de código que fueron tomadas del proyecto original.
 
-- Yamile del Rocio Izaguirre Braul - ([GitHub](https://github.com/IzaYam))
+- Yamilé del Rocio Izaguirre Braul - ([GitHub](https://github.com/IzaYam))
 - Franco Galindo Alvarez - ([GitHub](https://github.com/FrowsyFrog))
 
 ## Licencia 📄
